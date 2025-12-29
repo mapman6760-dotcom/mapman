@@ -54,8 +54,13 @@ app.use(function (req, res, next) {
 
 const AppConfig = config.mode === "production" ? config.production : config.development;
 setup(AppConfig).then((config) => {
-    app.listen(config.server.port);
-    Logger.info(chalk.yellow(`${config.database.appName} API Listening ✔️ ✔️ ✔️ `));
+    const PORT = process.env.PORT || config.server.port || 3000;
+
+    app.listen(PORT, () => {
+        Logger.info(
+          chalk.yellow(`${config.database.appName} API Listening on port ${PORT} ✔️ ✔️ ✔️`)
+        );
+    });
 }).catch((error) => {
     Logger.error(JSON.stringify(error));
     process.abort();
