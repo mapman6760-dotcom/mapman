@@ -17,29 +17,6 @@ dotenv.config();
 
 //image files
 
-//original storage path
-const imageStorageEngine = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, "/assets/originals/" + moment().format('DD-MM-YYYY'));
-    if (!fs.existsSync(dir)) {
-      shelljs.mkdir("-p", dir);
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname)?.toLowerCase();
-    //customized original file name
-    cb(null, "ORG-" + Date.now() + ext);
-  },
-});
-
-
-const upload = multer({
-  storage: imageStorageEngine,
-  limits: { fileSize: 10 * 1024 * 1024, },//10mb
-  fileFilter: function (req, file, callback) { checkFileType(file, callback); },
-});
-
 export const uploader = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -184,32 +161,42 @@ export const videoResizer = async (req, res, next) => {
 
 
 export const Resizer = async (req, res, next) => {
-  upload.single("image")(req, res, async function (error) {
+  uploader.single("image")(req, res, async (error) => {
     if (error) {
-      return res.status(400).json({
-        Error: error,
-      });
-    } else {
-      req.image = req?.file?.path || null;
-      if (req.image) {
-        const ext = path.extname(req?.file?.originalname)?.toLowerCase();
-        let imagename = "IMG-" + Date.now() + ext;
-        let compressedImage = path.join(__dirname, "/assets/compressed/images/", imagename);
-        await sharp(req.image).resize(500).png({
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (!req.file) {
+      req.image = null;
+      return next();
+    }
+
+    try {
+      const outputDir = path.join(__dirname, "/assets/compressed/images/");
+      fs.mkdirSync(outputDir, { recursive: true });
+
+      const filename = `IMG-${Date.now()}.png`;
+      const finalPath = path.join(outputDir, filename);
+
+      await sharp(req.file.buffer)
+        .resize(500)
+        .png({
           quality: 80,
           chromaSubsampling: "4:4:4",
-        }).toFile(compressedImage);
-        const fileCreated = fs.existsSync(path.join(__dirname, "/assets/compressed/images/", imagename));
-        if (fileCreated) {
-          req.image = "/images/" + imagename;
-        } else {
-          return "Failed to upload the image";
-        }
-      }
+        })
+        .toFile(finalPath);
+
+      req.image = `/images/${filename}`;
+      next();
+    } catch (err) {
+      return res.status(500).json({
+        error: "Image processing failed",
+        details: err.message,
+      });
     }
-    next();
   });
 };
+
 
 // export const GeneralResizer = async (req, res, next) => {
 
