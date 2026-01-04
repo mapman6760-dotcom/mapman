@@ -189,9 +189,10 @@ appMiddleware.App = {
                             msgStatus: "accepted",
                             msgLink: registerShop.id,
                             // msgLink: '/notifications',
-                          };                       
-                          if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
+                        };                       
+                        if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
                             const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                            
                             if (checkExists == true) {
                               await FirebaseService.sendNotifications(notify);
                               return "Shop registered successfully"
@@ -205,14 +206,15 @@ appMiddleware.App = {
                             return "Shop registered successfully"
                           }
                     } else {
-                        const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                        if (checkExists == true) {
-                          await FirebaseService.sendNotifications(notify);
-                          return "Shop registered successfully"
-                        }
-                        else {
-                            return "Shop registered successfully"
-                        }
+                        // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                        // if (checkExists == true) {
+                        //   await FirebaseService.sendNotifications(notify);
+                        //   return "Shop registered successfully"
+                        // }
+                        // else {
+                        //     return "Shop registered successfully"
+                        // }
+                        return "Shop registered successfully"
                     }
                 } else {
                     throw Error.InternalError("Failed to register the shop")
@@ -230,8 +232,8 @@ appMiddleware.App = {
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                 if(checkShop.id==query.shopId)
                 {
-                  const shopUpdate = await appDbController.Shop.deleteShop(token, query)                
-                if (shopUpdate != null && shopUpdate != undefined ) {
+                const shopUpdate = await appDbController.Shop.deleteShop(token, query)                
+                    if (shopUpdate != null && shopUpdate != undefined) {
                     return shopUpdate
                 }
                 else {
@@ -349,14 +351,15 @@ appMiddleware.App = {
                             return "Video uploaded"
                           }
                     } else {
-                        const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                        if (checkExists == true) {
-                          await FirebaseService.sendNotifications(notify);
-                          return "Video uploaded"
-                        }
-                        else {
-                            return "Video uploaded"
-                        }
+                        // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                        // if (checkExists == true) {
+                        //   await FirebaseService.sendNotifications(notify);
+                        //   return "Video uploaded"
+                        // }
+                        // else {
+                        //     return "Video uploaded"
+                        // }
+                        return "Video uploaded"
                     }
                 }
                 else {
@@ -513,87 +516,99 @@ appMiddleware.App = {
             const checkVideoUser=await appDbController.Profile.getProfile(checkVideo.profileId)
             if (checkVideoUser!=null&&checkVideoUser!=undefined&&Object.keys(checkVideoUser).length!=0)
             {
-                const checkVideoUserPreference = await appDbController.Notifications.fetchNotificationPreference(checkVideoUser.id)
-                //Notification preference true
-               if(checkVideoUserPreference!=null&&checkVideoUserPreference!=undefined&&checkVideoUserPreference.enableNotifications!=false&&checkVideoUserPreference.savedVideo!=false){ 
-                let videoCreated = moment(checkVideo.createdAt).fromNow();
-                let msg
-                let msgDesc
-                if(body.status=="active")
-                {
-                    msg = "saved"
-                    msgDesc=`${capitalize(fetchUser.userName)} saved the video you uploaded ${videoCreated}`
-                }
-                else {
-                    msg = "was removed from the saved list."
-                    msgDesc=`${capitalize(fetchUser.userName)} remove the video from the saved list you uploaded ${videoCreated}`
-                }
-                const uniqueTokens = checkVideoUser.fcmToken ? Array.from(JSON.parse(checkVideoUser.fcmToken)) : [];
-                var notify = {
-                    userId: checkVideoUser.id,
-                    token: uniqueTokens,
-                    title: `Your video was ${msg}`,
-                    msgDesc: msgDesc,
-                    msgImage:checkVideo.video,
-                    msgType: "saveVideo",
-                    msgStatus: "accepted",
-                    msgLink: body.videoId,
-                };           
+            //     const checkVideoUserPreference = await appDbController.Notifications.fetchNotificationPreference(checkVideoUser.id)
+            //     //Notification preference true
+            //    if(checkVideoUserPreference!=null&&checkVideoUserPreference!=undefined&&checkVideoUserPreference.enableNotifications!=false&&checkVideoUserPreference.savedVideo!=false){
+            //     let videoCreated = moment(checkVideo.createdAt).fromNow();
+            //     let msg
+            //     let msgDesc
+            //     if(body.status=="active")
+            //     {
+            //         msg = "saved"
+            //         msgDesc=`${capitalize(fetchUser.userName)} saved the video you uploaded ${videoCreated}`
+            //     }
+            //     else {
+            //         msg = "was removed from the saved list."
+            //         msgDesc=`${capitalize(fetchUser.userName)} remove the video from the saved list you uploaded ${videoCreated}`
+            //     }
+            //     const uniqueTokens = checkVideoUser.fcmToken ? Array.from(JSON.parse(checkVideoUser.fcmToken)) : [];
+            //     var notify = {
+            //         userId: checkVideoUser.id,
+            //         token: uniqueTokens,
+            //         title: `Your video was ${msg}`,
+            //         msgDesc: msgDesc,
+            //         msgImage:checkVideo.video,
+            //         msgType: "saveVideo",
+            //         msgStatus: "accepted",
+            //         msgLink: body.videoId,
+            //     };
+            //     const checkSave = await appDbController.Shop.checkSaveVideos(token, body)
+            //     if (checkSave != null && checkSave != undefined && Object.keys(checkSave).length != 0) {
+            //     const updateVideos = await appDbController.Shop.updateSaveVideos(token,body)
+            //         // return updateVideos
+            //         if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length > 0) {
+            //             const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
+            //             if (checkExists == true) {
+            //               await FirebaseService.sendNotifications(notify);
+            //               return updateVideos
+            //             }
+            //             else {
+            //               return updateVideos
+            //             }
+            //         }
+            //         else {
+            //             const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
+            //             return updateVideos
+            //         }
+            //     } else {
+            //     const saveVideos = await appDbController.Shop.saveVideos(token,body)
+            //     if (saveVideos != null && saveVideos != undefined && Object.keys(saveVideos).length != 0) {
+            //         // return "Video saved"
+            //         if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length > 0) {
+            //             const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
+            //             if (checkExists == true) {
+            //               await FirebaseService.sendNotifications(notify);
+            //               return "Video saved"
+            //             }
+            //             else {
+            //               return "Video saved"
+            //             }
+            //         }
+            //           else {
+            //             const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
+            //             return "Video saved"
+            //         }
+            //     } else {
+            //        throw Error.InternalError("Failed to save the viďoe")
+            //     }
+            //     }
+            //    }
+            //     //Notification preference false
+            //    else {
+            //     const checkSave = await appDbController.Shop.checkSaveVideos(token, body)
+            //        if (checkSave != null && checkSave != undefined && Object.keys(checkSave).length != 0) {
+            //            const updateVideos = await appDbController.Shop.updateSaveVideos(token, body)
+            //            return updateVideos
+            //        } else {
+            //            const saveVideos = await appDbController.Shop.saveVideos(token, body)
+            //            if (saveVideos != null && saveVideos != undefined && Object.keys(saveVideos).length != 0) {
+            //                return "Video saved"
+            //            } else {
+            //                throw Error.InternalError("Failed to save the viďoe")
+            //            }
+            //        }
+                //     }
                 const checkSave = await appDbController.Shop.checkSaveVideos(token, body)
                 if (checkSave != null && checkSave != undefined && Object.keys(checkSave).length != 0) {
-                const updateVideos = await appDbController.Shop.updateSaveVideos(token,body)
-                    // return updateVideos
-                    if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length > 0) {
-                        const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
-                        if (checkExists == true) {
-                          await FirebaseService.sendNotifications(notify);
-                          return updateVideos
-                        }
-                        else {
-                          return updateVideos
-                        }
-                    }
-                    else {
-                        const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
-                        return updateVideos
-                    }
+                    const updateVideos = await appDbController.Shop.updateSaveVideos(token, body)
+                    return updateVideos
                 } else {
-                const saveVideos = await appDbController.Shop.saveVideos(token,body)
-                if (saveVideos != null && saveVideos != undefined && Object.keys(saveVideos).length != 0) {
-                    // return "Video saved"
-                    if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length > 0) {
-                        const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
-                        if (checkExists == true) {
-                          await FirebaseService.sendNotifications(notify);
-                          return "Video saved"
-                        }
-                        else {
-                          return "Video saved"
-                        }
-                    }
-                      else {
-                        const [fetch, checkExists] = await appDbController.Notifications.addPushMessage(notify);
+                    const saveVideos = await appDbController.Shop.saveVideos(token, body)
+                    if (saveVideos != null && saveVideos != undefined && Object.keys(saveVideos).length != 0) {
                         return "Video saved"
+                    } else {
+                        throw Error.InternalError("Failed to save the viďoe")
                     }
-                } else {
-                   throw Error.InternalError("Failed to save the viďoe")
-                } 
-                }
-               }
-                //Notification preference false
-               else {
-                const checkSave = await appDbController.Shop.checkSaveVideos(token, body)
-                   if (checkSave != null && checkSave != undefined && Object.keys(checkSave).length != 0) {
-                       const updateVideos = await appDbController.Shop.updateSaveVideos(token, body)
-                       return updateVideos
-                   } else {
-                       const saveVideos = await appDbController.Shop.saveVideos(token, body)
-                       if (saveVideos != null && saveVideos != undefined && Object.keys(saveVideos).length != 0) {
-                           return "Video saved"
-                       } else {
-                           throw Error.InternalError("Failed to save the viďoe")
-                       }
-                   }
                 }
             } else {
                 return "This shop profile user not active"
@@ -609,7 +624,7 @@ appMiddleware.App = {
     mySavedVideos: async ({ token }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const myVideos = await appDbController.Shop.myVideos(token)
+            const myVideos = await appDbController.Shop.mySavedVideos(token)
             if (myVideos != null && myVideos != undefined && Object.keys(myVideos).length != 0) {
                 const videoViews = await appDbController.Shop.videoCounts(myVideos)
                 if (videoViews != null && videoViews != undefined) {
@@ -627,6 +642,42 @@ appMiddleware.App = {
     },
 
     viewedVideos: async ({ token, body }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const checkVideo = await appDbController.Shop.checkVideoById(body)
+            if (checkVideo != null && checkVideo != undefined && Object.keys(checkVideo).length != 0) {
+                if (checkVideo.profileId != token) {
+                    const checkViewedVideos = await appDbController.Shop.checkViewedVideos(token, body)
+                    if (checkViewedVideos != null && checkViewedVideos != undefined && Object.keys(checkViewedVideos).length != 0) {
+                      return "Video already viewed"
+                    } else {         
+                              let points=Number(fetchUser.points)+Number(2)
+                              const viewedVideos = await appDbController.Shop.viewedVideos(token,body)
+                              if (viewedVideos != null && viewedVideos != undefined && Object.keys(viewedVideos).length != 0) {
+                                  const pointsUpdate = await appDbController.Shop.pointsUpdate(token, points)
+                                  if (pointsUpdate != null && pointsUpdate != undefined && pointsUpdate[0] != 0) {
+                                      return "Video viewed and points added"
+                                  }else{
+                                      throw Error.InternalError("Failed to update the points")
+                                  }
+                              } else {
+                                 throw Error.InternalError("Failed to view the viďeo")
+                              }                          
+                    } 
+                } else {
+                    return "Video already viewed"
+                }
+            }
+            else{
+                return "Video not found"
+             }   
+        }else {
+            return "Profile not found";
+        }
+
+    },
+
+    addPoints: async ({ token, body }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkVideo = await appDbController.Shop.checkVideoById(body)
@@ -710,6 +761,8 @@ appMiddleware.App = {
     },
 
     home: async ({ token }) => {
+        let reviewAdded
+ 
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             let category = await appDbController.Profile.fetchCategory(token)
@@ -718,10 +771,17 @@ appMiddleware.App = {
             } else {
                 category=[]
             }
+            const checkReview = await appDbController.Shop.checkReview(token)
+            if (checkReview != null && checkReview != undefined && Object.keys(checkReview).length != 0) {
+                reviewAdded=true
+            } else {
+                reviewAdded = false
+            }
             return {
                 profile: fetchUser.profilePic,
                 userName: fetchUser.userName,
                 category: category,
+                reviewStatus:reviewAdded
            } 
         } else {
             return "Profile not found";
@@ -807,7 +867,7 @@ appMiddleware.App = {
         }
         },
     
-      notificationOpenStatus: async ({ token,query }) => {
+    notificationOpenStatus: async ({ token, query }) => {
         const checkUser = await appDbController.Profile.getProfile(token);
         if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
           let notifications = await appDbController.Notifications.notificationById(token,query);
@@ -827,18 +887,39 @@ appMiddleware.App = {
           return "User not found"
         }
       },
-    
-    
+        
       notificationCount: async ({ token }) => {
         const checkUser = await appDbController.Profile.getProfile(token);
         if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
-            const notificationCount=await appDbController.Notifications.notificationCount(token)
-          if (notificationCount != null && notificationCount != undefined && Object.keys(notificationCount).length != 0) {
+            const notificationCount = await appDbController.Notifications.notificationCount(token)
+          if (notificationCount != null && notificationCount != undefined ) {
              return notificationCount
           }
           else {
             return 0
           }
+        }
+        else {
+          return "User not found"
+        }
+      },
+    
+        
+      addReview: async ({ token,body }) => {
+        const checkUser = await appDbController.Profile.getProfile(token);
+          if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+                  const checkReview = await appDbController.Shop.checkReview(token)
+                  if (checkReview != null && checkReview != undefined && Object.keys(checkReview).length != 0) {
+                      return "Your review already added"
+                  } else {
+                      const addReviews = await appDbController.Shop.addReview(token, body)
+                      if (addReviews != null && addReviews != undefined && Object.keys(addReviews).length != 0) {
+                          return "Review added"
+                      }
+                      else {
+                          throw Error.InternalError("Failed to add review")
+                      }
+                  }     
         }
         else {
           return "User not found"

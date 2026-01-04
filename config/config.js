@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const mode = process.env.NODE_ENV;
-
 export const development = {
   database: {
     appName: process.env.APP_NAME,
@@ -29,5 +28,3 @@ export const production = {
     port: process.env.PORT,
   },
 };
-
-

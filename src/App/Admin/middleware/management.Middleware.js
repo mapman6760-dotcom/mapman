@@ -57,4 +57,15 @@ managementMiddleware.Management = {
        return "Caterogies not found"
     }
   },
+
+  getShop: async ({query}) => {
+    const getShop = await adminDbController.Category.getShop(query)
+    if (getShop != null && getShop != undefined && Object.keys(getShop).length != 0) {
+      return getShop
+    } else {
+       return "Shops not found"
+    }
+  },
+
+
 }

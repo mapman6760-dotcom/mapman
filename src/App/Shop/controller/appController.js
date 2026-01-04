@@ -352,6 +352,21 @@ appController.App = {
             });
     },
 
+    addPoints: async (req, res) => {
+        appMiddleware.App.addPoints(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
     fetchMyViewedVideos: async (req, res) => {
         appMiddleware.App.fetchMyViewedVideos(req)
             .then((data) => {
@@ -399,6 +414,21 @@ appController.App = {
 
     deleteAccount: async (req, res) => {
         appMiddleware.App.deleteAccount(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    addReview: async (req, res) => {
+        appMiddleware.App.addReview(req)
             .then((data) => {
                 const response = ApplicationResult.forCreated();
                 var statuscode = 0;

@@ -2,11 +2,11 @@ import { Router } from "express";
 import { appAuthenticate } from "../controller/authController.js";
 import { appController } from "../controller/appController.js";
 import * as Uploaders from "../../../Core/utils/imageResizer.js"
-import {uploader} from "../../../Core/utils/imageResizer.js"
+import { uploader } from "../../../Core/utils/imageResizer.js"
+
 const appRouter = Router();
 
 appRouter.post("/addNewCategory", appAuthenticate,appController.App.addNewCategory);
-
 
 appRouter.post("/updateProfile", appAuthenticate,Uploaders.Resizer, appController.App.updateProfile);
 appRouter.get("/getProfile", appAuthenticate, Uploaders.Resizer, appController.App.getProfile);
@@ -48,6 +48,7 @@ appRouter.post("/saveOthersVideos", appAuthenticate,appController.App.saveVideos
 appRouter.get("/fetchMySavedVideos", appAuthenticate, appController.App.mySavedVideos);
 
 appRouter.post("/viewedVideos", appAuthenticate ,appController.App.viewedVideos);
+appRouter.post("/addPoints", appAuthenticate ,appController.App.addPoints);
 appRouter.get("/fetchMyViewedVideos", appAuthenticate, appController.App.fetchMyViewedVideos);
 
 appRouter.get("/home", appAuthenticate, appController.App.home);
@@ -55,6 +56,8 @@ appRouter.get("/home", appAuthenticate, appController.App.home);
 appRouter.get("/fetchPoints", appAuthenticate ,appController.App.points);
 
 appRouter.get("/deleteAccount", appAuthenticate, appController.App.deleteAccount);
+
+appRouter.post("/addReview", appAuthenticate, appController.App.addReview)
 
 appRouter.post("/notificationPreference",appAuthenticate,appController.App.notificationPreference)
 appRouter.get("/fetchNotificationPreference", appAuthenticate, appController.App.fetchNotificationPreference)
