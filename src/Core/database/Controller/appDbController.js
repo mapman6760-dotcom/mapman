@@ -201,7 +201,7 @@ appDbController.Auth = {
       return await appDbController.Models.otpLogs.create({
         userId: data.id,
         userName: data.userName,
-        phone: "91" + data.phoneNumber,
+        phone: data.phone,
         requestId: data.requestId,
         type: data.type,
         msgType: data.msgType,
@@ -438,6 +438,33 @@ appDbController.Profile = {
 
 appDbController.Shop = {
   
+  addReview:async (token,data) => {
+    try {
+      return await appDbController.Models.reviews.create({
+          userId: token,
+          reviews:data.reviews,
+          status:"active"
+        
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
+  checkReview:async (token) => {
+    try {
+      return await appDbController.Models.reviews.findOne({
+        where: {
+          userId: token,
+          status:"active"
+        },
+         raw:true        
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
   getShop: async (token) => {
     try {
       return await appDbController.Models.shop.findOne({
@@ -550,6 +577,7 @@ appDbController.Shop = {
         status:"active"
        })
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -588,6 +616,7 @@ appDbController.Shop = {
         throw Error.InternalError("Failed to update shop details")
       }
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -651,6 +680,7 @@ appDbController.Shop = {
 
   deleteShop: async (token,data)=>{
     try {
+      let update1
       const update= await appDbController.Models.shop.update(
         {
         status:"inactive"
@@ -663,23 +693,37 @@ appDbController.Shop = {
           }
         }
       )
-      const update1 = await appDbController.Models.video.update(
+      const checkVideo = await appDbController.Models.video.findAll({
+        where:
         {
-        status:"inactive"
-        },
-        {
-          where: {
-            profileId: token,
-            shopId: data.shopId,
-            status:"active"
-          }
-        } )
+          profileId: token,
+          shopId: data.shopId,
+          status: "active"
+        }
+      })
+      if (checkVideo != null && checkVideo != undefined && checkVideo.length != 0) {
+       update1= await appDbController.Models.video.update(
+          {
+          status:"inactive"
+          },
+          {
+            where: {
+              profileId: token,
+              shopId: data.shopId,
+              status:"active"
+            }
+          })
+      } else {
+         update1=1
+      }
+     
         if (update[0] != 0 && update1[0] != 0) {
           return "Shop deleted"
         } else {
           throw Error.InternalError("Failed to delete the shop")
         }   
     } catch (error) {
+      console.log(error)
        return null
     };
   },
@@ -771,7 +815,7 @@ appDbController.Shop = {
       }
   },
     
-  myVideos: async (token) => {
+  mySavedVideos: async (token) => {
     try {
       const myVideos= await appDbController.Models.saveVideos.findAll({
         where: {
@@ -788,8 +832,37 @@ appDbController.Shop = {
         },
         raw: true,
       })
+      for (let i = 0; i < mySavedVideos.length; i++){
+        let viewedVideos = await appDbController.Models.viewedVideos.findOne({
+          where: {
+            userId: mySavedVideos[i].profileId,
+            videoId: mySavedVideos[i].id,
+            status:"active"            
+          }
+        })
+        if (viewedVideos != null) {
+          mySavedVideos[i].watched=true
+        } else {
+          mySavedVideos[i].watch=false
+        }
+        mySavedVideos[i].savedAlready=true
+      }
+      for (let i = 0; i < mySavedVideos.length; i++){
+        let shopDetails = await appDbController.Models.shop.findOne({
+          where: {
+            id:mySavedVideos[i].shopId,
+            status:"active"            
+          }
+        })
+        if (shopDetails != null) {
+          mySavedVideos[i].whatsappNumber=shopDetails.whatsappNumber
+        } else {
+          mySavedVideos[i].whatsappNumber=shopDetails.whatsappNumber
+        }
+      }
       return mySavedVideos
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -956,6 +1029,18 @@ appDbController.Shop = {
         },
         raw: true,
       })
+      for (let i = 0; i < mySavedVideos.length; i++){
+        let shopDetails = await appDbController.Models.shop.findOne({
+        where: {
+          id: mySavedVideos[i].shopId,
+          status:"active"
+        },
+        raw: true,
+        })
+        console.log("shopDetails ",shopDetails)
+        mySavedVideos[i].whatsappNumber=shopDetails.whatsappNumber
+      }
+      
         for (let i = 0; i < mySavedVideos.length; i++){
           let savedVideos = await appDbController.Models.saveVideos.findOne({
             where: {
@@ -969,6 +1054,7 @@ appDbController.Shop = {
           } else {
             mySavedVideos[i].savedAlready=false
           }
+          mySavedVideos[i].watched=true
         }  
       return mySavedVideos
     } catch (error) {
@@ -1022,12 +1108,13 @@ appDbController.Shop = {
 
   search: async (token, data) => {
     try {
+    
       if (data.input == "all"){
         return await appDbController.Models.shop.findAll({
           where: {
-            profileId: {
-              [Op.ne]: token
-            },
+            // profileId: {
+            //   [Op.ne]: token
+            // },
               status: "active",
           }
           });
@@ -1035,16 +1122,18 @@ appDbController.Shop = {
       else{
         return await appDbController.Models.shop.findAll({
         where: {
-          profileId: {
-            [Op.ne]: token
-          },
+          // profileId: {
+          //   [Op.ne]: token
+          // },
           [Op.or]: [
             { shopName: { [Op.like]: `%${data.input}%` } },
-            { category: { [Op.like]: `%${data.category}%`||`%${data.input}%` } },
+            { category: { [Op.like]: `%${data.input}%` } },
+            // { category: { [Op.like]: `%${data.category}%`||`%${data.input}%` } },
             { description: { [Op.like]: `%${data.input}%` } }
             ],
             status: "active",
-        }
+          },
+          raw:true
         });
       }    
     } catch (error) {
@@ -1093,7 +1182,7 @@ appDbController.Notifications = {
         raw: true,
         attributes:["fcmToken"]
       })
-      return {preferenceMatchedUsers:preferenceMatchedUsers,ids:ids}
+      return { preferenceMatchedUsers:preferenceMatchedUsers,ids:ids }
     } catch (error) {
       throw Error.SomethingWentWrong();
     }
@@ -1192,6 +1281,7 @@ appDbController.Notifications = {
         raw: true
       });
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -1254,8 +1344,15 @@ appDbController.Notifications = {
         msgType: data.msgType,
         msgStatus: data.msgStatus,
       }));
-      return await appDbController.Models.pushMessaging.bulkCreate(payload);
+      // return await appDbController.Models.pushMessaging.bulkCreate(payload);
+      const records = await appDbController.Models.pushMessaging.bulkCreate(payload);
+
+      // Boolean flag
+      const checkExists = records.length > 0;
+    
+      return [records, checkExists];
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -1295,6 +1392,26 @@ appDbController.Notifications = {
     } catch (error) {
       return null
     }
-  }
+  },
+
+  addReview: async (token, data) => {
+    try {
+      return await appDbController.Models.pushMessaging.update(
+        {
+          openStatus: "opened"
+        },
+        {
+          where: {
+            userId: token,
+            id:data.notificationId
+          },
+        }
+      );
+    } catch (error) {
+      return null
+    }
+  },
+
+
 }
 

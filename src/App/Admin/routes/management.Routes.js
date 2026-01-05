@@ -14,6 +14,7 @@ managementRouter.get("/getCategory", adminAuthenticate, ManagementController.Man
 
 managementRouter.post("/addCategoryVideo",adminAuthenticate,Upload.videoResizer,ManagementController.Management.addCategoryVideo);
 managementRouter.get("/getCategoryVideos",adminAuthenticate,ManagementController.Management.getCategoryVideo);
+managementRouter.get("/getShop",adminAuthenticate,ManagementController.Management.getShop);
 
 
 export { managementRouter }

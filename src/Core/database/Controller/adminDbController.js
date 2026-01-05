@@ -286,6 +286,19 @@ adminDbController.Category = {
     }
   },
 
+  getShop: async (data) => {
+    try {
+      return await adminDbController.Models.shop.findAll({
+        where: {
+          status:data.status
+        },
+      raw:true
+      })
+    } catch (error) {
+      return null;
+    }
+  },
+
   getCategoryById: async (data) => {
     try {
       return await adminDbController.Models.category.findOne({
