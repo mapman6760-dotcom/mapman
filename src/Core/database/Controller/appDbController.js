@@ -747,6 +747,30 @@ appDbController.Shop = {
     };
   },
 
+
+  fetchSavedShops: async (token,data) => {
+    try {
+      const savedShops= await appDbController.Models.saveShop.findAll({
+        where: {
+          userId: token,
+          status:"active"
+        },raw:true
+      })
+      let ids = savedShops.map(v => v.shopId)
+      let shopsDetails = await appDbController.Models.shop.findAll({
+        where: {
+          id: { [Op.in]: ids },
+          status:"active"
+        }, raw: true,
+        limit:data.limit
+      })
+      return shopsDetails
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
   fetchVideo: async (token) => {
     try {
       return await appDbController.Models.video.findAll({
@@ -760,7 +784,7 @@ appDbController.Shop = {
     }
   },
    
-  allVideos: async (token,data) => {
+  allVideos: async (token,data,limit) => {
      try {
         let allVideos= await appDbController.Models.video.findAll({
           where: {
@@ -769,7 +793,8 @@ appDbController.Shop = {
             },
             category:data.category,
             status:"active"
-          },raw:true
+          }, raw: true,
+          limit:limit
         })
        for (let i = 0; i < allVideos.length; i++){
          let details = await appDbController.Models.shop.findOne({
@@ -810,12 +835,13 @@ appDbController.Shop = {
           }
         }       
         return allVideos
-      } catch (error) {
+     } catch (error) {
+       console.log(error)
           return null
       }
   },
     
-  mySavedVideos: async (token) => {
+  mySavedVideos: async (token,data) => {
     try {
       const myVideos= await appDbController.Models.saveVideos.findAll({
         where: {
@@ -831,6 +857,7 @@ appDbController.Shop = {
           status:"active"
         },
         raw: true,
+        limit:data.limit
       })
       for (let i = 0; i < mySavedVideos.length; i++){
         let viewedVideos = await appDbController.Models.viewedVideos.findOne({
@@ -990,6 +1017,70 @@ appDbController.Shop = {
     }
   },
 
+  checkSavedShop: async (token, data) => {
+    try {
+      return await appDbController.Models.saveShop.findOne({
+        where:
+        {
+        userId: token,
+        shopId: data.shopId,
+        status: "active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  checkShop: async (token, data) => {
+    try {
+      return await appDbController.Models.saveShop.findOne({
+        where:
+        {
+        userId: token,
+        shopId: data.shopId,
+        // status: "active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  saveShop: async (token, data) => {
+    try {
+      return await appDbController.Models.saveShop.create({
+        userId: token,
+        shopId: data.shopId,
+        status:"active"
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  updateSaveShop: async (token, data) => {
+    try {
+      const update = await appDbController.Models.saveShop.update(
+        {
+        status:data.status
+      },
+      {
+        where: {
+          userId: token,
+          shopId:data.shopId
+        }
+        })
+      if (update[0] != 0) {
+        return "Updated"
+      } else {
+        throw Error.InternalError("Failed to update")
+      }
+    } catch (error) {
+      return null
+    }
+  },
+
   updateSaveVideos: async (token, data) => {
     try {
       const update = await appDbController.Models.saveVideos.update(
@@ -1012,7 +1103,7 @@ appDbController.Shop = {
     }
   },
 
-  fetchMyViewedVideos: async (token) => {
+  fetchMyViewedVideos: async (token,data) => {
     try {
       const myVideos= await appDbController.Models.viewedVideos.findAll({
         where: {
@@ -1028,6 +1119,7 @@ appDbController.Shop = {
           status:"active"
         },
         raw: true,
+        limit:data.limit
       })
       for (let i = 0; i < mySavedVideos.length; i++){
         let shopDetails = await appDbController.Models.shop.findOne({
@@ -1058,6 +1150,7 @@ appDbController.Shop = {
         }  
       return mySavedVideos
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -1255,21 +1348,38 @@ appDbController.Notifications = {
     }
   },
 
-  fetchNotifications: async (data) => {
-    try {
-      return await appDbController.Models.pushMessaging.findAll({
-        where: {
-          userId: data,
-        },
-        raw: true,
-        attributes: {
-          exclude:["updatedAt"]
-        }
-      });
-    } catch (error) {
-      return null
-    }
+  // fetchNotifications: async (data) => {
+  //   try {
+  //     return await appDbController.Models.pushMessaging.findAll({
+  //       where: {
+  //         userId: data,
+  //       },
+  //       raw: true,
+  //       attributes: {
+  //         exclude:["updatedAt"]
+  //       }
+  //     });
+  //   } catch (error) {
+  //     return null
+  //   }
+  // },
+  fetchNotifications: async (token,data) => {
+  try {
+    return await appDbController.Models.pushMessaging.findAll({
+      where: {
+        userId:token
+      },
+      raw:true,
+      limit: data.limit,
+      // offset: data.offset,
+      order: [["createdAt", "DESC"]],
+    });
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
   },
+
 
   notificationCount: async (data) => {
     try {

@@ -28,6 +28,9 @@ appRouter.post("/shopRegister", appAuthenticate,uploader.fields([
 ]), Uploaders.GeneralResizer, appController.App.shopRegister);
 
 appRouter.post("/deleteShopImage", appAuthenticate, appController.App.deleteShopImage)
+
+appRouter.post("/saveShop", appAuthenticate, appController.App.saveShop)
+appRouter.get("/fetchSavedShops", appAuthenticate, appController.App.fetchSavedShop)
   
 appRouter.get("/fetchShop", appAuthenticate, appController.App.fetchShop);
   
@@ -66,5 +69,7 @@ appRouter.get("/notificationsReadStatus", appAuthenticate, appController.App.not
 appRouter.get("/fetchNotifications", appAuthenticate, appController.App.fetchNotifications);
 appRouter.get("/notificationCount", appAuthenticate, appController.App.notificationCount);
 appRouter.get("/notificationOpenStatus", appAuthenticate, appController.App.notificationOpenStatus);
+
+
 
 export { appRouter };
