@@ -51,9 +51,9 @@ app.get("/", async (req, res) => {
 app.use(function (req, res, next) {
     res.status(404).render("404", { message: "Unable to find the requested resource", name: process.env.APP_NAME });
 });
-console.log("config ",config.mode)
 const AppConfig = config.mode === "production" ? config.production : config.development;
-console.log("app ",AppConfig)
+// console.log("config mode   ",config.mode)
+// console.log("app ",AppConfig)
 setup(AppConfig).then((config) => {
     const PORT = process.env.PORT || config.server.port || 3000;
 

@@ -19,6 +19,8 @@ export const connection = new Sequelize({
 
 
 //Declare & Assign Connection Variables
+
+
 // export const connection = new Sequelize({
 //     database: database.db_name,
 //     host: database.host,

@@ -283,14 +283,21 @@ appMiddleware.App = {
         }
     },
     
-    getShopById: async ({ token,body}) => {
+    getShopById: async ({ token, body }) => {
+        
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkShop = await appDbController.Shop.getShopById(body)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                 const shopVideos = await appDbController.Shop.shopVideos(body)
                 if (shopVideos != null && shopVideos != undefined && shopVideos.length != 0) {
-                    return {shop:checkShop,shopVideos:shopVideos}
+                    const savedShop = await appDbController.Shop.checkSavedShop(token, body)
+                    if (savedShop != null && savedShop != undefined && Object.keys(savedShop).length != 0) {
+                        return {shop:checkShop,shopVideos:shopVideos,shopSavedAlready:true}
+                    } else {
+                        return {shop:checkShop,shopVideos:shopVideos,shopSavedAlready:false}
+
+                    }
                 }
                 else {
                     return {shop:checkShop,shopVideos:[]}
@@ -298,6 +305,58 @@ appMiddleware.App = {
             } else {
                 return "Shop not found"
             }          
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    saveShop: async ({ token,body}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const checkShopById = await appDbController.Shop.getShopById(body)
+            if (checkShopById != null && checkShopById != undefined && Object.keys(checkShopById).length != 0) {
+                const checkShop = await appDbController.Shop.checkShop(token,body)
+                if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                const saveShop = await appDbController.Shop.updateSaveShop(token,body)
+                if (saveShop != null && saveShop != undefined && saveShop.length != 0) {
+                    return saveShop
+                }
+                else {
+                    throw Error.InternalError("Failed to update the shop")
+                    }
+                }
+                else {
+                const saveShop = await appDbController.Shop.saveShop(token,body)
+                if (saveShop != null && saveShop != undefined && saveShop.length != 0) {
+                    return "Shop saved"
+                }
+                else {
+                    throw Error.InternalError("Failed to save the shop")
+                }
+            } 
+            } else {
+                return "Shop not found"
+            }          
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    fetchSavedShop: async ({token,query}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+             const page = Number(query.page) || 1;
+            const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            const limit = page * pageSize;
+            let data = {
+                limit: limit,
+            }
+                const fetchSavedShops=await appDbController.Shop.fetchSavedShops(token,data)
+                if (fetchSavedShops != null && fetchSavedShops != undefined && (fetchSavedShops).length != 0) {
+                    return fetchSavedShops
+                } else {
+                    return []
+                }                        
         } else {
             return "Profile not found";
         }
@@ -480,7 +539,10 @@ appMiddleware.App = {
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             //const checkShop = await appDbController.Shop.getShop(token)
             // if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
-                let allVideos=await appDbController.Shop.allVideos(token,query)
+            const page = Number(query.page) || 1;
+            const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            const limit = page * pageSize;
+                let allVideos=await appDbController.Shop.allVideos(token,query,limit)
                 if (allVideos != null && allVideos != undefined && Object.keys(allVideos).length != 0) {
                     let videoViews = await appDbController.Shop.videoCounts(allVideos)
                     if (videoViews != null && videoViews != undefined) {
@@ -621,10 +683,16 @@ appMiddleware.App = {
         }
     },
 
-    mySavedVideos: async ({ token }) => {
+    mySavedVideos: async ({ token,query }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const myVideos = await appDbController.Shop.mySavedVideos(token)
+            const page = Number(query.page) || 1;
+            const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            const limit = page * pageSize;
+            let data = {
+                limit: limit,
+            }
+            const myVideos = await appDbController.Shop.mySavedVideos(token,data)
             if (myVideos != null && myVideos != undefined && Object.keys(myVideos).length != 0) {
                 const videoViews = await appDbController.Shop.videoCounts(myVideos)
                 if (videoViews != null && videoViews != undefined) {
@@ -713,10 +781,16 @@ appMiddleware.App = {
 
     },
 
-    fetchMyViewedVideos: async ({ token }) => {
+    fetchMyViewedVideos: async ({ token,query }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const myVideos = await appDbController.Shop.fetchMyViewedVideos(token)
+            const page = Number(query.page) || 1;
+            const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            const limit = page * pageSize;
+            let data = {
+                limit: limit,
+            }
+            const myVideos = await appDbController.Shop.fetchMyViewedVideos(token,data)
             if (myVideos != null && myVideos != undefined && Object.keys(myVideos).length != 0) {
                 const videoViews = await appDbController.Shop.videoCounts(myVideos)
                 if (videoViews != null && videoViews != undefined) {
@@ -843,17 +917,33 @@ appMiddleware.App = {
     }
     },
     
-    fetchNotifications: async ({ token}) => {
+    fetchNotifications: async ({token,query}) => {
         const checkUser = await appDbController.Profile.getProfile(token);
         if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
-          let notification = await appDbController.Notifications.fetchNotifications(token)       
-          if (notification != null && notification != undefined && notification.length != 0) {
-            for (let index = 0; index < notification.length; index++) {
+            const page = Number(query.page) || 1;
+            const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            const limit = page * pageSize;
+            let data = {
+                limit: limit,
+            }            
+            let notification = await appDbController.Notifications.fetchNotifications(token, data)  
+            if (notification != null && notification != undefined && notification.length != 0) {
+              for (let index = 0; index < notification.length; index++) {
               notification[index].createdAt = moment(notification[index].createdAt).fromNow();
-            }
+              }
               let readStatus = await appDbController.Notifications.notificationsReadStatus(token);
               if(readStatus!=null&&readStatus!=undefined&&readStatus[0]!=0)
-                  return notification
+              {
+                // return {
+                // success: true,
+                // currentPage: page,
+                // totalRecords: notification.count,
+                // totalPages: Math.ceil(notification.count / limit),
+                // data: notification,
+                   return notification
+
+                // }
+              }
               else {
                   return notification
               }

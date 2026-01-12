@@ -116,7 +116,7 @@ export const FirebaseService = {
     },
     
     sendNotifications: async (data) => {
-    try {
+      try {
       data.token = [...new Set(data.token)];
       await FirebaseService.notify(data.token, {
         title: data.title,

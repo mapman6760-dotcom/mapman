@@ -394,6 +394,32 @@ saveVideos.init(
   { sequelize: connection, freezeTableName: true }
 );
 
+class saveShop extends Model { }
+
+saveShop.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    shopId: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+      allowNull: true,
+    },
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
 class viewedVideos extends Model { }
 
 viewedVideos.init(
@@ -536,6 +562,4 @@ notificationPreferences.init(
   { sequelize: connection, freezeTableName: true }
 );
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews};
-
-
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop};
