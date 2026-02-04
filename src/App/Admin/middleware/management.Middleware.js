@@ -68,4 +68,19 @@ managementMiddleware.Management = {
   },
 
 
+  getShopDetails: async ({query}) => {     
+            const checkShop = await adminDbController.Shop.getShopById(query)
+            if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                const shopVideos = await adminDbController.Shop.shopVideos(query)
+                if (shopVideos != null && shopVideos != undefined && shopVideos.length != 0) {
+                  return { shop: checkShop, shopVideos: shopVideos }
+                }
+                else {
+                    return {shop:checkShop,shopVideos:[]}
+                }
+            } else {
+                return "Shop not found"
+            }          
+        
+  },
 }

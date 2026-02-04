@@ -336,3 +336,30 @@ adminDbController.Category = {
   },
 
 }
+
+adminDbController.Shop = {
+  
+  getShopById: async (data) => {
+    try {
+      return await adminDbController.Models.shop.findOne({
+        where: {
+          id: data.shopId,
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
+  shopVideos: async (data) => {
+    try {
+      return await adminDbController.Models.video.findAll({
+        where: {
+          shopId: data.shopId,
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+}
