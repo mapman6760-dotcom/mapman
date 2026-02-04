@@ -28,6 +28,7 @@ app.use("/videos", express.static(path.join(__dirname, "./assets/compressed/vide
 app.use("/classroom", express.static(path.join(__dirname, "./assets/compressed/classroom/")));
 app.use("/events", express.static(path.join(__dirname, "./assets/compressed/events/")));
 app.use("/gallery", express.static(path.join(__dirname, "./assets/compressed/gallery/")));
+app.use("/privacyPolicy", express.static(path.join(__dirname,"./privacy.html")));
 
 //Parsing incoming requests
 app.use(express.urlencoded({ extended: true }));
@@ -52,8 +53,8 @@ app.use(function (req, res, next) {
     res.status(404).render("404", { message: "Unable to find the requested resource", name: process.env.APP_NAME });
 });
 const AppConfig = config.mode === "production" ? config.production : config.development;
-// console.log("config mode   ",config.mode)
-// console.log("app ",AppConfig)
+console.log("config mode   ",config.mode)
+console.log("app ",AppConfig)
 setup(AppConfig).then((config) => {
     const PORT = process.env.PORT || config.server.port || 3000;
 

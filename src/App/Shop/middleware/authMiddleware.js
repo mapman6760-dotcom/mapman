@@ -195,9 +195,8 @@ authMiddleware.User = {
     body.code = phoneNumber.split("-")[0];
     body.phone = phoneNumber.split("-")[1];
     let userFound = await appDbController.Auth.forgotPasswordPhone(body); 
+    console.log("userFund in sendOTP ",userFound)
     if (userFound == null || Object.keys(userFound).length === 0) {
-      // throw Error.SomethingWentWrong("Invalid mobile number. Try Again!");
-
       //Create a user with that phone number
       let userFound1 = await appDbController.Auth.addMobile(body);
            //send OTP to activate account
@@ -211,7 +210,6 @@ authMiddleware.User = {
                message: ["SMS sent successfully.", "dfjiksfjsk"],
                request_id:"2345667789"
           }
-           userFound1.userName="New user"
            if (msgSent != undefined && msgSent != null && msgSent.message[0] == "SMS sent successfully.") {
              //otp log
              userFound1.type = 'success';
@@ -234,7 +232,39 @@ authMiddleware.User = {
              throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
            }
     } else if (userFound.status === "terminated") {
-      throw Error.SomethingWentWrong("Account Terminated");
+ let userFound1 = await appDbController.Auth.addMobile(body);
+           //send OTP to activate account
+           body.customerId = userFound1.id;
+           userFound1.phone.phoneNumber;
+           userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+          //  const msgSent = await messagingFunction.sendOTP(userFound1);
+          //  console.log("msg sent ",msgSent);
+      
+          let msgSent = {
+               message: ["SMS sent successfully.", "dfjiksfjsk"],
+               request_id:"2345667789"
+          }
+           if (msgSent != undefined && msgSent != null && msgSent.message[0] == "SMS sent successfully.") {
+             //otp log
+             userFound1.type = 'success';
+             userFound1.requestId = msgSent.request_id;
+             userFound1.msgType = "otp";
+             await appDbController.Auth.createOTPLog(userFound1);
+             userFound1.otpCount = Number(userFound1.otpCount);
+             userFound1.otpCount = Number(userFound1.otpCount) + 1;
+             var currentDate = Date.now();
+             userFound1.expiry = Number(currentDate) + Number(300000);//5 mins
+             var updateUserMeta = await appDbController.Auth.createOTPExpiry(userFound1);
+             if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
+              return "OTP Sent To Your Registered Mobile Number";
+            }
+             else {
+              let otp = translation.otpFailed
+               throw Error.SomethingWentWrong("Unable to Send OTP");
+             }
+           } else {
+             throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+           }
     } else {
       //send OTP to activate account
       body.customerId = userFound.id;
@@ -276,6 +306,7 @@ authMiddleware.User = {
     body.code = phoneNumber.split("-")[0];
     body.phone = phoneNumber.split("-")[1];
     const userFound = await appDbController.Auth.checkPhoneExists(body);
+    console.log("userfound ",userFound)
     if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
       var currentTime = Number(Date.now());
       var expiryMinutes = Number(300000);//5 mins

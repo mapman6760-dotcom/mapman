@@ -1,5 +1,8 @@
 import require from "requirejs";
 var CryptoJS = require("crypto-js");
+const path = require("path");
+import fs from "fs";
+const __dirname = path.resolve();
 import * as Error from "../../../Core/errors/ErrorConstant.js";
 import { authentications } from "../../../Core/utils/jwt.js";
 import { appDbController } from "../../../Core/database/Controller/appDbController.js";
@@ -1015,6 +1018,16 @@ appMiddleware.App = {
           return "User not found"
         }
       },
+
+    privacyPolicy: async ({token}) => {
+          const checkUser = await appDbController.Profile.getProfile(token);
+        if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+            return `/privacyPolicy`
+        }
+        else {
+          return "User not found"
+        }
+    }
     
 };
 

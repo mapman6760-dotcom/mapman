@@ -70,6 +70,8 @@ appRouter.get("/fetchNotifications", appAuthenticate, appController.App.fetchNot
 appRouter.get("/notificationCount", appAuthenticate, appController.App.notificationCount);
 appRouter.get("/notificationOpenStatus", appAuthenticate, appController.App.notificationOpenStatus);
 
+appRouter.get("/privacyPolicy", appAuthenticate, appController.App.privacyPolicy);
+
 
 
 export { appRouter };

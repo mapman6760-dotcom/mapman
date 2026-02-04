@@ -91,6 +91,7 @@ appDbController.Auth = {
         where: {
           // phone: "+91"+data.phone,
           phone: data.phoneNumber,
+          status:"active"
         },
         raw: true,
       });
@@ -187,7 +188,7 @@ appDbController.Auth = {
       return await appDbController.Models.profile.findOne({
         where: {
           phone: data.phoneNumber,
-          status: { [Op.ne]: "terminated" }
+          // status: { [Op.ne]:"inactive" }
         },
         raw: true,
       });
