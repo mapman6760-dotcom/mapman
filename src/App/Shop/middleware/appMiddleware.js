@@ -1027,6 +1027,16 @@ appMiddleware.App = {
         else {
           return "User not found"
         }
+    },
+
+    terms: async ({token}) => {
+          const checkUser = await appDbController.Profile.getProfile(token);
+        if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+            return `/terms-and-condtions`
+        }
+        else {
+          return "User not found"
+        }
     }
     
 };
