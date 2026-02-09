@@ -29,6 +29,7 @@ app.use("/classroom", express.static(path.join(__dirname, "./assets/compressed/c
 app.use("/events", express.static(path.join(__dirname, "./assets/compressed/events/")));
 app.use("/gallery", express.static(path.join(__dirname, "./assets/compressed/gallery/")));
 app.use("/privacyPolicy", express.static(path.join(__dirname,"./privacy.html")));
+app.use("/terms-and-condtions", express.static(path.join(__dirname,"./termAndConditions.html")));
 
 //Parsing incoming requests
 app.use(express.urlencoded({ extended: true }));

@@ -71,6 +71,7 @@ appRouter.get("/notificationCount", appAuthenticate, appController.App.notificat
 appRouter.get("/notificationOpenStatus", appAuthenticate, appController.App.notificationOpenStatus);
 
 appRouter.get("/privacyPolicy", appAuthenticate, appController.App.privacyPolicy);
+appRouter.get("/terms", appAuthenticate, appController.App.terms);
 
 
 
