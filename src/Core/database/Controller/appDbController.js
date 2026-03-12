@@ -28,52 +28,7 @@ appDbController.Auth = {
     }
   },
 
-  checkUserExists: async (data) => {
-    try {
-      return await appDbController.Models.Student.findOne({
-        where: {
-          [Op.or]: {
-            email: data.email,
-            phone: data.phoneNumber,
-          },
-        },
-        raw: true,
-      });
-    } catch (error) {
-      return null
-    }
-  },
 
-  createUid: async (data) => {
-
-    try {
-      const updated_data = await appDbController.Models.Student.update(
-        { code: data.code, expiry: data.expiry },
-        { where: { id: data.id } },
-        { plain: true, returning: true }
-      );
-      if (updated_data[0] == 1) {
-        return appDbController.Models.Student.findOne({
-          where: { email: data.email },
-          attributes: ["useruserName", "email", "code"],
-          raw: true,
-        });
-      } else {
-        return null;
-      }
-    } catch (error) {
-      return null
-    }
-  },
-  verifyOtp: async (data) => {
-    try {
-      return await appDbController.Models.Student.findOne({
-        where: { email: data.email, code: data.code },
-      });
-    } catch (error) {
-      return null
-    }
-  },
   otpCount: async (data) => {
     try {
       return await appDbController.Models.profile.update(
@@ -86,6 +41,34 @@ appDbController.Auth = {
     }
   },
   checkPhoneExists: async (data) => {
+    try {
+      return await appDbController.Models.profile.findOne({
+        where: {
+          // phone: "+91"+data.phone,
+          phone: data.phoneNumber,
+          status:"active"
+        },
+        raw: true,
+      });
+    } catch (error) {
+      return null;
+    }
+  },
+  checkEmailId: async (data) => {
+    try {
+      return await appDbController.Models.profile.findOne({
+        where: {
+          // phone: "+91"+data.phone,
+          email: data.email,
+          status:"active"
+        },
+        raw: true,
+      });
+    } catch (error) {
+      return null;
+    }
+  },
+  checkEmailExists: async (data) => {
     try {
       return await appDbController.Models.profile.findOne({
         where: {
@@ -118,6 +101,22 @@ appDbController.Auth = {
     try {
       return await appDbController.Models.profile.create({
         phone: data.phoneNumber,
+        isPhoneVerified: "yes",
+        otpCount: 1,
+       // status:"active"
+      },
+        {
+          raw: true
+        });
+    } catch (error) {
+      return null;
+    }
+  },
+  addEmail: async (data) => {
+    try {
+      return await appDbController.Models.profile.create({
+        phone: null,
+        email: data.email,
         isPhoneVerified: "yes",
         otpCount: 1,
        // status:"active"
@@ -190,6 +189,7 @@ appDbController.Auth = {
           phone: data.phoneNumber,
           // status: { [Op.ne]:"inactive" }
         },
+          order: [["createdAt", "DESC"]],
         raw: true,
       });
     } catch (error) {
@@ -201,14 +201,15 @@ appDbController.Auth = {
     try {
       return await appDbController.Models.otpLogs.create({
         userId: data.id,
-        userName: data.userName,
-        phone: data.phone,
+        userName: data.userName||"user",
+        phone: data.phone||data.email,
         requestId: data.requestId,
         type: data.type,
         msgType: data.msgType,
         status: "active",
       });
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -269,6 +270,20 @@ appDbController.Auth = {
           },
         }
       );
+    } catch (error) {
+      return null;
+    }
+  },
+
+  checkEmailExists: async (data) => {
+    try {
+      return await appDbController.Models.profile.findOne({
+        where: {
+          email: data.email,
+        },
+        order: [["createdAt", "DESC"]],
+        raw: true,
+      });
     } catch (error) {
       return null;
     }

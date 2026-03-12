@@ -69,92 +69,7 @@ NodeMailerfunction.Email = {
             throw Error.SomethingWentWrong();
         }
     },
-
-    verifyStudent: async (data) => {
-        console.log("🚀 ~ verifyStudent: ~ data:", data)
-        const baseURL = process.env.baseUrl;
-        // const hexCode = data.uid;
-        const recieverEmail = data.email;
-        const userId = data.id;
-        const userName = data.userName;
-        const userStatus = data.status;
-        //generate jwt
-        const verifyToken = await authentications.generateEmailToken({ studentId: userId, userName: userName, status: userStatus });
-
-        const verifyurl = baseURL + "/student/auth/" + "?verifyEmail=" + verifyToken;
-        console.log("🚀 ~ verifyStudent: ~ verifyurl:", verifyurl)
-        if (recieverEmail != null && recieverEmail != undefined && recieverEmail.length != 0) {
-            try {
-                ejs.renderFile(mailTemplatefolder + "/getStarted.ejs", { username: userName, verify: verifyurl }, function (err, welcome) {
-                    if (err) {
-                        throw Error.SomethingWentWrong();
-                    } else {
-                        let client = new SendMailClient({ url, token });
-                        client.sendMail({
-                            "bounce_address": "noreply@noreply.mapman.in",
-                            "from":
-                            {
-                                "address": "noreply@mapman.in",
-                                "name": "mapman"
-                            },
-                            "to":
-                                [
-                                    {
-                                        "email_address":
-                                        {
-                                            "address": recieverEmail,
-                                        }
-                                    }
-                                ],
-                            "subject": `Welcome to ${process.env.APP_NAME} 🛍️ `,
-                            "htmlbody": welcome,
-                        }).then((resp) => console.log("success")).catch((error) => console.log("error", JSON.stringify(error)));
-                    }
-                });
-            } catch (error) {
-                throw Error.SomethingWentWrong();
-            }
-
-        } else {
-            throw Error.SomethingWentWrong();
-        }
-    },
-
-    onboardStudent: async (data) => {
-        const recieverEmail = data.email;
-        try {
-            ejs.renderFile(mailTemplatefolder + "/onboardStudent.ejs", { name: data.fname, email: recieverEmail, password: data.password, }, async function (err, resetPassword) {
-                if (err) {
-                    throw Error.SomethingWentWrong();
-                } else {
-                    let client = new SendMailClient({ url, token });
-                    client.sendMail({
-                        "bounce_address": "noreply@noreply.mapman.in",
-                        "from":
-                        {
-                            "address": "noreply@mapman.in",
-                            "name": "mapman"
-                        },
-                        "to":
-                            [
-                                {
-                                    "email_address":
-                                    {
-                                        "address": recieverEmail,
-                                    }
-                                }
-                            ],
-                        "subject": `Reset Password for ${process.env.APP_NAME} 🔑 🛍️ `,
-                        "htmlbody": resetPassword,
-                    }).then((resp) => console.log("success")).catch((error) => console.log("error", JSON.stringify(error)));
-                }
-            });
-        } catch (error) {
-            throw Error.SomethingWentWrong();
-        }
-    },
-
-
+    
     codeForForgotpassword: async (data) => {
         const hexCode = data.code;
         const recieverEmail = data.email;
@@ -189,26 +104,5 @@ NodeMailerfunction.Email = {
             throw Error.SomethingWentWrong();
         }
     },
-    orderPlaced: async (data) => {
-        const recieverEmail = data.customerEmail;
-        try {
-            ejs.renderFile(mailTemplatefolder + "/delivered.ejs", { orders: data }, async function (err, orderPlaced) {
-                if (err) {
-                    throw Error.SomethingWentWrong();
-                } else {
-                    const result = dotenv.config()
-                    let client = new SendMailClient({ url, token });
-                    client.sendMail({
-                        "bounce_address": "noreply@noreply.mapman.in",
-                        "from": { "address": "noreply@mapman.in", "name": "mapman" },
-                        "to": [{ "email_address": { "address": recieverEmail, } }],
-                        "subject": `Order Placed Successfully 🛍️ `,
-                        "htmlbody": orderPlaced,
-                    }).then((resp) => console.log("success")).catch((error) => console.log("error", error));
-                }
-            });
-        } catch (error) {
-            throw Error.SomethingWentWrong();
-        }
-    },
+   
 };

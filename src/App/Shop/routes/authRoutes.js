@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { emailLogin, logout,sendOTP,verifyOTP,appAuthenticate} from "../controller/authController.js";
+import { emailLogin, logout,sendOTP,verifyOTP,appAuthenticate,sendEmailOTP,verifyEmailOTP} from "../controller/authController.js";
 import require from "requirejs";
 import { appController } from "../controller/appController.js";
 const rateLimit = require("express-rate-limit");
@@ -22,16 +22,21 @@ authRouter.post("/login", emailLogin)
 authRouter.post("/addFcmToken", appAuthenticate, appController.App.addDeviceId);
 // authRouter.post("/changePassword", appAuthenticate, appController.App.changePassword);
 
+//Mobile number OTP
 authRouter.post("/sendOtp", sendOTP);
 authRouter.post("/verifyOtp",verifyOTP);
 
 //logout
 authRouter.get("/logout", logout)
 
-
-//account management
 // authRouter.post("/sendEmailCode", apiLimiter, Forgot);
 // authRouter.post("/verifyEmailCode", apiLimiter, verifyCode);
+
+
+//Send OTP to the email
+
+authRouter.post("/sendEmailOtp",  sendEmailOTP);
+authRouter.post("/verifyEmailOtp",  verifyEmailOTP);
 
 
 export { authRouter };

@@ -3,10 +3,13 @@ var CryptoJS = require("crypto-js");
 import * as Error from "../../../Core/errors/ErrorConstant.js";
 import { authentications } from "../../../Core/utils/jwt.js";
 import { appDbController } from "../../../Core/database/Controller/appDbController.js";
-import { NodeMailerfunction } from "../../../Core/utils/nodemailer.js";
+import { NodeMailerfunction } from "../../../Core/utils/nodemailer.js"
+import {messagingFunction} from "../../../Core/utils/message.js"
 import dotenv from "dotenv";
 dotenv.config();
 
+const path = require("path");
+import fs from "fs";
 
 export class authMiddleware { }
 
@@ -190,12 +193,14 @@ authMiddleware.User = {
   //   }
   // },
 
+
+  //Phone number OTP
+  
   sendOTP: async ({ body }) => {
     var phoneNumber = body.phoneNumber;
     body.code = phoneNumber.split("-")[0];
     body.phone = phoneNumber.split("-")[1];
     let userFound = await appDbController.Auth.forgotPasswordPhone(body); 
-    console.log("userFund in sendOTP ",userFound)
     if (userFound == null || Object.keys(userFound).length === 0) {
       //Create a user with that phone number
       let userFound1 = await appDbController.Auth.addMobile(body);
@@ -205,15 +210,18 @@ authMiddleware.User = {
            userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
           //  const msgSent = await messagingFunction.sendOTP(userFound1);
           //  console.log("msg sent ",msgSent);
-      
-          let msgSent = {
-               message: ["SMS sent successfully.", "dfjiksfjsk"],
-               request_id:"2345667789"
-          }
-           if (msgSent != undefined && msgSent != null && msgSent.message[0] == "SMS sent successfully.") {
+          //  console.log("msg sentmsgSent[0].OperationCode ",msgSent[0].OperationCode);
+          let msgSent = 
+        [{
+          "MessageId": 3195701,
+          "OperationCode": 0,
+          "Status": "Success",
+        }]
+         
+           if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
              //otp log
              userFound1.type = 'success';
-             userFound1.requestId = msgSent.request_id;
+             userFound1.requestId = msgSent[0].MessageId
              userFound1.msgType = "otp";
              await appDbController.Auth.createOTPLog(userFound1);
              userFound1.otpCount = Number(userFound1.otpCount);
@@ -225,29 +233,31 @@ authMiddleware.User = {
               return "OTP Sent To Your Registered Mobile Number";
             }
              else {
-              let otp = translation.otpFailed
+               return msgSent[0].Remarks
+              let otp = msgSent[0].Remarks
                throw Error.SomethingWentWrong("Unable to Send OTP");
              }
            } else {
-             throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+               throw Error.SomethingWentWrong(msgSent[0].Remarks);
            }
     } else if (userFound.status === "terminated") {
- let userFound1 = await appDbController.Auth.addMobile(body);
+          let userFound1 = await appDbController.Auth.addMobile(body);
            //send OTP to activate account
            body.customerId = userFound1.id;
            userFound1.phone.phoneNumber;
            userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
           //  const msgSent = await messagingFunction.sendOTP(userFound1);
           //  console.log("msg sent ",msgSent);
+      let msgSent =  [{
+          "MessageId": 3195701,
+          "OperationCode": 0,
+          "Status": "Success",
+        }]
       
-          let msgSent = {
-               message: ["SMS sent successfully.", "dfjiksfjsk"],
-               request_id:"2345667789"
-          }
-           if (msgSent != undefined && msgSent != null && msgSent.message[0] == "SMS sent successfully.") {
+           if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
              //otp log
              userFound1.type = 'success';
-             userFound1.requestId = msgSent.request_id;
+             userFound1.requestId = msgSent[0].MessageId
              userFound1.msgType = "otp";
              await appDbController.Auth.createOTPLog(userFound1);
              userFound1.otpCount = Number(userFound1.otpCount);
@@ -259,13 +269,14 @@ authMiddleware.User = {
               return "OTP Sent To Your Registered Mobile Number";
             }
              else {
-              let otp = translation.otpFailed
+              let otp = msgSent[0].Remarks
                throw Error.SomethingWentWrong("Unable to Send OTP");
              }
            } else {
-             throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+             //  throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+             throw Error.SomethingWentWrong(msgSent[0].Remarks)
            }
-    } else {
+    } else if (userFound.status === "active") {
       //send OTP to activate account
       body.customerId = userFound.id;
       userFound.phone.phoneNumber;
@@ -273,16 +284,17 @@ authMiddleware.User = {
       // const msgSent = await messagingFunction.sendOTP(userFound);
       // console.log()
       // console.log("msgSent ",msgSent)
-      let msgSent = {
-        message: ["SMS sent successfully.", "dfjiksfjsk"],
-        request_id:"2345667789"
-      }
-      userFound.userName="User"      
-      if (msgSent != undefined && msgSent != null && msgSent.message[0] == "SMS sent successfully.") {
-        //otp log
-        userFound.type = 'success';
-        userFound.requestId = msgSent.request_id;
-        userFound.msgType = "otp";
+    let msgSent =  [{
+          "MessageId": 3195701,
+          "OperationCode": 0,
+          "Status": "Success",
+        }]
+    
+           if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
+             //otp log
+             userFound.type = 'success';
+             userFound.requestId = msgSent[0].MessageId
+          userFound.msgType = "otp";
         await appDbController.Auth.createOTPLog(userFound);
         userFound.otpCount = Number(userFound.otpCount);
         userFound.otpCount = Number(userFound.otpCount) + 1;
@@ -296,8 +308,11 @@ authMiddleware.User = {
           throw Error.SomethingWentWrong("Unable to Send OTP");
         }
       } else {
-        throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+             // throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+             throw Error.SomethingWentWrong(msgSent[0].Remarks)
       }
+    } else if (userFound.status === "inactive") {
+      throw Error.SomethingWentWrong("Your account is inactive! Contact Admin!....")
     }
   },
 
@@ -322,8 +337,8 @@ authMiddleware.User = {
         //TODO:Production Mode
         // const verifyMsg = await messagingFunction.verifyOTP(body);  
         var passwordSecret = process.env.passwordSecret;
-        if (body.otp === 2345) {
-        // if (body.otp === userFound.otpCode) {
+        // if (body.otp === 2345) {
+        if (body.otp === userFound.otpCode) {
           // if (verifyMsg.data.type == "success") {
           var updateUserMeta = await appDbController.Auth.updateOTPExpiry(userFound);
           if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
@@ -349,7 +364,157 @@ authMiddleware.User = {
         // }
         //   else if (verifyMsg.data.type == "error") {
         //     console.log("error")
-        //     throw Error.SomethingWentWrong(verifyMsg.data.message);
+        //     throw Error.SomethingWentWrong(verifyMsg.data);
+        // } 
+        else {
+            throw Error.SomethingWentWrong("Failed to verify OTP");
+        }
+        } else {
+          throw Error.SomethingWentWrong("Incorrect OTP");
+        }      
+      } else {
+        throw Error.SomethingWentWrong("Code Expired");
+      }
+    }
+    else {
+      throw Error.SomethingWentWrong("Unable to Login");
+    }
+  },
+
+  sendEmailOTP: async ({ body }) => {
+    let userFound = await appDbController.Auth.checkEmailExists(body); 
+    if (userFound == null || Object.keys(userFound).length === 0) {
+      //Create a user with that phone number
+      let userFound1 = await appDbController.Auth.addEmail(body);
+           //send OTP to activate account
+           userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+           const msgSent = await messagingFunction.sendOTPEmail(userFound1);
+           console.log("msg sent ",msgSent); 
+           if (msgSent != undefined && msgSent != null && msgSent.accepted.length > 0) {
+             //otp log
+             userFound1.type = 'success';
+             userFound1.requestId = msgSent.messageId
+             userFound1.msgType = "otp";
+             await appDbController.Auth.createOTPLog(userFound1);
+             userFound1.otpCount = Number(userFound1.otpCount);
+             userFound1.otpCount = Number(userFound1.otpCount) + 1;
+             var currentDate = Date.now();
+             userFound1.expiry = Number(currentDate) + Number(300000);//5 mins
+             var updateUserMeta = await appDbController.Auth.createOTPExpiry(userFound1);
+             if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
+              return "OTP Sent To Your Registered Email";
+            }
+             else {
+               throw Error.SomethingWentWrong(msgSent[0].Remarks);
+             }
+           } else {
+               throw Error.SomethingWentWrong(msgSent[0].Remarks);
+           }
+    } else if (userFound.status === "terminated") {
+          let userFound1 = await appDbController.Auth.addEmail(body);
+           //send OTP to activate account
+           userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+           const msgSent = await messagingFunction.sendOTPEmail(userFound1);
+           console.log("msg sent ",msgSent); 
+           if (msgSent != undefined && msgSent != null && msgSent.accepted.length > 0) {
+             //otp log
+             userFound1.type = 'success';
+             userFound1.requestId = msgSent.messageId
+             userFound1.msgType = "otp";
+             await appDbController.Auth.createOTPLog(userFound1);
+             userFound1.otpCount = Number(userFound1.otpCount);
+             userFound1.otpCount = Number(userFound1.otpCount) + 1;
+             var currentDate = Date.now();
+             userFound1.expiry = Number(currentDate) + Number(300000);//5 mins
+             var updateUserMeta = await appDbController.Auth.createOTPExpiry(userFound1);
+             if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
+              return "OTP Sent To Your Registered Email";
+            }
+             else {
+              let otp = msgSent[0].Remarks
+               throw Error.SomethingWentWrong("Unable to Send OTP");
+             }
+           } else {
+             //  throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+             throw Error.SomethingWentWrong(msgSent[0].Remarks)
+           }
+    } else if (userFound.status === "active") {
+      //send OTP to activate account
+      userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+     const msgSent = await messagingFunction.sendOTPEmail(userFound);
+           if (msgSent != undefined && msgSent != null && msgSent.accepted.length > 0) {
+             //otp log
+             userFound.type = 'success';
+             userFound.requestId = msgSent.messageId
+                userFound.msgType = "otp";
+        await appDbController.Auth.createOTPLog(userFound);
+        userFound.otpCount = Number(userFound.otpCount);
+        userFound.otpCount = Number(userFound.otpCount) + 1;
+        var currentDate = Date.now();
+        userFound.expiry = Number(currentDate) + Number(300000);//5 mins
+        var updateUserMeta = await appDbController.Auth.createOTPExpiry(userFound);
+        if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
+          return "OTP Sent To Your Registered Email";
+        }
+        else {
+          throw Error.SomethingWentWrong("Unable to Send OTP");
+        }
+      } else {
+             // throw Error.SomethingWentWrong("Too many Attempts! Try again Later");
+             throw Error.SomethingWentWrong(msgSent[0].Remarks)
+      }
+    } else if (userFound.status === "inactive") {
+      throw Error.SomethingWentWrong("Your account is inactive! Contact Admin!....")
+    }
+  },
+
+  verifyEmailOTP: async ({ body },device) => {
+
+    const userFound = await appDbController.Auth.checkEmailId(body);
+    console.log("userfound ",userFound)
+    if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
+      var currentTime = Number(Date.now());
+      var expiryMinutes = Number(300000);//5 mins
+      var expiryTime = Number(userFound.otpExpiry);
+      var initiatedTime = expiryTime - expiryMinutes;
+      var expired = currentTime - initiatedTime;
+      if (expired <= expiryMinutes) {
+     //expired should be lessthan or equal to 30,000
+      
+        //TODO:Dev Mode
+        // let verifyMsg = { data: { type: "success" } }
+     
+        //TODO:Production Mode
+        // const verifyMsg = await messagingFunction.verifyOTP(body);  
+        var passwordSecret = process.env.passwordSecret;
+        // if (body.otp === 2345) {
+        if (body.otp === userFound.otpCode) {
+          // if (verifyMsg.data.type == "success") {
+          var updateUserMeta = await appDbController.Auth.updateOTPExpiry(userFound);
+          if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
+            const token = await authentications.generateShopJWT({ userId: userFound.id, status: "active", });
+            if (token) {
+              var encryptedToken = CryptoJS.AES.encrypt(token, passwordSecret).toString();
+              body.token = encryptedToken;
+              body.profileId = userFound.id;
+              const addSession = await appDbController.Auth.session.createSession(body, device);
+              if (addSession != null && addSession != undefined) {
+                let date = new Date();
+                date = JSON.stringify(date);
+                await appDbController.Auth.session.createLogs(userFound.id, date);
+                return { token: encryptedToken,userId:userFound.id };
+
+              } else {
+                throw Error.SomethingWentWrong("Unable to Login");
+              }
+            } else {
+              throw Error.SomethingWentWrong("Unable to Login");
+            }
+          }
+        // }
+        //   else if (verifyMsg.data.type == "error") {
+        //     console.log("error")
+        //     throw Error.SomethingWentWrong(verifyMsg.data);
         // } 
         else {
             throw Error.SomethingWentWrong("Failed to verify OTP");

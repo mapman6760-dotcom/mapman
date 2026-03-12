@@ -37,6 +37,10 @@ profile.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   profilePic: {
     type: DataTypes.STRING,
     allowNull: true,

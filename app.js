@@ -30,6 +30,7 @@ app.use("/events", express.static(path.join(__dirname, "./assets/compressed/even
 app.use("/gallery", express.static(path.join(__dirname, "./assets/compressed/gallery/")));
 app.use("/privacyPolicy", express.static(path.join(__dirname,"./privacy.html")));
 app.use("/terms-and-condtions", express.static(path.join(__dirname,"./termAndConditions.html")));
+app.use("/logo", express.static(path.join(__dirname,"./mapmanLogo.png")));
 
 //Parsing incoming requests
 app.use(express.urlencoded({ extended: true }));

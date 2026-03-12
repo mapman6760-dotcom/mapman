@@ -166,3 +166,37 @@ export const verifyOTP = async (req, res) => {
       });
     });
 };
+
+export const sendEmailOTP = async (req, res) => {
+  authMiddleware.User.sendEmailOTP(req)
+    .then((data) => {
+      const response = ApplicationResult.forCreated();
+      var statuscode = 0;
+      ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+      res.json({ status: statuscode, data: data });
+    })
+    .catch((error) => {   
+      ApplicationResponse.error(error, null, (response) => {
+        res.status(response.status).json(response);
+      });
+    });
+};
+
+export const verifyEmailOTP = async (req, res) => {
+  const ipv4 = req.socket.remoteAddress?.split("f:")[1];
+  const ipv = req.socket.remoteAddress;
+  const browser = req.get("User-Agent");
+  const deviceInfo = { ip: ipv4, ipv: ipv, userAgent: browser };
+  authMiddleware.User.verifyEmailOTP(req, deviceInfo)
+    .then((data) => {
+      const response = ApplicationResult.forCreated();
+      var statuscode = 0;
+      ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+      res.json({ status: statuscode, data: data });
+    })
+    .catch((error) => {
+      ApplicationResponse.error(error, null, (response) => {
+        res.status(response.status).json(response);
+      });
+    });
+};
