@@ -480,16 +480,10 @@ authMiddleware.User = {
       var expired = currentTime - initiatedTime;
       if (expired <= expiryMinutes) {
      //expired should be lessthan or equal to 30,000
-      
-        //TODO:Dev Mode
-        // let verifyMsg = { data: { type: "success" } }
-     
-        //TODO:Production Mode
-        // const verifyMsg = await messagingFunction.verifyOTP(body);  
+    
         var passwordSecret = process.env.passwordSecret;
         // if (body.otp === 2345) {
         if (body.otp === userFound.otpCode) {
-          // if (verifyMsg.data.type == "success") {
           var updateUserMeta = await appDbController.Auth.updateOTPExpiry(userFound);
           if (updateUserMeta != null && updateUserMeta != undefined && updateUserMeta[0] == 1) {
             const token = await authentications.generateShopJWT({ userId: userFound.id, status: "active", });
