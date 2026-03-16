@@ -105,11 +105,11 @@ export const development = {
 export const production = {
   database: {
     appName: process.env.APP_NAME,
-    db_name: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
+    db_name: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE,
+    host: process.env.DB_HOST || process.env.MYSQLHOST,
+    port: process.env.DB_PORT || process.env.MYSQLPORT,
+    username: process.env.DB_USERNAME || process.env.MYSQLUSER,
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD,
   },
   server: {
     port: process.env.PORT,
