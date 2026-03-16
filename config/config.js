@@ -112,7 +112,7 @@ export const production = {
     password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD,
   },
   server: {
-    port: process.env.PORT,
+    port: process.env.PORT || 3000,
   },
 };
 
