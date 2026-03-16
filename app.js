@@ -8,13 +8,14 @@ import path from "path";
 const __dirname = path.resolve();
 import helmet from "helmet";
 
-import * as config from "./config/config.js";
-import { setup } from "./src/Core/setup.js";
-import { Logger } from "./src/Core/lib/logger.js";
+// Use dynamic imports to prevent ES module hoisting from loading config BEFORE dotenv runs
+const config = await import("./config/config.js");
+const { setup } = await import("./src/Core/setup.js");
+const { Logger } = await import("./src/Core/lib/logger.js");
 
 //require routers
-import { shopRouter } from "./src/App/Shop/routes/index.js";
-import { adminRouter } from "./src/App/Admin/routes/index.Routes.js";
+const { shopRouter } = await import("./src/App/Shop/routes/index.js");
+const { adminRouter } = await import("./src/App/Admin/routes/index.Routes.js");
 
 const app = express();
 
