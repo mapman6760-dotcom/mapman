@@ -141,7 +141,7 @@ console.log("app ",AppConfig)
 setup(AppConfig).then((config) => {
     const PORT = config.server.port || process.env.PORT || 3000;
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
         Logger.info(
           chalk.yellow(`${config.database.appName} API Listening on port ${PORT} ✔️ ✔️ ✔️`)
         );
