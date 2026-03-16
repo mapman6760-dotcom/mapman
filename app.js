@@ -1,14 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import chalk from "chalk";
 import path from "path";
 const __dirname = path.resolve();
 import helmet from "helmet";
+
 import * as config from "./config/config.js";
 import { setup } from "./src/Core/setup.js";
 import { Logger } from "./src/Core/lib/logger.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 //require routers
 import { shopRouter } from "./src/App/Shop/routes/index.js";

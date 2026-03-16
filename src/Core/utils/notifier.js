@@ -1,21 +1,34 @@
 import dotenv from "dotenv";
 dotenv.config();
 import admin from "firebase-admin";
-const firebaseadmin = admin.initializeApp({
-  credential: admin.credential.cert({
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-  }),
-});
-let defaultAuth = await firebaseadmin.auth();
+console.log()
+let firebaseadmin = null;
+let defaultAuth = null;
+
+const getFirebaseAdmin = () => {
+  if (!firebaseadmin) {
+    if (!process.env.FIREBASE_PROJECT_ID) {
+      console.warn("Firebase config missing! Please check .env");
+    }
+    firebaseadmin = admin.initializeApp({
+      credential: admin.credential.cert({
+        type: process.env.FIREBASE_TYPE,
+        project_id: process.env.FIREBASE_PROJECT_ID,
+        private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+        private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
+        client_id: process.env.FIREBASE_CLIENT_ID,
+      }),
+    });
+    defaultAuth = firebaseadmin.auth();
+  }
+  return firebaseadmin;
+};
 export const FirebaseService = {
     notify: async (tokens, notification, fcmoptions) => {
         try {
-            const response = await firebaseadmin.messaging().sendEachForMulticast({
+            const fbadmin = getFirebaseAdmin();
+            const response = await fbadmin.messaging().sendEachForMulticast({
                 tokens: tokens,
                 notification: { title: notification.title, body: notification.body},
                 data: notification.data,
@@ -106,6 +119,7 @@ export const FirebaseService = {
     
     getAuth: async (data) => {
         try {
+            getFirebaseAdmin();
             return await defaultAuth.verifyIdToken(data.id_token)
         }
         catch (error) {
