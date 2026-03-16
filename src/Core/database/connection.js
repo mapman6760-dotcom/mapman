@@ -6,7 +6,7 @@ const { database } = config.mode === "production" ? config.production : config.d
 export const connection = new Sequelize({
     database: database.db_name,
     host: database.host,
-    port: process.env.DEV_DB_PORT || 13415, 
+    port: database.port || 3306, 
     username: database.username,
     password: database.password,
     dialect: "mysql",
