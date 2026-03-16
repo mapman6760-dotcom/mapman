@@ -3,4 +3,3 @@ node_modules
 config/mapmanFirebase.json
 config/mapmanFirebase.json
 assets
-.env

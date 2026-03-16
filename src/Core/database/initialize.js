@@ -8,6 +8,7 @@ export const dbConnection = async () => {
   return await connection.authenticate();
 };
 
+
 export const dbSync = async () => {
   //sync all Db Models
   await Promise.all(Object.values(models));

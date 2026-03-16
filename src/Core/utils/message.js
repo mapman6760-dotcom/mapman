@@ -166,15 +166,18 @@ export const messagingFunction = {
 // );
   //   }
    sendOTPEmail: async (data) => {
-  try {
+     try {
+    console.log("data ",data)
+    console.log("process.env.SENDER_NAME ",process.env.SENDER_NAME)
+    console.log("process.env.SENDER_EMAIL ",process.env.SENDER_EMAIL)
     const result = await client.transactionalEmails.sendTransacEmail({
       subject: "Your Verification Code",
       sender: {
         name: process.env.SENDER_NAME || "OTP Service",
         email: process.env.SENDER_EMAIL,
       },
-      to:data.email,
-        html: `
+      to: [{ email: data.email }],
+        htmlContent: `
 <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
     <div style="max-width:500px; margin:auto; background:#ffffff; border-radius:8px; padding:30px; text-align:center;">
 
