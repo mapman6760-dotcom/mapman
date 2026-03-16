@@ -15,7 +15,6 @@ dotenv.config();
 const client = new BrevoClient({
   apiKey: process.env.BREVO_SMTP_KEY,
 });
-console.log("client ",client)
 export const messagingFunction = {
     // sendOTP: async (data) => {
     //     try {
