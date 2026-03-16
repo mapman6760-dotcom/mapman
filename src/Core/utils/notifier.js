@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-console.log("process.env.FIREBASE_PRIVATE_KEY.replace ",process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'))
+console.log("process.env.FIREBASE_PRIVATE_KEY.replace ",process.env.FIREBASE_PRIVATE_KEY)
 const firebaseadmin = admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.FIREBASE_TYPE,
