@@ -287,7 +287,7 @@ appMiddleware.App = {
     },
     
     getShopById: async ({ token, body }) => {
-        
+        console.log("get shop by id")
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkShop = await appDbController.Shop.getShopById(body)
@@ -313,13 +313,16 @@ appMiddleware.App = {
         }
     },
 
-    saveShop: async ({ token,body}) => {
+    saveShop: async ({ token, body }) => {
+        console.log("body ",body)
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkShopById = await appDbController.Shop.getShopById(body)
             if (checkShopById != null && checkShopById != undefined && Object.keys(checkShopById).length != 0) {
-                const checkShop = await appDbController.Shop.checkShop(token,body)
+                const checkShop = await appDbController.Shop.checkShop(token, body)
+                console.log("mahdu ",checkShop)
                 if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                    console.log("update ")
                 const saveShop = await appDbController.Shop.updateSaveShop(token,body)
                 if (saveShop != null && saveShop != undefined && saveShop.length != 0) {
                     return saveShop
@@ -329,6 +332,7 @@ appMiddleware.App = {
                     }
                 }
                 else {
+                    console.log("create")
                 const saveShop = await appDbController.Shop.saveShop(token,body)
                 if (saveShop != null && saveShop != undefined && saveShop.length != 0) {
                     return "Shop saved"
@@ -664,6 +668,7 @@ appMiddleware.App = {
             //        }
                 //     }
                 const checkSave = await appDbController.Shop.checkSaveVideos(token, body)
+                console.log("checkSave ",checkSave)
                 if (checkSave != null && checkSave != undefined && Object.keys(checkSave).length != 0) {
                     const updateVideos = await appDbController.Shop.updateSaveVideos(token, body)
                     return updateVideos
@@ -843,6 +848,7 @@ appMiddleware.App = {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             let category = await appDbController.Profile.fetchCategory(token)
+            console.log("category ",category)
             if (category != null && category != undefined && (category).length != 0) {
                 category=category
             } else {

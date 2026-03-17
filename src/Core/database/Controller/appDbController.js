@@ -199,11 +199,12 @@ appDbController.Auth = {
 
   createOTPLog: async (data) => {
     try {
+      console.log("data ",data)
       return await appDbController.Models.otpLogs.create({
         userId: data.id,
         userName: data.userName||"user",
         phone: data.phone||data.email,
-        requestId: data.requestId,
+        requestId: data.requestId||data.messageId,
         type: data.type,
         msgType: data.msgType,
         status: "active",
@@ -293,7 +294,9 @@ appDbController.Auth = {
 appDbController.Profile = {
 
   addCategory: async (token,data) => {
-    try{
+    try {
+      console.log("token ",token)
+      console.log("data ",data)
       return await appDbController.Models.category.create({
         addedPerson: token,
         categoryType:"others",
@@ -331,7 +334,7 @@ appDbController.Profile = {
         raw: true,
         attributes:["id","categoryName","categoryImage","categoryType"]
       })
-      let tokenCategory = await appDbController.Models.category.findOne({
+      let tokenCategory = await appDbController.Models.category.findAll({
         where: {
           status: "active",
           addedPerson:token
@@ -339,12 +342,14 @@ appDbController.Profile = {
         raw: true,
         attributes:["id","categoryName","categoryImage","categoryType"]
       })
-      if (tokenCategory != null && tokenCategory != undefined) {
-        category.push(tokenCategory)
+      let finalArray
+      if (tokenCategory != null && tokenCategory != undefined&&tokenCategory.length!=0) {
+        // category.push(tokenCategory)
+        finalArray=[...category,...tokenCategory]
       } else {
-        category=category
+        finalArray=category
       }
-      return category
+      return finalArray
     } catch (error) {
       return null
     }

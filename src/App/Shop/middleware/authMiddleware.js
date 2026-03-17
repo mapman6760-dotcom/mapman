@@ -387,7 +387,6 @@ authMiddleware.User = {
       //Create a user with that phone number
       let userFound1 = await appDbController.Auth.addEmail(body);
       //send OTP to activate account
-      console.log("userFOund1 ",userFound1)
            userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
            const msgSent = await messagingFunction.sendOTPEmail(userFound1);
            console.log("msg sent ",msgSent); 
@@ -442,8 +441,10 @@ authMiddleware.User = {
     } else if (userFound.status === "active") {
       //send OTP to activate account
       userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-     const msgSent = await messagingFunction.sendOTPEmail(userFound);
+      const msgSent = await messagingFunction.sendOTPEmail(userFound);
+                 console.log("msg sent ",msgSent); 
            if (msgSent != undefined && msgSent != null && msgSent==true) {
+            console.log("megsend ",msgSent)
              //otp log
              userFound.type = 'success';
              userFound.requestId = msgSent.messageId
