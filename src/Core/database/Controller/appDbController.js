@@ -817,6 +817,7 @@ appDbController.Shop = {
           }, raw: true,
           limit:limit
         })
+        console.log("all videosin controller ",allVideos)
        for (let i = 0; i < allVideos.length; i++){
          let details = await appDbController.Models.shop.findOne({
            where: {
@@ -825,7 +826,11 @@ appDbController.Shop = {
            }, raw: true,
            attributes:["whatsappNumber"]
          })
-         allVideos[i].whatsappNumber=details.whatsappNumber
+         console.log("details ",details)
+         //  allVideos[i].whatsappNumber=details.whatsappNumber
+         if (details) {
+             allVideos[i].whatsappNumber = details.whatsappNumber;
+          }
        }
         for (let i = 0; i < allVideos.length; i++){
           let watchOrNot = await appDbController.Models.viewedVideos.findOne({
@@ -854,7 +859,8 @@ appDbController.Shop = {
           } else {
             allVideos[i].savedAlready=false
           }
-        }       
+       }       
+       console.log("Final all videoslog in db controller ",allVideos)
         return allVideos
      } catch (error) {
        console.log(error)

@@ -321,7 +321,6 @@ authMiddleware.User = {
     body.code = phoneNumber.split("-")[0];
     body.phone = phoneNumber.split("-")[1];
     const userFound = await appDbController.Auth.checkPhoneExists(body);
-    console.log("userfound ",userFound)
     if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
       var currentTime = Number(Date.now());
       var expiryMinutes = Number(300000);//5 mins
@@ -473,7 +472,6 @@ authMiddleware.User = {
   verifyEmailOTP: async ({ body },device) => {
 
     const userFound = await appDbController.Auth.checkEmailId(body);
-    console.log("userfound ",userFound)
     if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
       var currentTime = Number(Date.now());
       var expiryMinutes = Number(300000);//5 mins

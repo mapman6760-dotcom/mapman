@@ -550,6 +550,7 @@ appMiddleware.App = {
             const pageSize = process.env.PAGINATION_PAGE_SIZE;
             const limit = page * pageSize;
                 let allVideos=await appDbController.Shop.allVideos(token,query,limit)
+                console.log("allvideos",allVideos)
                 if (allVideos != null && allVideos != undefined && Object.keys(allVideos).length != 0) {
                     let videoViews = await appDbController.Shop.videoCounts(allVideos)
                     if (videoViews != null && videoViews != undefined) {
@@ -848,7 +849,6 @@ appMiddleware.App = {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             let category = await appDbController.Profile.fetchCategory(token)
-            console.log("category ",category)
             if (category != null && category != undefined && (category).length != 0) {
                 category=category
             } else {
