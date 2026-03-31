@@ -669,7 +669,6 @@ appMiddleware.App = {
             //        }
                 //     }
                 const checkSave = await appDbController.Shop.checkSaveVideos(token, body)
-                console.log("checkSave ",checkSave)
                 if (checkSave != null && checkSave != undefined && Object.keys(checkSave).length != 0) {
                     const updateVideos = await appDbController.Shop.updateSaveVideos(token, body)
                     return updateVideos
@@ -701,7 +700,8 @@ appMiddleware.App = {
             let data = {
                 limit: limit,
             }
-            const myVideos = await appDbController.Shop.mySavedVideos(token,data)
+            const myVideos = await appDbController.Shop.mySavedVideos(token, data)
+            console.log("myvideos ",myVideos)
             if (myVideos != null && myVideos != undefined && Object.keys(myVideos).length != 0) {
                 const videoViews = await appDbController.Shop.videoCounts(myVideos)
                 if (videoViews != null && videoViews != undefined) {
