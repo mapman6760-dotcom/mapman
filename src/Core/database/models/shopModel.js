@@ -52,7 +52,7 @@ profile.init({
   fcmToken: {
     type: DataTypes.TEXT("long"),
     allowNull: true,
-    defaultValue:"[]"
+    // defaultValue:"[]"
   },
   isPhoneVerified: {
     type: DataTypes.ENUM("yes", "no"),
