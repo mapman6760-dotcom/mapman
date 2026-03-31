@@ -806,7 +806,7 @@ appDbController.Shop = {
   },
    
   allVideos: async (token,data,limit) => {
-     try {
+    try {
         let allVideos= await appDbController.Models.video.findAll({
           where: {
             profileId: {
@@ -817,7 +817,6 @@ appDbController.Shop = {
           }, raw: true,
           limit:limit
         })
-        console.log("all videosin controller ",allVideos)
        for (let i = 0; i < allVideos.length; i++){
          let details = await appDbController.Models.shop.findOne({
            where: {
@@ -826,7 +825,6 @@ appDbController.Shop = {
            }, raw: true,
            attributes:["whatsappNumber"]
          })
-         console.log("details ",details)
          //  allVideos[i].whatsappNumber=details.whatsappNumber
          if (details) {
              allVideos[i].whatsappNumber = details.whatsappNumber;

@@ -389,7 +389,7 @@ authMiddleware.User = {
            userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
            const msgSent = await messagingFunction.sendOTPEmail(userFound1);
            console.log("msg sent ",msgSent); 
-           if (msgSent != undefined && msgSent != null && msgSent==true) {
+           if (msgSent != undefined && msgSent != null && msgSent.data==true) {
              //otp log
              userFound1.type = 'success';
              userFound1.requestId = msgSent.messageId
@@ -414,8 +414,7 @@ authMiddleware.User = {
            //send OTP to activate account
            userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
            const msgSent = await messagingFunction.sendOTPEmail(userFound1);
-           console.log("msg sent ",msgSent); 
-           if (msgSent != undefined && msgSent != null && msgSent==true) {
+           if (msgSent != undefined && msgSent != null && msgSent.data==true) {
              //otp log
              userFound1.type = 'success';
              userFound1.requestId = msgSent.messageId
@@ -441,9 +440,7 @@ authMiddleware.User = {
       //send OTP to activate account
       userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
       const msgSent = await messagingFunction.sendOTPEmail(userFound);
-                 console.log("msg sent ",msgSent); 
-           if (msgSent != undefined && msgSent != null && msgSent==true) {
-            console.log("megsend ",msgSent)
+           if (msgSent != undefined && msgSent != null && msgSent.data==true) {
              //otp log
              userFound.type = 'success';
              userFound.requestId = msgSent.messageId

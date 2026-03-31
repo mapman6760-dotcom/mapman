@@ -9,7 +9,7 @@
         "node": "v20.19.1"
     },
     "scripts": {
-        "start": "node app.js",
+        "start": "nodemon app.js",
         "dev": "nodemon app.js",
         "deploy": "pm2 start app.js --name 'mapman Dev (3003)' --max-memory-restart 2500M"
     },

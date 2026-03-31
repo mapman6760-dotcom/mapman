@@ -167,9 +167,6 @@ export const messagingFunction = {
   //   }
    sendOTPEmail: async (data) => {
      try {
-    console.log("data ",data)
-    console.log("process.env.SENDER_NAME ",process.env.SENDER_NAME)
-    console.log("process.env.SENDER_EMAIL ",process.env.SENDER_EMAIL)
     const result = await client.transactionalEmails.sendTransacEmail({
       subject: "Your Verification Code",
       sender: {
@@ -209,8 +206,7 @@ export const messagingFunction = {
 `,
     });
 
-    console.log("Email sent successfully via Brevo SDK:", result);
-    return true;
+       return { data: true, messageId: result.messageId };
   } catch (error) {
     // Detailed error logging to help debug if the SDK itself fails
     console.error(
