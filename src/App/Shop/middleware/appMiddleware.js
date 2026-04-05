@@ -825,7 +825,8 @@ appMiddleware.App = {
     }
     },
     
-    fetchCategoryBasedShop: async ({token,query}) => {
+    fetchCategoryBasedShop: async ({ token, query }) => {
+        console.log("madhu")
     const categoryBasedShop = await appDbController.Profile.fetchCategoryBasedShop(token,query)
     if (categoryBasedShop != null && categoryBasedShop != undefined && Object.keys(categoryBasedShop).length != 0) {
       return categoryBasedShop

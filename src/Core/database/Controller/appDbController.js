@@ -421,18 +421,48 @@ appDbController.Profile = {
   },
 
   fetchCategoryBasedShop: async (token,data) => {
-    try{
-      return await appDbController.Models.shop.findAll({
+    try {
+      const allCategory = await appDbController.Models.category.findAll({
         where: {
-          profileId: {
-            [Op.ne]:token
-          },
-          category:data.category,
-          status:"active"
+          categoryType: "default",
+          categoryName: {[Op.ne]: "others"}
         },
         raw: true,
-       })
+        attributes:["id","categoryName"]
+      })
+      const categories=allCategory.map((v)=>v.categoryName)
+      console.log("all ", categories)
+      let allShops
+      if (data.category == "others") {
+        allShops= await appDbController.Models.shop.findAll({
+          where: {
+            profileId: {
+              [Op.ne]: token
+            },
+            category: {
+              [Op.notIn]:categories
+            },
+            status: "active"
+          },
+          raw: true,
+        })
+     
+      }
+      else {
+        allShops= await appDbController.Models.shop.findAll({
+          where: {
+            profileId: {
+              [Op.ne]: token
+            },
+            category: data.category,
+            status: "active"
+          },
+          raw: true,
+        })
+      }
+      return allShops
     } catch (error) {
+      console.log(error)
       return null
     }
   },
