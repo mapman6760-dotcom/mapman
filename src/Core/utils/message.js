@@ -28,24 +28,19 @@ export const messagingFunction = {
     // },
 
     sendOTP: async (data) => {
-        try {
+    try {
         const payload = [
         {
           apiToken: process.env.MESSAGEBOT_API_TOKEN,
           messageType: "2", // Transactional
-          messageEncoding: "1",
+          messageEncoding: "0",
           destinationAddress: data.phone,
           sourceAddress: process.env.MESSAGEBOT_SENDER_ID, // Approved Sender ID
-          messageText: `Your OTP is ${data.code}. Do not share this OTP.`,
+          messageText: `Your Mapman verification code is ${data.code}. Enter this code within 10 minutes to access your account. Never share your code with anyone.`,
           dltEntityId: process.env.DLT_ENTITY_ID,
           dltEntityTemplateId: process.env.DLT_TEMPLATE_ID
         }  ]  
 
-          // console.log("data ", data)
-          // console.log()
-          // console.log()
-          // console.log()
-          // console.log("payload ",payload)
       const response = await axios.post(
         "http://papi.messagebot.in/SendSmsV2",
         payload,
@@ -58,6 +53,7 @@ export const messagingFunction = {
       return response.data
 
     } catch (error) {
+      console.log("madhu")
       console.error(error.response?.data || error.message);
       throw Error.SomethingWentWrong();
     }

@@ -198,8 +198,8 @@ authMiddleware.User = {
   
   sendOTP: async ({ body }) => {
     var phoneNumber = body.phoneNumber;
-    body.code = phoneNumber.split("-")[0];
-    body.phone = phoneNumber.split("-")[1];
+    // body.code = phoneNumber.split("-")[0];
+    // body.phone = phoneNumber.split("-")[1];
     let userFound = await appDbController.Auth.forgotPasswordPhone(body); 
     if (userFound == null || Object.keys(userFound).length === 0) {
       //Create a user with that phone number
@@ -207,16 +207,16 @@ authMiddleware.User = {
            //send OTP to activate account
            body.customerId = userFound1.id;
            userFound1.phone.phoneNumber;
-           userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-          //  const msgSent = await messagingFunction.sendOTP(userFound1);
-          //  console.log("msg sent ",msgSent);
+      //  userFound1.code = Math.floor(Math.random() * (9999 - 100000 + 1)) + 1000;
+      userFound1.code = Math.floor(100000 + Math.random() * 900000);
+           const msgSent = await messagingFunction.sendOTP(userFound1);
           //  console.log("msg sentmsgSent[0].OperationCode ",msgSent[0].OperationCode);
-          let msgSent = 
-        [{
-          "MessageId": 3195701,
-          "OperationCode": 0,
-          "Status": "Success",
-        }]
+        //   let msgSent = 
+        // [{
+        //   "MessageId": 3195701,
+        //   "OperationCode": 0,
+        //   "Status": "Success",
+        // }]
          
            if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
              //otp log
@@ -233,8 +233,8 @@ authMiddleware.User = {
               return "OTP Sent To Your Registered Mobile Number";
             }
              else {
-               return msgSent[0].Remarks
-              let otp = msgSent[0].Remarks
+              //  return msgSent[0].Remarks
+              // let otp = msgSent[0].Remarks
                throw Error.SomethingWentWrong("Unable to Send OTP");
              }
            } else {
@@ -245,14 +245,14 @@ authMiddleware.User = {
            //send OTP to activate account
            body.customerId = userFound1.id;
            userFound1.phone.phoneNumber;
-           userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-          //  const msgSent = await messagingFunction.sendOTP(userFound1);
-          //  console.log("msg sent ",msgSent);
-      let msgSent =  [{
-          "MessageId": 3195701,
-          "OperationCode": 0,
-          "Status": "Success",
-        }]
+      //  userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+      userFound1.code = Math.floor(100000 + Math.random() * 900000);
+           const msgSent = await messagingFunction.sendOTP(userFound1);
+      // let msgSent =  [{
+      //     "MessageId": 3195701,
+      //     "OperationCode": 0,
+      //     "Status": "Success",
+      //   }]
       
            if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
              //otp log
@@ -280,15 +280,15 @@ authMiddleware.User = {
       //send OTP to activate account
       body.customerId = userFound.id;
       userFound.phone.phoneNumber;
-      userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-      // const msgSent = await messagingFunction.sendOTP(userFound);
+      // userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+      userFound.code = Math.floor(100000 + Math.random() * 900000);
+      const msgSent = await messagingFunction.sendOTP(userFound);
       // console.log()
-      // console.log("msgSent ",msgSent)
-    let msgSent =  [{
-          "MessageId": 3195701,
-          "OperationCode": 0,
-          "Status": "Success",
-        }]
+    // let msgSent =  [{
+    //       "MessageId": 3195701,
+    //       "OperationCode": 0,
+    //       "Status": "Success",
+    //     }]
     
            if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
              //otp log

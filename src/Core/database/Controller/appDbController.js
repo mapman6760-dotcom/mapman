@@ -813,7 +813,8 @@ appDbController.Shop = {
           id: { [Op.in]: ids },
           status:"active"
         }, raw: true,
-        limit:data.limit
+        limit: data.limit,
+        offset:data.offset
       })
       return shopsDetails
     } catch (error) {
@@ -835,7 +836,7 @@ appDbController.Shop = {
     }
   },
    
-  allVideos: async (token,data,limit) => {
+  allVideos: async (token,data,limit,offset) => {
     try {
         let allVideos= await appDbController.Models.video.findAll({
           where: {
@@ -845,7 +846,8 @@ appDbController.Shop = {
             category:data.category,
             status:"active"
           }, raw: true,
-          limit:limit
+          limit: limit,
+          offset:offset
         })
        for (let i = 0; i < allVideos.length; i++){
          let details = await appDbController.Models.shop.findOne({
@@ -912,7 +914,8 @@ appDbController.Shop = {
           status:"active"
         },
         raw: true,
-        limit:data.limit
+        limit: data.limit,
+        offset:data.offset
       })
       for (let i = 0; i < mySavedVideos.length; i++){
         let viewedVideos = await appDbController.Models.viewedVideos.findOne({
@@ -1174,7 +1177,8 @@ appDbController.Shop = {
           status:"active"
         },
         raw: true,
-        limit:data.limit
+        limit: data.limit,
+        offset:data.offset
       })
       for (let i = 0; i < mySavedVideos.length; i++){
         let shopDetails = await appDbController.Models.shop.findOne({
@@ -1426,9 +1430,20 @@ appDbController.Notifications = {
       },
       raw:true,
       limit: data.limit,
-      // offset: data.offset,
+      offset: data.offset,
       order: [["createdAt", "DESC"]],
     });
+
+    //Loading all data
+    // return await appDbController.Models.pushMessaging.findAll({
+    //   where: {
+    //     userId:token
+    //   },
+    //   raw:true,
+    //   limit: data.limit,
+    //   // offset: data.offset,
+    //   order: [["createdAt", "DESC"]],
+    // });
   } catch (error) {
     console.error(error);
     return null;

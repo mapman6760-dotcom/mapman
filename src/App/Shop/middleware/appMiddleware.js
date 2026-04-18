@@ -352,12 +352,23 @@ appMiddleware.App = {
     fetchSavedShop: async ({token,query}) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-             const page = Number(query.page) || 1;
-            const pageSize = process.env.PAGINATION_PAGE_SIZE;
-            const limit = page * pageSize;
-            let data = {
-                limit: limit,
-            }
+            // const page = Number(query.page) || 1;
+            // const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            // const limit = page * pageSize;
+            // let data = {
+            //     limit: limit,
+            // }
+
+            const page = Number(query.page) || 1;
+
+const pageSize = Number(process.env.PAGINATION_PAGE_SIZE) || 10;
+
+const offset = (page - 1) * pageSize;
+
+let data = {
+  limit: pageSize,
+  offset: offset
+};
                 const fetchSavedShops=await appDbController.Shop.fetchSavedShops(token,data)
                 if (fetchSavedShops != null && fetchSavedShops != undefined && (fetchSavedShops).length != 0) {
                     return fetchSavedShops
@@ -546,10 +557,17 @@ appMiddleware.App = {
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             //const checkShop = await appDbController.Shop.getShop(token)
             // if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+            // const page = Number(query.page) || 1;
+            // const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            // const limit = page * pageSize;
             const page = Number(query.page) || 1;
-            const pageSize = process.env.PAGINATION_PAGE_SIZE;
-            const limit = page * pageSize;
-                let allVideos=await appDbController.Shop.allVideos(token,query,limit)
+
+const pageSize = Number(process.env.PAGINATION_PAGE_SIZE) || 10;
+
+const offset = (page - 1) * pageSize;
+const limit=pageSize
+
+                let allVideos=await appDbController.Shop.allVideos(token,query,limit,offset)
                 console.log("allvideos",allVideos)
                 if (allVideos != null && allVideos != undefined && Object.keys(allVideos).length != 0) {
                     let videoViews = await appDbController.Shop.videoCounts(allVideos)
@@ -694,12 +712,22 @@ appMiddleware.App = {
     mySavedVideos: async ({ token,query }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            // const page = Number(query.page) || 1;
+            // const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            // const limit = page * pageSize;
+            // let data = {
+            //     limit: limit,
+            // }
             const page = Number(query.page) || 1;
-            const pageSize = process.env.PAGINATION_PAGE_SIZE;
-            const limit = page * pageSize;
-            let data = {
-                limit: limit,
-            }
+
+const pageSize = Number(process.env.PAGINATION_PAGE_SIZE) || 10;
+
+const offset = (page - 1) * pageSize;
+
+let data = {
+  limit: pageSize,
+  offset: offset
+};
             const myVideos = await appDbController.Shop.mySavedVideos(token, data)
             console.log("myvideos ",myVideos)
             if (myVideos != null && myVideos != undefined && Object.keys(myVideos).length != 0) {
@@ -793,12 +821,22 @@ appMiddleware.App = {
     fetchMyViewedVideos: async ({ token,query }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            // const page = Number(query.page) || 1;
+            // const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            // const limit = page * pageSize;
+            // let data = {
+            //     limit: limit,
+            // }
             const page = Number(query.page) || 1;
-            const pageSize = process.env.PAGINATION_PAGE_SIZE;
-            const limit = page * pageSize;
-            let data = {
-                limit: limit,
-            }
+
+const pageSize = Number(process.env.PAGINATION_PAGE_SIZE) || 10;
+
+const offset = (page - 1) * pageSize;
+
+let data = {
+  limit: pageSize,
+  offset: offset
+};
             const myVideos = await appDbController.Shop.fetchMyViewedVideos(token,data)
             if (myVideos != null && myVideos != undefined && Object.keys(myVideos).length != 0) {
                 const videoViews = await appDbController.Shop.videoCounts(myVideos)
@@ -826,7 +864,6 @@ appMiddleware.App = {
     },
     
     fetchCategoryBasedShop: async ({ token, query }) => {
-        console.log("madhu")
     const categoryBasedShop = await appDbController.Profile.fetchCategoryBasedShop(token,query)
     if (categoryBasedShop != null && categoryBasedShop != undefined && Object.keys(categoryBasedShop).length != 0) {
       return categoryBasedShop
@@ -930,12 +967,24 @@ appMiddleware.App = {
     fetchNotifications: async ({token,query}) => {
         const checkUser = await appDbController.Profile.getProfile(token);
         if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+
+            //All data loaded every time
+            // const page = Number(query.page) || 1;
+            // const pageSize = process.env.PAGINATION_PAGE_SIZE;
+            // const limit = page * pageSize;
+            // let data = {
+            //     limit: limit,
+            // }            
+            
+            //Particular page data load
             const page = Number(query.page) || 1;
-            const pageSize = process.env.PAGINATION_PAGE_SIZE;
-            const limit = page * pageSize;
+            const pageSize = Number(process.env.PAGINATION_PAGE_SIZE) || 10;
+            const offset = (page - 1) * pageSize;
             let data = {
-                limit: limit,
-            }            
+             limit: pageSize,
+             offset: offset
+            };
+
             let notification = await appDbController.Notifications.fetchNotifications(token, data)  
             if (notification != null && notification != undefined && notification.length != 0) {
               for (let index = 0; index < notification.length; index++) {
