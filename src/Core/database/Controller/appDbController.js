@@ -362,7 +362,7 @@ appDbController.Profile = {
           id: token,
           status:"active"
         },
-        attributes:["id","userName","profilePic","phone","email","points","fcmToken"],
+        attributes:["id","userName","profilePic","phone","email","points","fcmToken","state","district","country"],
         raw: true
       })
     } catch (error) {
@@ -406,7 +406,10 @@ appDbController.Profile = {
         {
           userName: data.userName,
           profilePic: image,
-          email:data.email
+          email:data.email,
+          state:data.state,
+          district:data.district,
+          country:data.country,
         },
         {
           where: {
@@ -798,6 +801,19 @@ appDbController.Shop = {
     };
   },
 
+  reportShop: async (token,data)=>{
+    try {
+      return await appDbController.Models.reportShop.create({
+          reason: data.reason,
+          profileId: token,
+          shopId: data.shopId,
+          personMobile: data.personMobile,
+          reportStatus:"active"
+        })
+    } catch (error) {
+       return null
+    };
+  },
 
   fetchSavedShops: async (token,data) => {
     try {

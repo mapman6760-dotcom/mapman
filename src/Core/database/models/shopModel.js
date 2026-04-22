@@ -49,6 +49,18 @@ profile.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  state: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  district: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  country: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   fcmToken: {
     type: DataTypes.TEXT("long"),
     allowNull: true,
@@ -566,4 +578,40 @@ notificationPreferences.init(
   { sequelize: connection, freezeTableName: true }
 );
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop};
+class reportShop extends Model { }
+
+reportShop.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    profileId: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+    },
+    shopId: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+    },
+    personMobile: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    reportStatus: {
+      type: DataTypes.ENUM("active", "actionTaken"),
+      defaultValue: "active",
+      allowNull: true,
+    },
+ 
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop};

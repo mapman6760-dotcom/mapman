@@ -67,7 +67,6 @@ managementMiddleware.Management = {
     }
   },
 
-
   getShopDetails: async ({query}) => {     
             const checkShop = await adminDbController.Shop.getShopById(query)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
@@ -80,6 +79,23 @@ managementMiddleware.Management = {
                 }
             } else {
                 return "Shop not found"
+            }            
+  },
+
+  getReportedShops: async () => {     
+          const checkShop = await adminDbController.Shop.getReportedShops()
+          if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+          // let ids = []
+          // ids=checkShop.map(v=>v.shopId)
+          const reportedShops = await adminDbController.Shop.reportedShops(checkShop)
+            if (reportedShops != null && reportedShops != undefined && reportedShops.length != 0) {
+                  return  reportedShops
+                }
+                else {
+                    return []
+                }
+          } else {
+              return "Reported shops not found"
             }          
         
   },

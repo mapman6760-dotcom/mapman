@@ -1086,11 +1086,31 @@ let data = {
     },
 
     terms: async ({token}) => {
-          const checkUser = await appDbController.Profile.getProfile(token);
+        const checkUser = await appDbController.Profile.getProfile(token);
         if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
             return `/terms-and-condtions`
         }
         else {
+          return "User not found"
+        }
+    },
+
+    reportShop: async ({ token, body }) => {
+        const checkUser = await appDbController.Profile.getProfile(token);
+        if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+             const checkShop = await appDbController.Shop.getShopById(body)
+            if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                body.personMobile=checkUser.phone
+               const repotShop = await appDbController.Shop.reportShop(token,body)
+                if (repotShop != null && repotShop != undefined && Object.keys(repotShop).length!= 0) {
+                    return "Shop reported"
+                }
+                else {
+                    throw Error.InternalError("Failed to report the shop")
+            }} else {
+              return "Shop not active now!..."
+            }
+        } else {
           return "User not found"
         }
     }

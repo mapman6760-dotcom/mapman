@@ -362,4 +362,38 @@ adminDbController.Shop = {
       return null
     }
   },
+
+  reportedShops: async (data) => {
+    try {
+      console.log("datta ",data)
+      let reportedShops = []
+      for (let i = 0; i < data.length; i++){
+        let report= await adminDbController.Models.shop.findOne({
+        where: {
+          id:data[i].shopId
+        },raw:true
+        })
+        report.reportStatus = data[i].reportStatus
+        report.reportedPersonMobile = data[i].personMobile
+        reportedShops.push(report)
+      }
+      return reportedShops
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+  
+  getReportedShops: async (data) => {
+    try {
+      return await adminDbController.Models.reportShop.findAll({
+        // where: {
+        //   reportStatus: data.shopId,
+        // }
+         raw: true
+      })
+    } catch (error) {
+      return null
+    }
+  },
 }
