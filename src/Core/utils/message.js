@@ -163,6 +163,7 @@ export const messagingFunction = {
   //   }
    sendOTPEmail: async (data) => {
      try {
+       console.log("data ",data)
     const result = await client.transactionalEmails.sendTransacEmail({
       subject: "Your Verification Code",
       sender: {

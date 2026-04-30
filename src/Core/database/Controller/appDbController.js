@@ -237,6 +237,7 @@ appDbController.Auth = {
 
   createOTPExpiry: async (data) => {
     try {
+      console.log("data in otp ",data)
       return await appDbController.Models.profile.update(
         { otpCode: data.code, otpExpiry: data.expiry, otpCount: data.otpCount },
         { where: { id: data.id } },
@@ -251,6 +252,18 @@ appDbController.Auth = {
     try {
       return await appDbController.Models.profile.update(
         { otpCode: 0, otpExpiry: 0, isPhoneVerified: "yes", status: "active" },
+        { where: { id: data.id } }
+        // { plain: true, returning: true }
+      );
+    } catch (error) {
+      return null
+    }
+  },
+
+  updatePhoneNumber: async (data) => {
+    try {
+      return await appDbController.Models.profile.update(
+        { otpCode: 0, otpExpiry: 0, isPhoneVerified: "yes", status: "active",phone:data.phone },
         { where: { id: data.id } }
         // { plain: true, returning: true }
       );
