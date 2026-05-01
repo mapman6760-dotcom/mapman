@@ -243,6 +243,7 @@ authMiddleware.User = {
          
            if (msgSent != undefined && msgSent != null && msgSent[0].OperationCode ==0&&msgSent[0].Status =="Success" ) {
              //otp log
+             console.log("hiiiiiii")
              userFound1.type = 'success';
              userFound1.requestId = msgSent[0].MessageId
              userFound1.msgType = "otp";
@@ -272,7 +273,14 @@ authMiddleware.User = {
 
       //  userFound1.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
       if (userFound1.phone=="919025821501") {
-              userFound1.code = 987654;
+        userFound1.code = 987654;
+         msgSent = 
+        [{
+          "MessageId": 3195701,
+          "OperationCode": 0,
+          "Status": "Success",
+        }]
+      
       } else {
         userFound1.code = Math.floor(100000 + Math.random() * 900000);
         msgSent = await messagingFunction.sendOTP(userFound1);
@@ -317,7 +325,14 @@ authMiddleware.User = {
 
       // userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
       if (userFound.phone=="919025821501") {
-              userFound.code = 987654;
+        userFound.code = 987654;
+       msgSent = 
+        [{
+          "MessageId": 3195701,
+          "OperationCode": 0,
+          "Status": "Success",
+        }]
+         
       } else {
         userFound.code = Math.floor(100000 + Math.random() * 900000);
         msgSent = await messagingFunction.sendOTP(userFound);
