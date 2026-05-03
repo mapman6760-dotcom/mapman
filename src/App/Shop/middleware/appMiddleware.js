@@ -20,11 +20,46 @@ appMiddleware.App = {
     addNewCategory: async ({ token, body }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const addCategory = await appDbController.Profile.addCategory(token, body)
-            if (addCategory != null && addCategory != undefined && Object.keys(addCategory).length != 0) {
-                return "Your category added successfully"
+            const fetchCategory = await appDbController.Profile.fetchAllCategories(token)
+            if (fetchCategory != null && fetchCategory != undefined && fetchCategory.length != 0) {
+                if(fetchCategory.length<=4)
+                {
+                const addCategory = await appDbController.Profile.addCategory(token, body)
+                if (addCategory != null && addCategory != undefined && Object.keys(addCategory).length != 0) {
+                    return "Your category added successfully"
+                } else {
+                    throw Error.InternalError("Failed to add category")
+                }
+                } else {
+                    throw Error.SomethingWentWrong("You already added 5 categoriies! Please remove one category to add additional categories!")
+                }
             } else {
-                throw Error.InternalError("Failed to add category")
+                const addCategory = await appDbController.Profile.addCategory(token, body)
+                if (addCategory != null && addCategory != undefined && Object.keys(addCategory).length != 0) {
+                    return "Your category added successfully"
+                } else {
+                    throw Error.InternalError("Failed to add category")
+                }
+                // throw Error.SomethingWentWrong("Categories not found")
+            }
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    deleteCategory: async ({ token, body }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const fetchCategory = await appDbController.Profile.fetchSingleCategory(token, body)
+            if (fetchCategory != null && fetchCategory != undefined && Object.keys(fetchCategory).length != 0) {
+                const deleteCategory = await appDbController.Profile.deleteSingleCategory(token, body)
+                if (fetchCategory != null && fetchCategory != undefined && fetchCategory[0] != 0) {
+                    return "Your category deleted successfully"
+                } else {
+                    throw Error.SomethingWentWrong("Failed to delete the category")
+                }
+            } else {
+                throw Error.InternalError("Category not found")
             }
         } else {
             return "Profile not found";

@@ -308,8 +308,6 @@ appDbController.Profile = {
 
   addCategory: async (token,data) => {
     try {
-      console.log("token ",token)
-      console.log("data ",data)
       return await appDbController.Models.category.create({
         addedPerson: token,
         categoryType:"others",
@@ -317,6 +315,56 @@ appDbController.Profile = {
         status:"active"
        })
     } catch (error) {
+      return null
+    }
+  },
+
+  fetchSingleCategory: async (token,data) => {
+    try {
+      return await appDbController.Models.category.findOne({
+        where:
+        {
+          addedPerson: token,
+          categoryType:"others",
+          categoryName: data.categoryName,
+          status: "active"
+        }
+       })
+    } catch (error) {
+      return null
+    }
+  },
+
+  fetchAllCategories: async (token) => {
+    try {
+      return await appDbController.Models.category.findAll({
+        where: {
+          addedPerson: token,
+          categoryType: "others",
+          // categoryName: data.categoryName,
+          status: "active"
+        },raw:true
+       })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteSingleCategory: async (token,data) => {
+    try {
+      return await appDbController.Models.category.update(
+      {
+        status:"inactive"
+      },
+      {
+        where:
+      {
+        addedPerson: token,
+        categoryType:"others",
+        categoryName: data.categoryName,      
+      }}
+    )} catch (error) {
       return null
     }
   },

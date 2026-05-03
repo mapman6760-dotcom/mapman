@@ -7,6 +7,7 @@ import { uploader } from "../../../Core/utils/imageResizer.js"
 const appRouter = Router();
 
 appRouter.post("/addNewCategory", appAuthenticate,appController.App.addNewCategory);
+appRouter.post("/deleteCategory", appAuthenticate,appController.App.deleteCategory);
 
 appRouter.post("/updateProfile", appAuthenticate,Uploaders.Resizer, appController.App.updateProfile);
 appRouter.get("/getProfile", appAuthenticate, Uploaders.Resizer, appController.App.getProfile);
