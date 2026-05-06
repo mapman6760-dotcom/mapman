@@ -112,6 +112,21 @@ appController.App = {
             });
     },
 
+   nonauthendicateSearch: async (req, res) => {
+        appMiddleware.App.nonauthendicateSearch(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
    getCategoryVideos: async (req, res) => {
         appMiddleware.App.getCategoryVideos(req)
             .then((data) => {
@@ -444,6 +459,21 @@ appController.App = {
 
     home: async (req, res) => {
         appMiddleware.App.home(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    nonauthendicateHome: async (req, res) => {
+        appMiddleware.App.nonauthendicateHome(req)
             .then((data) => {
                 const response = ApplicationResult.forCreated();
                 var statuscode = 0;

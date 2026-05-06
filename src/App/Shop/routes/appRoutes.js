@@ -16,7 +16,9 @@ appRouter.get("/analytics", appAuthenticate, appController.App.analytics);
 
 appRouter.get("/search",appAuthenticate,appController.App.search)
 
-appRouter.get("/getCategoryVideos", appAuthenticate, appController.App.getCategoryVideos);
+appRouter.get("/nonauthendicateSearch",appController.App.nonauthendicateSearch)
+
+appRouter.get("/getCategoryVideos",  appController.App.getCategoryVideos);
 
 appRouter.get("/fetchCategoryBasedShop", appAuthenticate, Uploaders.Resizer, appController.App.fetchCategoryBasedShop);
 
@@ -58,6 +60,8 @@ appRouter.post("/addPoints", appAuthenticate ,appController.App.addPoints);
 appRouter.get("/fetchMyViewedVideos", appAuthenticate, appController.App.fetchMyViewedVideos);
 
 appRouter.get("/home", appAuthenticate, appController.App.home);
+
+appRouter.get("/nonauthendicateHome",  appController.App.nonauthendicateHome);
 
 appRouter.get("/fetchPoints", appAuthenticate ,appController.App.points);
 

@@ -143,9 +143,7 @@ appMiddleware.App = {
               const videosWithViews = totalVideos.map(video => ({
                 ...video,
                 viewCount: viewCountMap[video.id] || 0
-              }));
-              
-              
+              }));              
             return {totalVideos:videosWithViews,totalViews:videoViews.length}
         } else {
            return "Profile not found";
@@ -164,6 +162,15 @@ appMiddleware.App = {
         } else {
             return "Profile not found";
         }
+    },
+
+    nonauthendicateSearch: async ({ query }) => {
+            const nonauthendicateSearch = await appDbController.Shop.nonauthendicateSearch(query)
+            if (nonauthendicateSearch != null && nonauthendicateSearch != undefined && nonauthendicateSearch.length != 0) {
+                return nonauthendicateSearch
+            } else {
+                return []
+            }
     },
   
     shopRegister: async ({ body, token, images }) => {
@@ -942,6 +949,16 @@ let data = {
         } else {
             return "Profile not found";
         }
+    },
+
+    nonauthendicateHome: async () => {
+            let category = await appDbController.Profile.fetchNonauthendicateCategory()
+            if (category != null && category != undefined && (category).length != 0) {
+                return category
+            } else {
+                return []
+            }
+           
     },
 
     deleteAccount: async ({ token }) => {

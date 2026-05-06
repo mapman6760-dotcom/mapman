@@ -416,6 +416,20 @@ appDbController.Profile = {
     }
   },
 
+  fetchNonauthendicateCategory: async (token) => {
+    try{
+      return await appDbController.Models.category.findAll({
+        where: {
+          status: "active",
+        },
+        raw: true,
+        attributes:["id","categoryName","categoryImage","categoryType"]
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
   getProfile: async (token) => {
     try {
       return await appDbController.Models.profile.findOne({
@@ -1337,7 +1351,40 @@ appDbController.Shop = {
 
   search: async (token, data) => {
     try {
-    
+      if (data.input == "all"){
+        return await appDbController.Models.shop.findAll({
+          where: {
+            // profileId: {
+            //   [Op.ne]: token
+            // },
+              status: "active",
+          }
+          });
+      }
+      else{
+        return await appDbController.Models.shop.findAll({
+        where: {
+          // profileId: {
+          //   [Op.ne]: token
+          // },
+          [Op.or]: [
+            { shopName: { [Op.like]: `%${data.input}%` } },
+            { category: { [Op.like]: `%${data.input}%` } },
+            // { category: { [Op.like]: `%${data.category}%`||`%${data.input}%` } },
+            { description: { [Op.like]: `%${data.input}%` } }
+            ],
+            status: "active",
+          },
+          raw:true
+        });
+      }    
+    } catch (error) {
+      return null
+    }
+  },
+
+  nonauthendicateSearch: async (data) => {
+    try {
       if (data.input == "all"){
         return await appDbController.Models.shop.findAll({
           where: {
