@@ -924,8 +924,7 @@ let data = {
     },
 
     home: async ({ token }) => {
-        let reviewAdded
- 
+        let reviewAdded 
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             let category = await appDbController.Profile.fetchCategory(token)
@@ -954,11 +953,10 @@ let data = {
     nonauthendicateHome: async () => {
             let category = await appDbController.Profile.fetchNonauthendicateCategory()
             if (category != null && category != undefined && (category).length != 0) {
-                return category
+                return { category: category }
             } else {
                 return []
             }
-           
     },
 
     deleteAccount: async ({ token }) => {
