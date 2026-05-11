@@ -927,6 +927,12 @@ let data = {
         let reviewAdded 
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            let fetchBanners = await appDbController.Banners.fetchBanners()
+            if (fetchBanners != null && fetchBanners != undefined && (fetchBanners).length != 0) {
+                fetchBanners=fetchBanners
+            } else {
+                fetchBanners=[]
+            }
             let category = await appDbController.Profile.fetchCategory(token)
             if (category != null && category != undefined && (category).length != 0) {
                 category=category
@@ -939,11 +945,19 @@ let data = {
             } else {
                 reviewAdded = false
             }
+             let fetchCategoryBanners = await appDbController.Banners.fetchCategoryBanners()
+            if (fetchCategoryBanners != null && fetchCategoryBanners != undefined && (fetchCategoryBanners).length != 0) {
+                fetchCategoryBanners=fetchCategoryBanners
+            } else {
+                fetchCategoryBanners=[]
+            }
             return {
                 profile: fetchUser.profilePic,
                 userName: fetchUser.userName,
+                topBanners: fetchBanners,
                 category: category,
-                reviewStatus:reviewAdded
+                reviewStatus: reviewAdded,
+                categoryBanners:fetchCategoryBanners
            } 
         } else {
             return "Profile not found";
@@ -1142,6 +1156,26 @@ let data = {
         }
         else {
           return "User not found"
+        }
+    },
+
+    fetchBanners: async () => {
+        const fetchBanners = await appDbController.Banners.fetchBanners();
+        if (fetchBanners != null && fetchBanners != undefined && Object.keys(fetchBanners).length != 0) {
+            return fetchBanners
+        }
+        else {
+          return []
+        }
+    },
+
+    fetchCategoryBanners: async () => {
+        const fetchBanners = await appDbController.Banners.fetchCategoryBanners();
+        if (fetchBanners != null && fetchBanners != undefined && Object.keys(fetchBanners).length != 0) {
+            return fetchBanners
+        }
+        else {
+          return []
         }
     },
 

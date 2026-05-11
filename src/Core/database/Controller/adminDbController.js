@@ -397,3 +397,158 @@ adminDbController.Shop = {
     }
   },
 }
+
+adminDbController.Banners = {
+  
+  fetchBanners: async (data) => {
+    try {
+      return await adminDbController.Models.banners.findAll({
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
+  checkBanner: async (data) => {
+    try {
+      console.log("data ",data)
+      return await adminDbController.Models.banners.findOne({
+        where: {
+          title: data.title,
+          subtitle: data.subtitle,
+          contact: data.contact,
+          status:"active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+  
+  addBanners: async (data,images) => {
+    try {
+      return await adminDbController.Models.banners.create({
+          backgroundImage: images.backgroundImage,
+          image: images.image,
+          title: data.title,
+          subtitle: data.subtitle,
+          contact: data.contact,
+          status:"active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  checkBannerId: async (data) => {
+    try {
+      return await adminDbController.Models.banners.findOne({
+        where: {
+          id:data.bannerId,
+          // status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  deleteBanner: async (data) => {
+    try {
+      return await adminDbController.Models.banners.update(
+        {
+        status: data.status
+        },
+        {
+          where: {
+          id:data.bannerId,
+          }
+        }
+      )
+    } catch (error) {
+      return null
+    }
+  },
+  
+  fetchCategoryBanners: async (data) => {
+    try {
+      return await adminDbController.Models.categoryBanners.findAll({
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
+  checkCategoryBanner: async (data) => {
+    try {
+      console.log("data ",data)
+      return await adminDbController.Models.categoryBanners.findOne({
+        where: {
+          title: data.title,
+          subtitle: data.subtitle,
+          contact: data.contact,
+          status:"active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+  
+  addCategoryBanners: async (data,images) => {
+    try {
+      return await adminDbController.Models.categoryBanners.create({
+          backgroundImage: images.backgroundImage,
+          image: images.image,
+          title: data.title,
+          subtitle: data.subtitle,
+          contact: data.contact,
+          category: data.category,
+          status:"active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  checkCategoryBannerId: async (data) => {
+    try {
+      return await adminDbController.Models.categoryBanners.findOne({
+        where: {
+          id:data.bannerId,
+          // status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  deleteCategoryBanner: async (data) => {
+    try {
+      return await adminDbController.Models.categoryBanners.update(
+        {
+        status: data.status
+        },
+        {
+          where: {
+          id:data.bannerId,
+          }
+        }
+      )
+    } catch (error) {
+      return null
+    }
+  },
+
+}

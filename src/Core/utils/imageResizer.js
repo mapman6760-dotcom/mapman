@@ -343,3 +343,39 @@ export const GeneralResizer = async (req, res, next) => {
     });
   }
 };
+
+export const bannerResizer = async (req, res, next) => {
+  try {
+    const outputDir = path.join(__dirname, "/assets/compressed/images/");
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const images = {};
+    const fields = [
+      "backgroundImage",
+      "image"
+    ];
+
+    for (const field of fields) {
+      const file = req.files?.[field]?.[0];
+      if (!file) continue;
+
+      const filename = `${field}-${Date.now()}.png`;
+      const finalPath = path.join(outputDir, filename);
+
+      await sharp(file.buffer)
+        .resize(500)
+        .png({ quality: 80, chromaSubsampling: "4:4:4" })
+        .toFile(finalPath);
+
+      images[field] = `/images/${filename}`;
+    }
+
+    req.images = images;
+    next();
+  } catch (err) {
+    return res.status(500).json({
+      error: "Image processing failed",
+      details: err.message,
+    });
+  }
+};

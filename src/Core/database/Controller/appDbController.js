@@ -1419,6 +1419,34 @@ appDbController.Shop = {
 
 }
 
+appDbController.Banners = {
+  fetchBanners: async () => {
+    try
+    {
+      return await appDbController.Models.banners.findAll({
+      where: {
+        status:"active"
+      },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  fetchCategoryBanners: async () => {
+    try
+    {
+      return await appDbController.Models.categoryBanners.findAll({
+      where: {
+        status:"active"
+      },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  }
+}
+
 appDbController.Notifications = {
   
   fetchNotificationPreference: async (token) => {

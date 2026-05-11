@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { adminAuthenticate } from '../controller/auth.Controller.js';
 import { ManagementController } from '../controller/management.Controller.js';
 import * as Upload from "../../../Core/utils/imageResizer.js"
+import { uploader } from "../../../Core/utils/imageResizer.js"
 
 
 const managementRouter = Router()
@@ -16,7 +17,24 @@ managementRouter.post("/addCategoryVideo",adminAuthenticate,Upload.videoResizer,
 managementRouter.get("/getCategoryVideos",adminAuthenticate,ManagementController.Management.getCategoryVideo);
 managementRouter.get("/getShop",adminAuthenticate,ManagementController.Management.getShop);
 managementRouter.get("/getShopDetails",adminAuthenticate,ManagementController.Management.getShopDetails);
-managementRouter.get("/getReportedShops",adminAuthenticate,ManagementController.Management.getReportedShops);
+managementRouter.get("/getReportedShops", adminAuthenticate, ManagementController.Management.getReportedShops);
+
+//Banners
+managementRouter.get("/fetchBanners",adminAuthenticate,ManagementController.Management.fetchBanners);
+managementRouter.post("/addBanners",adminAuthenticate,uploader.fields([
+    { name: "backgroundImage", maxCount: 1 },
+    { name: "image", maxCount: 1 },,
+]), Upload.bannerResizer,ManagementController.Management.addBanners);
+managementRouter.get("/deleteBanner",adminAuthenticate,ManagementController.Management.deleteBanner);
+
+
+//Category Banners
+managementRouter.get("/fetchCategoryBanners",adminAuthenticate,ManagementController.Management.fetchCategoryBanners);
+managementRouter.post("/addCategoryBanners",adminAuthenticate,uploader.fields([
+    { name: "backgroundImage", maxCount: 1 },
+    { name: "image", maxCount: 1 },,
+]), Upload.bannerResizer,ManagementController.Management.addCategoryBanners);
+managementRouter.get("/deleteCategoryBanner",adminAuthenticate,ManagementController.Management.deleteCategoryBanner);
 
 
 export { managementRouter }

@@ -80,6 +80,12 @@ appRouter.get("/notificationOpenStatus", appAuthenticate, appController.App.noti
 appRouter.get("/privacyPolicy", appAuthenticate, appController.App.privacyPolicy);
 appRouter.get("/terms", appAuthenticate, appController.App.terms);
 
+//Banner
+appRouter.get("/fetchBanners", appAuthenticate, appController.App.fetchBanners);
+
+//Category Banner
+appRouter.get("/fetchCategoryBanners", appAuthenticate, appController.App.fetchCategoryBanners);
+
 
 
 export { appRouter };
