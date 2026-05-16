@@ -42,6 +42,7 @@ appDbController.Auth = {
   },
   checkPhoneExists: async (data) => {
     try {
+      console.log("data ",data)
       return await appDbController.Models.profile.findOne({
         where: {
           // phone: "+91"+data.phone,
@@ -51,6 +52,7 @@ appDbController.Auth = {
         raw: true,
       });
     } catch (error) {
+      console.log(error)
       return null;
     }
   },
@@ -244,6 +246,7 @@ appDbController.Auth = {
         { plain: true, returning: true }
       );
     } catch (error) {
+      console.log(error)
       return null
     }
   },

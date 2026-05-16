@@ -216,7 +216,9 @@ authMiddleware.User = {
     // body.code = phoneNumber.split("-")[0];
     // body.phone = phoneNumber.split("-")[1];
     let userFound = await appDbController.Auth.forgotPasswordPhone(body); 
+    console.log("userfound ",userFound )
     if (userFound == null || Object.keys(userFound).length === 0) {
+      console.log("first")
       //Create a user with that phone number
       let userFound1 = await appDbController.Auth.addMobile(body);
            //send OTP to activate account
@@ -265,6 +267,7 @@ authMiddleware.User = {
                throw Error.SomethingWentWrong(msgSent[0].Remarks);
            }
     } else if (userFound.status === "terminated") {
+      console.log("terminated")
           let userFound1 = await appDbController.Auth.addMobile(body);
            //send OTP to activate account
            body.customerId = userFound1.id;
@@ -318,6 +321,7 @@ authMiddleware.User = {
              throw Error.SomethingWentWrong(msgSent[0].Remarks)
            }
     } else if (userFound.status === "active") {
+      console.log("active")
       //send OTP to activate account
       body.customerId = userFound.id;
       userFound.phone.phoneNumber;
@@ -375,15 +379,17 @@ authMiddleware.User = {
 
   verifyOTP: async ({ body }, device) => {
     var phoneNumber = body.phoneNumber;
-    body.code = phoneNumber.split("-")[0];
-    body.phone = phoneNumber.split("-")[1];
     const userFound = await appDbController.Auth.checkPhoneExists(body);
+    console.log("userfound ",userFound)
+    console.log("userfound expiry",userFound.otpExpiry)
     if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
       var currentTime = Number(Date.now());
       var expiryMinutes = Number(300000);//5 mins
       var expiryTime = Number(userFound.otpExpiry);
       var initiatedTime = expiryTime - expiryMinutes;
       var expired = currentTime - initiatedTime;
+      console.log("expired ",expired)
+      console.log("expiredMinutes ",expiryMinutes)
       if (expired <= expiryMinutes) {
      //expired should be lessthan or equal to 30,000
       
