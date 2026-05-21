@@ -42,7 +42,6 @@ appDbController.Auth = {
   },
   checkPhoneExists: async (data) => {
     try {
-      console.log("data ",data)
       return await appDbController.Models.profile.findOne({
         where: {
           // phone: "+91"+data.phone,
@@ -201,7 +200,6 @@ appDbController.Auth = {
 
   createOTPLog: async (data) => {
     try {
-      console.log("data ",data)
       return await appDbController.Models.otpLogs.create({
         userId: data.id,
         userName: data.userName||"user",
@@ -239,7 +237,6 @@ appDbController.Auth = {
 
   createOTPExpiry: async (data) => {
     try {
-      console.log("data in otp ",data)
       return await appDbController.Models.profile.update(
         { otpCode: data.code, otpExpiry: data.expiry, otpCount: data.otpCount },
         { where: { id: data.id } },

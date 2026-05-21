@@ -412,7 +412,6 @@ adminDbController.Banners = {
   
   checkBanner: async (data) => {
     try {
-      console.log("data ",data)
       return await adminDbController.Models.banners.findOne({
         where: {
           title: data.title,
@@ -487,7 +486,6 @@ adminDbController.Banners = {
   
   checkCategoryBanner: async (data) => {
     try {
-      console.log("data ",data)
       return await adminDbController.Models.categoryBanners.findOne({
         where: {
           title: data.title,

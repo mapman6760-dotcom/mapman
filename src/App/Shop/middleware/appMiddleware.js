@@ -945,7 +945,7 @@ let data = {
             } else {
                 reviewAdded = false
             }
-             let fetchCategoryBanners = await appDbController.Banners.fetchCategoryBanners()
+            let fetchCategoryBanners = await appDbController.Banners.fetchCategoryBanners()
             if (fetchCategoryBanners != null && fetchCategoryBanners != undefined && (fetchCategoryBanners).length != 0) {
                 fetchCategoryBanners=fetchCategoryBanners
             } else {
@@ -966,8 +966,25 @@ let data = {
 
     nonauthendicateHome: async () => {
             let category = await appDbController.Profile.fetchNonauthendicateCategory()
-            if (category != null && category != undefined && (category).length != 0) {
-                return { category: category }
+        if (category != null && category != undefined && (category).length != 0) {
+                let fetchBanners = await appDbController.Banners.fetchBanners()
+            if (fetchBanners != null && fetchBanners != undefined && (fetchBanners).length != 0) {
+                fetchBanners=fetchBanners
+            } else {
+                fetchBanners=[]
+            }
+            let fetchCategoryBanners = await appDbController.Banners.fetchCategoryBanners()
+            if (fetchCategoryBanners != null && fetchCategoryBanners != undefined && (fetchCategoryBanners).length != 0) {
+                fetchCategoryBanners=fetchCategoryBanners
+            } else {
+                fetchCategoryBanners=[]
+            }
+            
+            return {
+                topBanners: fetchBanners,
+                category: category,
+                categoryBanners: fetchCategoryBanners
+                }
             } else {
                 return []
             }

@@ -216,7 +216,6 @@ authMiddleware.User = {
     // body.code = phoneNumber.split("-")[0];
     // body.phone = phoneNumber.split("-")[1];
     let userFound = await appDbController.Auth.forgotPasswordPhone(body); 
-    console.log("userfound ",userFound )
     if (userFound == null || Object.keys(userFound).length === 0) {
       console.log("first")
       //Create a user with that phone number
@@ -380,8 +379,6 @@ authMiddleware.User = {
   verifyOTP: async ({ body }, device) => {
     var phoneNumber = body.phoneNumber;
     const userFound = await appDbController.Auth.checkPhoneExists(body);
-    console.log("userfound ",userFound)
-    console.log("userfound expiry",userFound.otpExpiry)
     if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
       var currentTime = Number(Date.now());
       var expiryMinutes = Number(300000);//5 mins
@@ -449,14 +446,12 @@ authMiddleware.User = {
     // body.code = phoneNumber.split("-")[0];
     // body.phone = phoneNumber.split("-")[1];
     let userFound = await appDbController.Auth.checkEmailExists(body); 
-    console.log("userfound ",userFound)
     if (userFound == null || Object.keys(userFound).length === 0) {
       throw Error.SomethingWentWrong("User not found")
     } else if (userFound.status === "terminated") {
       throw Error.SomethingWentWrong("Your account is terminated! Please register your mobilenumber!....")
     } else if (userFound.status === "active") {
       userFound.phone = body.phone
-      console.log("userFound.phone ",userFound.phone)
       if (userFound.phone=="919025821501") {
         userFound.code = 987654;
         msgSent =  [{
@@ -601,8 +596,7 @@ authMiddleware.User = {
                throw Error.SomethingWentWrong(msgSent[0].Remarks);
            }
     } else if (userFound.status === "terminated") {
-      throw Error.SomethingWentWrong("Your account is terminated! Pase register with your mobile number!....")
-
+      throw Error.SomethingWentWrong("Your account is terminated! Please register with your mobile number!....")
     } else if (userFound.status === "active") {
       //send OTP to activate account
       // userFound.code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
@@ -637,8 +631,6 @@ authMiddleware.User = {
   verifyEmailOTP: async ({ body},device) => {
 
     const userFound = await appDbController.Auth.checkEmailId(body);
-          console.log("userFound ",userFound)
-
     if (userFound != null && userFound != undefined && Object.keys(userFound).length != 0) {
       var currentTime = Number(Date.now());
       var expiryMinutes = Number(300000);//5 mins
