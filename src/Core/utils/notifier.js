@@ -53,10 +53,14 @@ export const FirebaseService = {
             if (notification.data) message.data = notification.data;
             if (notification.android) message.android = notification.android;
             if (notification.apns) message.apns = notification.apns;
-            if (fcmoptions) message.fcmOptions = fcmoptions;
+            
+            if (fcmoptions && typeof fcmoptions === 'object' && fcmoptions.analyticsLabel) {
+              message.fcmOptions = { analyticsLabel: fcmoptions.analyticsLabel };
+            }
 
+            console.log("message ",message)
             const response = await fbadmin.messaging().sendEachForMulticast(message);
-            console.log("response ",response.error)
+            console.log("response ",response.responses[0])
             return response;
 
         } catch (error) {
@@ -191,10 +195,6 @@ export const FirebaseService = {
           data: payloadData,
           apns: apns,
           android: android
-        }, {
-          fcmOptions: {
-            link: link ? String(link) : "",
-          }
         });
       } catch (error) {
         console.log("Error in sendNotifications:", error);

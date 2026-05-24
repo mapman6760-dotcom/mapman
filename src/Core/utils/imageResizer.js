@@ -73,7 +73,7 @@ const fileStorageEngine = multer.diskStorage({
 
 const uploadAttachments = multer({
   storage: fileStorageEngine,
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+  limits: { fileSize: 30 * 1024 * 1024 }, // 20MB
   fileFilter: (req, file, cb) => checkAttachmentType(file, cb),
 });
 
