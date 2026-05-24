@@ -1676,6 +1676,7 @@ appDbController.Notifications = {
         msgType: data.msgType,
         msgStatus: data.msgStatus,
       }));
+      console.log("payload ",payload)
       // return await appDbController.Models.pushMessaging.bulkCreate(payload);
       const records = await appDbController.Models.pushMessaging.bulkCreate(payload);
 

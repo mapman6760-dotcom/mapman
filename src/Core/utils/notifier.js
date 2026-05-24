@@ -26,20 +26,42 @@ const getFirebaseAdmin = () => {
 };
 export const FirebaseService = {
     notify: async (tokens, notification, fcmoptions) => {
-        try {
+    try {
+          console.log("tokens ",tokens)
+          console.log("notification ",notification)
+          console.log("fcmoptions ",fcmoptions)
             const fbadmin = getFirebaseAdmin();
-            const response = await fbadmin.messaging().sendEachForMulticast({
-                tokens: tokens,
-                notification: { title: notification.title, body: notification.body},
-                data: notification.data,
-                android: notification.android,
-                apns: notification.apns,
-                fcmOptions: fcmoptions,
-            });
+            
+            const notificationPayload = { 
+              title: notification.title, 
+              body: notification.body 
+            };
+            
+            const imgUrl = notification.image || notification.imageUrl;
+            if (imgUrl && typeof imgUrl === 'string' && imgUrl.trim() !== '') {
+              // S3/FCM only accepts fully qualified HTTP/HTTPS URLs for imageUrl
+              if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
+                notificationPayload.imageUrl = imgUrl;
+              }
+            }
 
+            const message = {
+                tokens: tokens,
+                notification: notificationPayload,
+            };
+
+            if (notification.data) message.data = notification.data;
+            if (notification.android) message.android = notification.android;
+            if (notification.apns) message.apns = notification.apns;
+            if (fcmoptions) message.fcmOptions = fcmoptions;
+
+            const response = await fbadmin.messaging().sendEachForMulticast(message);
+            console.log("response ",response.error)
+            return response;
 
         } catch (error) {
-            return null;
+          console.log(error)
+             return null;
         }
     },
 
@@ -73,6 +95,7 @@ export const FirebaseService = {
                 console.log("err", err)
             });
         } catch (error) {
+          console.log(error)
             return null;
         }
     },
@@ -129,16 +152,53 @@ export const FirebaseService = {
     
     sendNotifications: async (data) => {
       try {
-      data.token = [...new Set(data.token)];
-      await FirebaseService.notify(data.token, {
-        title: data.title,
-        body: data.description,
-        link: data.msgLink,
-        image:data.image
-      });
-    } catch (error) {
-      console.log(error)
-      return null;
-    }
+        console.log("datta ", data);
+        if (!data || !data.token) {
+          console.log("No notification tokens provided.");
+          return null;
+        }
+        
+        // Filter out any non-string, empty, or whitespace-only tokens
+        const rawTokens = Array.isArray(data.token) ? data.token : [data.token];
+        const tokens = [...new Set(rawTokens)].filter(t => typeof t === 'string' && t.trim() !== '');
+        
+        if (tokens.length === 0) {
+          console.log("No valid S3/FCM registration tokens provided after filtering.");
+          return null;
+        }
+        
+        const title = data.title || data.msgTitle || "Notification";
+        const body = data.description || data.msgDesc || "";
+        const image = data.image || data.msgImage || "";
+        const link = data.link || data.msgLink || "";
+        const type = data.msgType || "";
+
+        const payloadData = {
+          "click_action": "FLUTTER_NOTIFICATION_CLICK",
+          "sound": "default",
+          "status": "done",
+          "screen": type,
+          "link": link ? String(link) : ""
+        };
+
+        const apns = { "payload": { "aps": { "sound": "default" } } };
+        const android = { priority: 'high', notification: { sound: 'default' } };
+
+        await FirebaseService.notify(tokens, {
+          title: title,
+          body: body,
+          image: image,
+          data: payloadData,
+          apns: apns,
+          android: android
+        }, {
+          fcmOptions: {
+            link: link ? String(link) : "",
+          }
+        });
+      } catch (error) {
+        console.log("Error in sendNotifications:", error);
+        return null;
+      }
     },
 }

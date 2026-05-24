@@ -9,11 +9,28 @@ import shelljs from "shelljs";
 const __dirname = path.resolve();
 import dotenv from "dotenv";
 import moment from "moment";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 // import ffmpeg from "fluent-ffmpeg";
 // import ffmpegPath from "ffmpeg-static";
 // ffmpeg.setFfmpegPath(ffmpegPath);
 
 dotenv.config();
+
+// Initialize AWS S3 Client optionally
+let s3Client = null;
+if (
+  process.env.AWS_ACCESS_KEY_ID &&
+  process.env.AWS_SECRET_ACCESS_KEY &&
+  process.env.AWS_REGION
+) {
+  s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+}
 
 //image files
 
@@ -147,8 +164,30 @@ export const videoResizer = async (req, res, next) => {
     }
 
     try {
-      // PUBLIC URL FORMAT
-      req.video = `/videos/${req.file.filename}`;
+      if (s3Client && process.env.AWS_BUCKET_NAME) {
+        const fileStream = fs.createReadStream(req.file.path);
+        const s3Key = `videos/${req.file.filename}`;
+
+        const uploadParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: s3Key,
+          Body: fileStream,
+          ContentType: req.file.mimetype,
+        };
+
+        await s3Client.send(new PutObjectCommand(uploadParams));
+
+        // Get the S3 object URL
+        req.video = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+
+        // Cleanup local file after uploading to S3
+        fs.unlink(req.file.path, (err) => {
+          if (err) console.error("Error deleting local video file:", err);
+        });
+      } else {
+        // Fallback to local storage
+        req.video = `/videos/${req.file.filename}`;
+      }
       next();
     } catch (err) {
       return res.status(500).json({
@@ -157,6 +196,37 @@ export const videoResizer = async (req, res, next) => {
       });
     }
   });
+};
+
+
+const processAndSaveImage = async (buffer, filename) => {
+  const sharpInstance = sharp(buffer)
+    .resize(500)
+    .png({
+      quality: 80,
+      chromaSubsampling: "4:4:4",
+    });
+
+  if (s3Client && process.env.AWS_BUCKET_NAME) {
+    const compressedBuffer = await sharpInstance.toBuffer();
+    const s3Key = `images/${filename}`;
+
+    const uploadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: s3Key,
+      Body: compressedBuffer,
+      ContentType: "image/png",
+    };
+
+    await s3Client.send(new PutObjectCommand(uploadParams));
+    return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+  } else {
+    const outputDir = path.join(__dirname, "/assets/compressed/images/");
+    fs.mkdirSync(outputDir, { recursive: true });
+    const finalPath = path.join(outputDir, filename);
+    await sharpInstance.toFile(finalPath);
+    return `/images/${filename}`;
+  }
 };
 
 
@@ -172,21 +242,8 @@ export const Resizer = async (req, res, next) => {
     }
 
     try {
-      const outputDir = path.join(__dirname, "/assets/compressed/images/");
-      fs.mkdirSync(outputDir, { recursive: true });
-
       const filename = `IMG-${Date.now()}.png`;
-      const finalPath = path.join(outputDir, filename);
-
-      await sharp(req.file.buffer)
-        .resize(500)
-        .png({
-          quality: 80,
-          chromaSubsampling: "4:4:4",
-        })
-        .toFile(finalPath);
-
-      req.image = `/images/${filename}`;
+      req.image = await processAndSaveImage(req.file.buffer, filename);
       next();
     } catch (err) {
       return res.status(500).json({
@@ -307,9 +364,6 @@ export const Resizer = async (req, res, next) => {
 // };
 export const GeneralResizer = async (req, res, next) => {
   try {
-    const outputDir = path.join(__dirname, "/assets/compressed/images/");
-    fs.mkdirSync(outputDir, { recursive: true });
-
     const images = {};
     const fields = [
       "shopImage",
@@ -324,14 +378,7 @@ export const GeneralResizer = async (req, res, next) => {
       if (!file) continue;
 
       const filename = `${field}-${Date.now()}.png`;
-      const finalPath = path.join(outputDir, filename);
-
-      await sharp(file.buffer)
-        .resize(500)
-        .png({ quality: 80, chromaSubsampling: "4:4:4" })
-        .toFile(finalPath);
-
-      images[field] = `/images/${filename}`;
+      images[field] = await processAndSaveImage(file.buffer, filename);
     }
 
     req.images = images;
@@ -346,9 +393,6 @@ export const GeneralResizer = async (req, res, next) => {
 
 export const bannerResizer = async (req, res, next) => {
   try {
-    const outputDir = path.join(__dirname, "/assets/compressed/images/");
-    fs.mkdirSync(outputDir, { recursive: true });
-
     const images = {};
     const fields = [
       "backgroundImage",
@@ -360,14 +404,7 @@ export const bannerResizer = async (req, res, next) => {
       if (!file) continue;
 
       const filename = `${field}-${Date.now()}.png`;
-      const finalPath = path.join(outputDir, filename);
-
-      await sharp(file.buffer)
-        .resize(500)
-        .png({ quality: 80, chromaSubsampling: "4:4:4" })
-        .toFile(finalPath);
-
-      images[field] = `/images/${filename}`;
+      images[field] = await processAndSaveImage(file.buffer, filename);
     }
 
     req.images = images;
