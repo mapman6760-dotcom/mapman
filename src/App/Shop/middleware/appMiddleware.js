@@ -239,8 +239,8 @@ appMiddleware.App = {
                             const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
                             
                             if (checkExists == true) {
-                              await FirebaseService.notify(notify);
-                            //   await FirebaseService.sendNotifications(notify);
+                            //   await FirebaseService.notify(notify);
+                              await FirebaseService.sendNotifications(notify);
                               return "Shop registered successfully"
                             }
                             else {
