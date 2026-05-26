@@ -890,6 +890,22 @@ appDbController.Shop = {
     };
   },
 
+  reportAnIssue: async (token,data,image)=>{
+    try {
+      return await appDbController.Models.reportIssue.create({
+          issueType: data.issueType,
+          description: data.description,
+          screenshot: image,
+          email: data.email||null,
+          profileId: token,
+          personMobile: data.personMobile,
+          reportStatus:"active"
+        })
+    } catch (error) {
+       return null
+    };
+  },
+
   fetchSavedShops: async (token,data) => {
     try {
       const savedShops= await appDbController.Models.saveShop.findAll({

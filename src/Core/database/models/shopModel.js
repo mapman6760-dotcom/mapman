@@ -614,4 +614,48 @@ reportShop.init(
   { sequelize: connection, freezeTableName: true }
 );
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop};
+class reportIssue extends Model { }
+
+reportIssue.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    profileId: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+    },
+    personMobile: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    issueType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    screenshot: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    reportStatus: {
+      type: DataTypes.ENUM("active", "actionTaken","inactive"),
+      defaultValue: "active",
+      allowNull: true,
+    },
+ 
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue};

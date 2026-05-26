@@ -43,6 +43,8 @@ appRouter.post("/getShopById", appAuthenticate, appController.App.getShopById);
 
 appRouter.post("/reportShop", appAuthenticate, appController.App.reportShop);
 
+appRouter.post("/reportIssue", Uploaders.Resizer, appController.App.reportAnIssue);
+
 appRouter.post("/videoRegister", appAuthenticate,Uploaders.videoResizer ,appController.App.videoRegister);
 appRouter.post("/replaceVideo", appAuthenticate,Uploaders.videoResizer ,appController.App.replaceVideo);
 appRouter.post("/updateVideoDetails", appAuthenticate ,appController.App.updateVideo);

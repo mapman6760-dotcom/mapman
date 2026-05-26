@@ -1214,6 +1214,37 @@ let data = {
         } else {
           return "User not found"
         }
+    },
+
+    reportAnIssue: async ({ token, body, image }) => {
+        if (token == null || token == undefined) {
+            token = 0
+            body.personMobile = null
+            const reportAnIssue = await appDbController.Shop.reportAnIssue(token, body,image)
+            if (reportAnIssue != null && reportAnIssue != undefined && Object.keys(reportAnIssue).length != 0) {
+                return "Issue reported"
+            }
+            else {
+                throw Error.InternalError("Failed to report the issue")
+            }
+        } else {
+            token = token
+            const checkUser = await appDbController.Profile.getProfile(token);
+        if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+            body.personMobile = checkUser.phone
+            const reportAnIssue = await appDbController.Shop.reportAnIssue(token, body)
+            if (reportAnIssue != null && reportAnIssue != undefined && Object.keys(reportAnIssue).length != 0) {
+                return "Issue reported"
+            }
+            else {
+                throw Error.InternalError("Failed to report the issue")
+            }
+        }
+        else {
+          return "User not found"
+        }
+        }
+        
     }
     
 };

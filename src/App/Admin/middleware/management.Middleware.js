@@ -100,6 +100,18 @@ managementMiddleware.Management = {
         
   },
 
+  getIssueReports: async () => {     
+          const checkShop = await adminDbController.Shop.getIssueReports()
+    if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+            return checkShop
+          // let ids = []
+          // ids=checkShop.map(v=>v.shopId)
+          } else {
+              return "Issue reports not found"
+            }          
+        
+  },
+
   fetchBanners: async () => {     
           const fetchBanners = await adminDbController.Banners.fetchBanners()
           if (fetchBanners != null && fetchBanners != undefined && Object.keys(fetchBanners).length != 0) {

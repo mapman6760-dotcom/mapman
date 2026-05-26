@@ -396,6 +396,19 @@ adminDbController.Shop = {
       return null
     }
   },
+  
+  getIssueReports: async (data) => {
+    try {
+      return await adminDbController.Models.reportIssue.findAll({
+        // where: {
+        //   reportStatus: data.shopId,
+        // }
+         raw: true
+      })
+    } catch (error) {
+      return null
+    }
+  },
 }
 
 adminDbController.Banners = {

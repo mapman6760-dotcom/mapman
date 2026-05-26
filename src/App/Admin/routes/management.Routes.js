@@ -19,6 +19,8 @@ managementRouter.get("/getShop",adminAuthenticate,ManagementController.Managemen
 managementRouter.get("/getShopDetails",adminAuthenticate,ManagementController.Management.getShopDetails);
 managementRouter.get("/getReportedShops", adminAuthenticate, ManagementController.Management.getReportedShops);
 
+managementRouter.get("/getIssueReports", adminAuthenticate, ManagementController.Management.getIssueReports);
+
 //Banners
 managementRouter.get("/fetchBanners",adminAuthenticate,ManagementController.Management.fetchBanners);
 managementRouter.post("/addBanners",adminAuthenticate,uploader.fields([
