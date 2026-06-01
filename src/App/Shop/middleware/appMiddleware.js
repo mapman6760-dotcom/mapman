@@ -175,9 +175,11 @@ appMiddleware.App = {
   
     shopRegister: async ({ body, token, images }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
-        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const checkShop = await appDbController.Shop.getShop(token)
-            if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {                  
+            if (body.type == "update") {
+                console.log("update")
+                const checkShop = await appDbController.Shop.getShopWithToken(token,body)
+                if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                 if (images.shopImage != null) {
                     images.shopImage=images.shopImage
                 } else {
@@ -209,7 +211,77 @@ appMiddleware.App = {
                 }
                 const shopUpdate = await appDbController.Shop.shopUpdate(token, body, images)
                return shopUpdate
-            } else {
+                } else {
+                    return Error.SomethingWentWrong("Shop not found")
+                }
+            } else if (body.type == "add") {
+                console.log("add")
+                // else {
+                const getShops = await appDbController.Shop.getTokenShops(token)
+                //GEt all the token shops
+                if (getShops != null && getShops != undefined && getShops.length != 0) {
+                    if (getShops.length <=9) {
+                        const registerShop = await appDbController.Shop.registerShop(token, body, images)
+                        if (registerShop != null && registerShop != undefined && Object.keys(registerShop).length != 0) {
+                            const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
+                            if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
+                                const tokenSet = new Set();
+                                for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
+                                    try {
+                                        const tokens = JSON.parse(item.fcmToken || '[]');
+                                        tokens.forEach(t => tokenSet.add(t));
+                                    } catch (e) {
+                                        console.log("Invalid JSON:", item.fcmToken);
+                                    }
+                                }
+                                const uniqueTokens = [...tokenSet];
+                                var notify = {
+                                    userId: fetchPreferenceWithIds.ids,
+                                    token: uniqueTokens,
+                                    msgTitle: `${capitalize(body.shopName)}`,
+                                    msgImage: images.shopImage,
+                                    msgDesc: "New shop has been added",
+                                    msgType: "newShop",
+                                    msgStatus: "accepted",
+                                    msgLink: registerShop.id,
+                                    // msgLink: '/notifications',
+                                };
+                                if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
+                                    const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                            
+                                    if (checkExists == true) {
+                                        await FirebaseService.sendNotifications(notify);
+                                        return "Shop registered successfully"
+                                    }
+                                    else {
+                                        return "Shop registered successfully"
+                                    }
+                                }
+                                else {
+                                    const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                                    return "Shop registered successfully"
+                                }
+                            } else {
+                                console.log("femtoken not found")
+                                // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                                // if (checkExists == true) {
+                                //   await FirebaseService.sendNotifications(notify);
+                                //   return "Shop registered successfully"
+                                // }
+                                // else {
+                                //     return "Shop registered successfully"
+                                // }
+                                return "Shop registered successfully"
+                            }
+                        } else {
+                            throw Error.InternalError("Failed to register the shop")
+                        }
+                    } else {
+                        throw Error.SomethingWentWrong("You already added 10 shops!..")
+                    }                  
+                }
+                //If token shops not found add the shop
+                else {
                 const registerShop = await appDbController.Shop.registerShop(token,body,images)
                 if (registerShop != null && registerShop != undefined && Object.keys(registerShop).length != 0) {
                     const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
@@ -227,7 +299,7 @@ appMiddleware.App = {
                         var notify = {
                             userId: fetchPreferenceWithIds.ids,
                             token: uniqueTokens,
-                            msgTitle: body.shopName,
+                            msgTitle: `${capitalize(body.shopName)}`,
                             msgImage:images.shopImage,
                             msgDesc: "New shop has been added",
                             msgType: "newShop",
@@ -263,8 +335,11 @@ appMiddleware.App = {
                     }
                 } else {
                     throw Error.InternalError("Failed to register the shop")
-                }             
-            }          
+                }  
+                } 
+            } else {
+                throw Error.SomethingWentWrong("Select update/add shop")
+            } 
         } else {
             return "Profile not found";
         }
@@ -317,11 +392,11 @@ appMiddleware.App = {
     fetchShop: async ({ token }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const checkShop = await appDbController.Shop.getShop(token)
+            const checkShop = await appDbController.Shop.getTokenShops(token)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                 return checkShop
             } else {
-                return null
+                return []
             }          
         } else {
             return "Profile not found";
@@ -329,7 +404,6 @@ appMiddleware.App = {
     },
     
     getShopById: async ({ token, body }) => {
-        console.log("get shop by id")
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkShop = await appDbController.Shop.getShopById(body)
@@ -447,7 +521,7 @@ let data = {
                         var notify = {
                             userId: fetchPreferenceWithIds.ids,
                             token: uniqueTokens,
-                            msgTitle: body.videoTitle,
+                            msgTitle: `${capitalize(body.videoTitle)}`,
                             msgImage:video,
                             msgDesc: "New video has been added",
                             msgType: "newVideo",

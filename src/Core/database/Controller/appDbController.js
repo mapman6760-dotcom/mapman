@@ -606,6 +606,34 @@ appDbController.Shop = {
       return null
     }
   },
+
+   getTokenShops: async (token) => {
+    try {
+      return await appDbController.Models.shop.findAll({
+        where: {
+          profileId: token,
+          status:"active"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+   
+  getShopWithToken: async (token,data) => {
+    try {
+      return await appDbController.Models.shop.findOne({
+        where: {
+          profileId: token,
+          id:data.shopId,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
   
   getShopById: async (data) => {
     try {
@@ -735,6 +763,7 @@ appDbController.Shop = {
         {
           where: {
             profileId: token,
+            id:data.shopId,
             status:"active"
           }
         }
