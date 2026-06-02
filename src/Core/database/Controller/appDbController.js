@@ -594,6 +594,20 @@ appDbController.Shop = {
     }
   },
   
+  getMyShop: async (token,data) => {
+    try {
+      return await appDbController.Models.shop.findOne({
+        where: {
+          id:data.shopId,
+          profileId: token,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
   getShop: async (token) => {
     try {
       return await appDbController.Models.shop.findOne({
@@ -971,6 +985,20 @@ appDbController.Shop = {
       return null
     }
   },
+
+  fetchMyVideos: async (token,data) => {
+    try {
+      return await appDbController.Models.video.findAll({
+        where: {
+          shopId:data.shopId,
+          profileId: token,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
    
   allVideos: async (token,data,limit,offset) => {
     try {
@@ -1102,7 +1130,6 @@ appDbController.Shop = {
         })
         data[i].views = mySavedVideos || 0
       }
-      
       return data
     } catch (error) {
       return null
@@ -1489,7 +1516,57 @@ appDbController.Banners = {
     } catch (error) {
       return null
     }
-  }
+  },
+
+  getVersion: async (data) => {
+    try {
+      return await appDbController.Models.versionControl.findOne({
+        where: {
+          androidVersionStatus:"active"
+        },raw:true
+      })
+    } catch (error) {
+       return null
+    }
+  },
+
+  versionControl: async (data) => {
+    try {
+      return await appDbController.Models.versionControl.create({
+        androidVersion: data.androidVersion,
+        iosVersion:data.iosVersion,
+        forceUpdate:data.forceUpdate,
+        updateTitle:data.updateTitle,
+        updateMessage:data.updateMessage,
+        androidStoreUrl:data.androidStoreUrl,
+        iosStoreUrl: data.iosStoreUrl,
+        androidVersionStatus:"active"
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  updateVersion: async (data) => {
+    try {
+      return await appDbController.Models.versionControl.update({
+        androidVersion: data.androidVersion,
+        iosVersion: data.iosVersion,
+        forceUpdate: data.forceUpdate,
+        updateTitle: data.updateTitle,
+        updateMessage: data.updateMessage,
+        androidStoreUrl: data.androidStoreUrl,
+        iosStoreUrl: data.iosStoreUrl,
+      }, {
+        where:
+        {
+          androidVersionStatus: "active"
+        }
+      })
+    } catch (error) {
+      return null
+    }
+  },
 }
 
 appDbController.Notifications = {

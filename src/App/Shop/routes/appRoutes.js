@@ -50,6 +50,7 @@ appRouter.post("/replaceVideo", appAuthenticate,Uploaders.videoResizer ,appContr
 appRouter.post("/updateVideoDetails", appAuthenticate ,appController.App.updateVideo);
 appRouter.post("/deleteVideo", appAuthenticate ,appController.App.deleteVideo);
 appRouter.get("/myVideos", appAuthenticate,appController.App.fetchVideo);
+appRouter.get("/myShopVideos", appAuthenticate,appController.App.myShopVideos);
 appRouter.get("/fetchVideoById", appAuthenticate,appController.App.fetchVideoById);
 
 appRouter.get("/allVideos", appAuthenticate,appController.App.allVideos);
@@ -87,6 +88,10 @@ appRouter.get("/fetchBanners", appAuthenticate, appController.App.fetchBanners);
 
 //Category Banner
 appRouter.get("/fetchCategoryBanners", appAuthenticate, appController.App.fetchCategoryBanners);
+
+//Version control
+appRouter.post("/versionControl",  appController.App.versionControl);
+appRouter.get("/getVersion",  appController.App.getVersion);
 
 
 

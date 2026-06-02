@@ -658,4 +658,52 @@ reportIssue.init(
   { sequelize: connection, freezeTableName: true }
 );
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue};
+class versionControl extends Model { }
+
+versionControl.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    androidVersion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    iosVersion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    forceUpdate: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    updateTitle: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    updateMessage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    androidStoreUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    iosStoreUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    androidVersionStatus: {
+      type: DataTypes.ENUM("active","inactive"),
+      defaultValue: "active",
+      allowNull: true,
+    },
+ 
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl};

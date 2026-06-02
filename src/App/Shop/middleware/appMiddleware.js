@@ -348,8 +348,10 @@ appMiddleware.App = {
     deleteShop: async ({token,query}) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const checkShop = await appDbController.Shop.getShop(token)
+            const checkShop = await appDbController.Shop.getShopWithToken(token,query)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                console.log("checkShop.id ",checkShop.id)
+                console.log("query.shopId",query.shopId)
                 if(checkShop.id==query.shopId)
                 {
                 const shopUpdate = await appDbController.Shop.deleteShop(token, query)                
@@ -499,7 +501,7 @@ let data = {
     videoRegister: async ({ body, token, video }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-            const checkShop = await appDbController.Shop.getShop(token)
+            const checkShop = await appDbController.Shop.getMyShop(token,body)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                 const videoUpload=await appDbController.Shop.videoUpload(body,token,video)
                 // if (videoUpload != null && videoUpload != undefined && Object.keys(videoUpload).length != 0) {
@@ -626,6 +628,32 @@ let data = {
             const checkShop = await appDbController.Shop.getShop(token)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                 const fetchVideo=await appDbController.Shop.fetchVideo(token)
+                if (fetchVideo != null && fetchVideo != undefined && Object.keys(fetchVideo).length != 0) {
+                    // return fetchVideo
+                    const videoViews = await appDbController.Shop.videoCounts(fetchVideo)
+                    if (videoViews != null && videoViews != undefined) {
+                        return fetchVideo
+                    }
+                    else {
+                        return fetchVideo
+                    }
+                } else {
+                    return []
+                }
+            } else {
+                return "Shop not active now/Please register shop"
+            }              
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    myShopVideos: async ({token,query}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const checkShop = await appDbController.Shop.getMyShop(token,query)
+            if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                const fetchVideo = await appDbController.Shop.fetchMyVideos(token, query)
                 if (fetchVideo != null && fetchVideo != undefined && Object.keys(fetchVideo).length != 0) {
                     // return fetchVideo
                     const videoViews = await appDbController.Shop.videoCounts(fetchVideo)
@@ -1319,8 +1347,37 @@ let data = {
         }
         }
         
-    }
+    },
     
+    versionControl: async ({ body }) => {
+        const getVersion = await appDbController.Banners.getVersion(body)
+        console.log("getversion ",getVersion)
+        if (getVersion != null && getVersion != undefined && Object.keys(getVersion).length != 0) {
+            const updateVersion = await appDbController.Banners.updateVersion(body)
+            if (updateVersion != null && updateVersion != undefined && updateVersion[0] != 0) {
+                return "Version updated"
+            } else {
+                throw Error.SomethingWentWrong("Failed to update version")
+            }
+        } else {
+            const addVersion = await appDbController.Banners.versionControl(body)
+            if (addVersion != null && addVersion != undefined && Object.keys(addVersion).length != 0) {
+            return "Version added"
+            } else {
+            throw Error.SomethingWentWrong("Failed to add version")
+            }
+        }
+    },
+      
+    getVersion: async ({ body }) => {
+        const getVersion = await appDbController.Banners.getVersion(body)
+        if (getVersion != null && getVersion != undefined && Object.keys(getVersion).length != 0) {
+            return getVersion
+        } else {
+            return null
+        }
+    },
+      
 };
 
 

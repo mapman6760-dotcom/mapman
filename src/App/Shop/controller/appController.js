@@ -367,6 +367,21 @@ appController.App = {
             });
     },
 
+    myShopVideos: async (req, res) => {
+        appMiddleware.App.myShopVideos(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
     fetchVideoById: async (req, res) => {
         appMiddleware.App.fetchVideoById(req)
             .then((data) => {
@@ -684,6 +699,36 @@ appController.App = {
 
     fetchCategoryBanners: async (req, res) => {
         appMiddleware.App.fetchCategoryBanners(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    versionControl: async (req, res) => {
+        appMiddleware.App.versionControl(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    getVersion: async (req, res) => {
+        appMiddleware.App.getVersion(req)
             .then((data) => {
                 const response = ApplicationResult.forCreated();
                 var statuscode = 0;
