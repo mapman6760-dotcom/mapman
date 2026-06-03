@@ -10,9 +10,10 @@ const __dirname = path.resolve();
 import dotenv from "dotenv";
 import moment from "moment";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-// import ffmpeg from "fluent-ffmpeg";
-// import ffmpegPath from "ffmpeg-static";
-// ffmpeg.setFfmpegPath(ffmpegPath);
+import { appDbController } from "../database/Controller/appDbController.js";
+const ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("ffmpeg-static");
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 dotenv.config();
 
@@ -54,9 +55,38 @@ function checkFileType(file, callback) {
 
 //attachments files
 
+// const fileStorageEngine = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     // const dir = path.join(__dirname, "/assets/originals/" + moment().format('DD-MM-YYYY'));
+//     const dir = path.join(__dirname, "/assets/compressed/videos/");
+//     if (!fs.existsSync(dir)) {
+//       shelljs.mkdir("-p", dir);
+//     }
+//     cb(null, dir);
+//   },
+//   filename: (req, file, cb) => {
+//     const ext = path.extname(file.originalname)?.toLowerCase();
+//     //customized original file name
+//     cb(null, "VID-" + Date.now() + ext);
+//   },
+// });
+
+// const fileStorageEngine = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     const dir = path.join(__dirname, "/assets/compressed/videos/");
+//     if (!fs.existsSync(dir)) {
+//       shelljs.mkdir("-p", dir);
+//     }
+//     cb(null, dir);
+//   },
+//   filename: (req, file, cb) => {
+//     const ext = path.extname(file.originalname)?.toLowerCase();
+//     cb(null, "temp-VID-" + Date.now() + ext);
+//   },
+// });
+
 const fileStorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
-    // const dir = path.join(__dirname, "/assets/originals/" + moment().format('DD-MM-YYYY'));
     const dir = path.join(__dirname, "/assets/compressed/videos/");
     if (!fs.existsSync(dir)) {
       shelljs.mkdir("-p", dir);
@@ -65,7 +95,6 @@ const fileStorageEngine = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname)?.toLowerCase();
-    //customized original file name
     cb(null, "VID-" + Date.now() + ext);
   },
 });
@@ -151,6 +180,247 @@ function checkAttachmentType(file, callback) {
 //   });
 // };
 
+// export const videoResizer = async (req, res, next) => {
+//   uploadAttachments.single("video")(req, res, async (error) => {
+//     if (error) {
+//       return res.status(400).json({ error: error.message });
+//     }
+// 
+//     // allow null video
+//     if (!req.file) {
+//       req.video = null;
+//       return next();
+//     }
+// 
+//     try {
+//       if (s3Client && process.env.AWS_BUCKET_NAME) {
+//         const fileStream = fs.createReadStream(req.file.path);
+//         const s3Key = `videos/${req.file.filename}`;
+// 
+//         const uploadParams = {
+//           Bucket: process.env.AWS_BUCKET_NAME,
+//           Key: s3Key,
+//           Body: fileStream,
+//           ContentType: req.file.mimetype,
+//         };
+// 
+//         await s3Client.send(new PutObjectCommand(uploadParams));
+// 
+//         // Get the S3 object URL
+//         req.video = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+// 
+//         // Cleanup local file after uploading to S3
+//         fs.unlink(req.file.path, (err) => {
+//           if (err) console.error("Error deleting local video file:", err);
+//         });
+//       } else {
+//         // Fallback to local storage
+//         req.video = `/videos/${req.file.filename}`;
+//       }
+//       next();
+//     } catch (err) {
+//       return res.status(500).json({
+//         error: "Video upload failed",
+//         details: err.message,
+//       });
+//     }
+//   });
+// };
+
+// export const videoResizer = async (req, res, next) => {
+//   uploadAttachments.single("video")(req, res, async (error) => {
+//     if (error) {
+//       return res.status(400).json({ error: error.message });
+//     }
+// 
+//     // allow null video
+//     if (!req.file) {
+//       req.video = null;
+//       return next();
+//     }
+// 
+//     const inputPath = req.file.path;
+//     const finalFilename = req.file.filename.replace(/^temp-/, "");
+//     const outputDir = path.dirname(inputPath);
+//     const outputPath = path.join(outputDir, finalFilename);
+// 
+//     try {
+//       // 🎥 Compress video using ffmpeg (H.264 / AAC at 720p resolution)
+//       await new Promise((resolve, reject) => {
+//         ffmpeg(inputPath)
+//           .outputOptions([
+//             "-vcodec libx264",
+//             "-crf 20",
+//             "-preset superfast",
+//             "-pix_fmt yuv420p",
+//             "-acodec aac"
+//           ])
+//           .on("end", () => resolve())
+//           .on("error", (err) => {
+//             console.warn("FFmpeg compression with audio failed, retrying without audio stream:", err.message);
+//             ffmpeg(inputPath)
+//               .outputOptions([
+//                 "-vcodec libx264",
+//                 "-crf 20",
+//                 "-preset superfast",
+//                 "-pix_fmt yuv420p",
+//                 "-an"
+//               ])
+//               .on("end", () => resolve())
+//               .on("error", (retryErr) => reject(retryErr))
+//               .save(outputPath);
+//           })
+//           .save(outputPath);
+//       });
+// 
+//       // Cleanup local original (temp-) file
+//       fs.unlink(inputPath, (err) => {
+//         if (err) console.error("Error deleting local temp video file:", err);
+//       });
+// 
+//       if (s3Client && process.env.AWS_BUCKET_NAME) {
+//         const fileStream = fs.createReadStream(outputPath);
+//         const s3Key = `videos/${finalFilename}`;
+// 
+//         const uploadParams = {
+//           Bucket: process.env.AWS_BUCKET_NAME,
+//           Key: s3Key,
+//           Body: fileStream,
+//           ContentType: req.file.mimetype,
+//         };
+// 
+//         await s3Client.send(new PutObjectCommand(uploadParams));
+// 
+//         // Get the S3 object URL
+//         req.video = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+// 
+//         // Cleanup local compressed file after uploading to S3
+//         fs.unlink(outputPath, (err) => {
+//           if (err) console.error("Error deleting local compressed video file:", err);
+//         });
+//       } else {
+//         // Fallback to local storage
+//         req.video = `/videos/${finalFilename}`;
+//       }
+//       next();
+//     } catch (err) {
+//       // Clean up inputPath if it still exists
+//       if (fs.existsSync(inputPath)) {
+//         fs.unlink(inputPath, () => {});
+//       }
+//       // Clean up outputPath if it was partially created
+//       if (fs.existsSync(outputPath)) {
+//         fs.unlink(outputPath, () => {});
+//       }
+//       return res.status(500).json({
+//         error: "Video compression failed",
+//         details: err.message,
+//       });
+//     }
+//   });
+// };
+
+const compressAndUploadVideoBackground = async (filename, mimetype) => {
+  const localDir = path.join(__dirname, "/assets/compressed/videos/");
+  const inputPath = path.join(localDir, filename);
+  const tempOutputPath = path.join(localDir, "compress-" + filename);
+
+  try {
+    // Wait a couple seconds to make sure the HTTP request completed and DB row is created
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    if (!fs.existsSync(inputPath)) {
+      console.error("Original video file not found for background compression:", inputPath);
+      return;
+    }
+
+    // 🎥 Compress video using ffmpeg (H.264 / AAC at original resolution)
+    await new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .outputOptions([
+          "-vcodec libx264",
+          "-crf 20",
+          "-preset superfast",
+          "-pix_fmt yuv420p",
+          "-acodec aac"
+        ])
+        .on("end", () => resolve())
+        .on("error", (err) => {
+          console.warn("Background FFmpeg compression with audio failed, retrying without audio stream:", err.message);
+          ffmpeg(inputPath)
+            .outputOptions([
+              "-vcodec libx264",
+              "-crf 20",
+              "-preset superfast",
+              "-pix_fmt yuv420p",
+              "-an"
+            ])
+            .on("end", () => resolve())
+            .on("error", (retryErr) => reject(retryErr))
+            .save(tempOutputPath);
+        })
+        .save(tempOutputPath);
+    });
+
+    // Replace original file with compressed file locally
+    if (fs.existsSync(tempOutputPath)) {
+      fs.unlinkSync(inputPath);
+      fs.renameSync(tempOutputPath, inputPath);
+    }
+
+    // S3 upload if configured
+    if (s3Client && process.env.AWS_BUCKET_NAME) {
+      const fileStream = fs.createReadStream(inputPath);
+      const s3Key = `videos/${filename}`;
+
+      const uploadParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: s3Key,
+        Body: fileStream,
+        ContentType: mimetype,
+      };
+
+      await s3Client.send(new PutObjectCommand(uploadParams));
+      const s3Url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+
+      // Query database to update the video URL
+      const localUrl = `/videos/${filename}`;
+      let updated = false;
+      // Retry database update up to 10 times in case database insertion has slight latency
+      for (let i = 0; i < 10; i++) {
+        try {
+          const videoRow = await appDbController.Models.video.findOne({
+            where: { video: localUrl }
+          });
+          if (videoRow) {
+            await videoRow.update({ video: s3Url });
+            updated = true;
+            console.log(`Successfully updated S3 URL in database for video ID: ${videoRow.id}`);
+            break;
+          }
+        } catch (dbErr) {
+          console.error("Database update attempt failed:", dbErr.message);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+
+      if (!updated) {
+        console.warn(`Could not find database row for video URL: ${localUrl} after multiple attempts.`);
+      }
+
+      // Cleanup local file after uploading to S3
+      fs.unlink(inputPath, (err) => {
+        if (err) console.error("Error deleting local video file:", err);
+      });
+    }
+  } catch (err) {
+    console.error("Background video processing failed:", err.message);
+    if (fs.existsSync(tempOutputPath)) {
+      fs.unlink(tempOutputPath, () => {});
+    }
+  }
+};
+
 export const videoResizer = async (req, res, next) => {
   uploadAttachments.single("video")(req, res, async (error) => {
     if (error) {
@@ -164,34 +434,16 @@ export const videoResizer = async (req, res, next) => {
     }
 
     try {
-      if (s3Client && process.env.AWS_BUCKET_NAME) {
-        const fileStream = fs.createReadStream(req.file.path);
-        const s3Key = `videos/${req.file.filename}`;
-
-        const uploadParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: s3Key,
-          Body: fileStream,
-          ContentType: req.file.mimetype,
-        };
-
-        await s3Client.send(new PutObjectCommand(uploadParams));
-
-        // Get the S3 object URL
-        req.video = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
-
-        // Cleanup local file after uploading to S3
-        fs.unlink(req.file.path, (err) => {
-          if (err) console.error("Error deleting local video file:", err);
-        });
-      } else {
-        // Fallback to local storage
-        req.video = `/videos/${req.file.filename}`;
-      }
+      // Immediately set local path so database registration proceeds instantly
+      req.video = `/videos/${req.file.filename}`;
+      
+      // Spawn video compression & upload asynchronously in the background
+      compressAndUploadVideoBackground(req.file.filename, req.file.mimetype);
+      
       next();
     } catch (err) {
       return res.status(500).json({
-        error: "Video upload failed",
+        error: "Video registration failed",
         details: err.message,
       });
     }
@@ -199,13 +451,63 @@ export const videoResizer = async (req, res, next) => {
 };
 
 
+// const processAndSaveImage = async (buffer, filename) => {
+//   const sharpInstance = sharp(buffer)
+//     .resize(500)
+//     .png({
+//       quality: 80,
+//       chromaSubsampling: "4:4:4",
+//     });
+// 
+//   if (s3Client && process.env.AWS_BUCKET_NAME) {
+//     const compressedBuffer = await sharpInstance.toBuffer();
+//     const s3Key = `images/${filename}`;
+// 
+//     const uploadParams = {
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: s3Key,
+//       Body: compressedBuffer,
+//       ContentType: "image/png",
+//     };
+// 
+//     await s3Client.send(new PutObjectCommand(uploadParams));
+//     return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+//   } else {
+//     const outputDir = path.join(__dirname, "/assets/compressed/images/");
+//     fs.mkdirSync(outputDir, { recursive: true });
+//     const finalPath = path.join(outputDir, filename);
+//     await sharpInstance.toFile(finalPath);
+//     return `/images/${filename}`;
+//   }
+// };
+
 const processAndSaveImage = async (buffer, filename) => {
-  const sharpInstance = sharp(buffer)
-    .resize(500)
-    .png({
-      quality: 80,
-      chromaSubsampling: "4:4:4",
+  const ext = path.extname(filename).toLowerCase();
+  let sharpInstance = sharp(buffer);
+
+  let contentType = "image/png";
+  if (ext === ".png") {
+    sharpInstance = sharpInstance.png({
+      compressionLevel: 9,
     });
+    contentType = "image/png";
+  } else if (ext === ".jpg" || ext === ".jpeg") {
+    sharpInstance = sharpInstance.jpeg({
+      quality: 95,
+      progressive: true,
+    });
+    contentType = "image/jpeg";
+  } else if (ext === ".webp") {
+    sharpInstance = sharpInstance.webp({
+      quality: 95,
+    });
+    contentType = "image/webp";
+  } else {
+    sharpInstance = sharpInstance.png({
+      compressionLevel: 9,
+    });
+    contentType = "image/png";
+  }
 
   if (s3Client && process.env.AWS_BUCKET_NAME) {
     const compressedBuffer = await sharpInstance.toBuffer();
@@ -215,7 +517,7 @@ const processAndSaveImage = async (buffer, filename) => {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: s3Key,
       Body: compressedBuffer,
-      ContentType: "image/png",
+      ContentType: contentType,
     };
 
     await s3Client.send(new PutObjectCommand(uploadParams));
@@ -230,6 +532,30 @@ const processAndSaveImage = async (buffer, filename) => {
 };
 
 
+// export const Resizer = async (req, res, next) => {
+//   uploader.single("image")(req, res, async (error) => {
+//     if (error) {
+//       return res.status(400).json({ error: error.message });
+//     }
+// 
+//     if (!req.file) {
+//       req.image = null;
+//       return next();
+//     }
+// 
+//     try {
+//       const filename = `IMG-${Date.now()}.png`;
+//       req.image = await processAndSaveImage(req.file.buffer, filename);
+//       next();
+//     } catch (err) {
+//       return res.status(500).json({
+//         error: "Image processing failed",
+//         details: err.message,
+//       });
+//     }
+//   });
+// };
+
 export const Resizer = async (req, res, next) => {
   uploader.single("image")(req, res, async (error) => {
     if (error) {
@@ -242,7 +568,8 @@ export const Resizer = async (req, res, next) => {
     }
 
     try {
-      const filename = `IMG-${Date.now()}.png`;
+      const ext = path.extname(req.file.originalname).toLowerCase() || ".png";
+      const filename = `IMG-${Date.now()}${ext}`;
       req.image = await processAndSaveImage(req.file.buffer, filename);
       next();
     } catch (err) {
@@ -362,6 +689,35 @@ export const Resizer = async (req, res, next) => {
 //     }
 //   });
 // };
+// export const GeneralResizer = async (req, res, next) => {
+//   try {
+//     const images = {};
+//     const fields = [
+//       "shopImage",
+//       "image1",
+//       "image2",
+//       "image3",
+//       "image4"
+//     ];
+// 
+//     for (const field of fields) {
+//       const file = req.files?.[field]?.[0];
+//       if (!file) continue;
+// 
+//       const filename = `${field}-${Date.now()}.png`;
+//       images[field] = await processAndSaveImage(file.buffer, filename);
+//     }
+// 
+//     req.images = images;
+//     next();
+//   } catch (err) {
+//     return res.status(500).json({
+//       error: "Image processing failed",
+//       details: err.message,
+//     });
+//   }
+// };
+
 export const GeneralResizer = async (req, res, next) => {
   try {
     const images = {};
@@ -377,7 +733,8 @@ export const GeneralResizer = async (req, res, next) => {
       const file = req.files?.[field]?.[0];
       if (!file) continue;
 
-      const filename = `${field}-${Date.now()}.png`;
+      const ext = path.extname(file.originalname).toLowerCase() || ".png";
+      const filename = `${field}-${Date.now()}${ext}`;
       images[field] = await processAndSaveImage(file.buffer, filename);
     }
 
@@ -391,6 +748,32 @@ export const GeneralResizer = async (req, res, next) => {
   }
 };
 
+// export const bannerResizer = async (req, res, next) => {
+//   try {
+//     const images = {};
+//     const fields = [
+//       "backgroundImage",
+//       "image"
+//     ];
+// 
+//     for (const field of fields) {
+//       const file = req.files?.[field]?.[0];
+//       if (!file) continue;
+// 
+//       const filename = `${field}-${Date.now()}.png`;
+//       images[field] = await processAndSaveImage(file.buffer, filename);
+//     }
+// 
+//     req.images = images;
+//     next();
+//   } catch (err) {
+//     return res.status(500).json({
+//       error: "Image processing failed",
+//       details: err.message,
+//     });
+//   }
+// };
+
 export const bannerResizer = async (req, res, next) => {
   try {
     const images = {};
@@ -403,7 +786,8 @@ export const bannerResizer = async (req, res, next) => {
       const file = req.files?.[field]?.[0];
       if (!file) continue;
 
-      const filename = `${field}-${Date.now()}.png`;
+      const ext = path.extname(file.originalname).toLowerCase() || ".png";
+      const filename = `${field}-${Date.now()}${ext}`;
       images[field] = await processAndSaveImage(file.buffer, filename);
     }
 

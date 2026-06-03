@@ -14,6 +14,74 @@ const excelToJson = require('convert-excel-to-json');
 import { adminDbController } from "../../../Core/database/Controller/adminDbController.js";
 export class appMiddleware { }
 
+const handleShopNotification = async (token, body, images, registerShopId) => {
+    try {
+        const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token);
+        if (fetchPreferenceWithIds && fetchPreferenceWithIds.preferenceMatchedUsers && fetchPreferenceWithIds.preferenceMatchedUsers.length !== 0) {
+            const tokenSet = new Set();
+            for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
+                try {
+                    const tokens = JSON.parse(item.fcmToken || '[]');
+                    tokens.forEach(t => tokenSet.add(t));
+                } catch (e) {
+                    console.log("Invalid JSON:", item.fcmToken);
+                }
+            }
+            const uniqueTokens = [...tokenSet];
+            const notify = {
+                userId: fetchPreferenceWithIds.ids,
+                token: uniqueTokens,
+                msgTitle: `${capitalize(body.shopName)}`,
+                msgImage: images.shopImage,
+                msgDesc: "New shop has been added",
+                msgType: "newShop",
+                msgStatus: "accepted",
+                msgLink: registerShopId,
+            };
+            const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+            if (checkExists === true && uniqueTokens.length !== 0) {
+                await FirebaseService.sendNotifications(notify);
+            }
+        }
+    } catch (err) {
+        console.error("Error handling shop register notification:", err);
+    }
+};
+
+const handleVideoNotification = async (token, body, video, videoUploadId) => {
+    try {
+        const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForVideoUsers(token);
+        if (fetchPreferenceWithIds && fetchPreferenceWithIds.preferenceMatchedUsers && fetchPreferenceWithIds.preferenceMatchedUsers.length !== 0) {
+            const tokenSet = new Set();
+            for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
+                try {
+                    const tokens = JSON.parse(item.fcmToken || '[]');
+                    tokens.forEach(t => tokenSet.add(t));
+                } catch (e) {
+                    console.log("Invalid JSON:", item.fcmToken);
+                }
+            }
+            const uniqueTokens = [...tokenSet];
+            const notify = {
+                userId: fetchPreferenceWithIds.ids,
+                token: uniqueTokens,
+                msgTitle: `${capitalize(body.videoTitle)}`,
+                msgImage: video,
+                msgDesc: "New video has been added",
+                msgType: "newVideo",
+                msgStatus: "accepted",
+                msgLink: videoUploadId,
+            };
+            const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+            if (checkExists === true && uniqueTokens.length !== 0) {
+                await FirebaseService.sendNotifications(notify);
+            }
+        }
+    } catch (err) {
+        console.error("Error handling video register notification:", err);
+    }
+};
+
 
 appMiddleware.App = {
 
@@ -223,56 +291,58 @@ appMiddleware.App = {
                     if (getShops.length <=9) {
                         const registerShop = await appDbController.Shop.registerShop(token, body, images)
                         if (registerShop != null && registerShop != undefined && Object.keys(registerShop).length != 0) {
-                            const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
-                            if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
-                                const tokenSet = new Set();
-                                for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
-                                    try {
-                                        const tokens = JSON.parse(item.fcmToken || '[]');
-                                        tokens.forEach(t => tokenSet.add(t));
-                                    } catch (e) {
-                                        console.log("Invalid JSON:", item.fcmToken);
-                                    }
-                                }
-                                const uniqueTokens = [...tokenSet];
-                                var notify = {
-                                    userId: fetchPreferenceWithIds.ids,
-                                    token: uniqueTokens,
-                                    msgTitle: `${capitalize(body.shopName)}`,
-                                    msgImage: images.shopImage,
-                                    msgDesc: "New shop has been added",
-                                    msgType: "newShop",
-                                    msgStatus: "accepted",
-                                    msgLink: registerShop.id,
-                                    // msgLink: '/notifications',
-                                };
-                                if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
-                                    const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                            
-                                    if (checkExists == true) {
-                                        await FirebaseService.sendNotifications(notify);
-                                        return "Shop registered successfully"
-                                    }
-                                    else {
-                                        return "Shop registered successfully"
-                                    }
-                                }
-                                else {
-                                    const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                                    return "Shop registered successfully"
-                                }
-                            } else {
-                                console.log("femtoken not found")
-                                // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                                // if (checkExists == true) {
-                                //   await FirebaseService.sendNotifications(notify);
-                                //   return "Shop registered successfully"
-                                // }
-                                // else {
-                                //     return "Shop registered successfully"
-                                // }
-                                return "Shop registered successfully"
-                            }
+                            // const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
+                            // if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
+                            //     const tokenSet = new Set();
+                            //     for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
+                            //         try {
+                            //             const tokens = JSON.parse(item.fcmToken || '[]');
+                            //             tokens.forEach(t => tokenSet.add(t));
+                            //         } catch (e) {
+                            //             console.log("Invalid JSON:", item.fcmToken);
+                            //         }
+                            //     }
+                            //     const uniqueTokens = [...tokenSet];
+                            //     var notify = {
+                            //         userId: fetchPreferenceWithIds.ids,
+                            //         token: uniqueTokens,
+                            //         msgTitle: `${capitalize(body.shopName)}`,
+                            //         msgImage: images.shopImage,
+                            //         msgDesc: "New shop has been added",
+                            //         msgType: "newShop",
+                            //         msgStatus: "accepted",
+                            //         msgLink: registerShop.id,
+                            //         // msgLink: '/notifications',
+                            //     };
+                            //     if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
+                            //         const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                            // 
+                            //         if (checkExists == true) {
+                            //             await FirebaseService.sendNotifications(notify);
+                            //             return "Shop registered successfully"
+                            //         }
+                            //         else {
+                            //             return "Shop registered successfully"
+                            //         }
+                            //     }
+                            //     else {
+                            //         const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                            //         return "Shop registered successfully"
+                            //     }
+                            // } else {
+                            //     // console.log("femtoken not found")
+                            //     // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                            //     // if (checkExists == true) {
+                            //     //   await FirebaseService.sendNotifications(notify);
+                            //     //   return "Shop registered successfully"
+                            //     // }
+                            //     // else {
+                            //     //     return "Shop registered successfully"
+                            //     // }
+                            //     return "Shop registered successfully"
+                            // }
+                            handleShopNotification(token, body, images, registerShop.id);
+                            return "Shop registered successfully";
                         } else {
                             throw Error.InternalError("Failed to register the shop")
                         }
@@ -284,55 +354,57 @@ appMiddleware.App = {
                 else {
                 const registerShop = await appDbController.Shop.registerShop(token,body,images)
                 if (registerShop != null && registerShop != undefined && Object.keys(registerShop).length != 0) {
-                    const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
-                    if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
-                        const tokenSet = new Set();
-                        for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
-                          try {
-                            const tokens = JSON.parse(item.fcmToken || '[]');
-                            tokens.forEach(t => tokenSet.add(t));
-                          } catch (e) {
-                            console.log("Invalid JSON:", item.fcmToken);
-                          }
-                        }                        
-                        const uniqueTokens = [...tokenSet];                          
-                        var notify = {
-                            userId: fetchPreferenceWithIds.ids,
-                            token: uniqueTokens,
-                            msgTitle: `${capitalize(body.shopName)}`,
-                            msgImage:images.shopImage,
-                            msgDesc: "New shop has been added",
-                            msgType: "newShop",
-                            msgStatus: "accepted",
-                            msgLink: registerShop.id,
-                            // msgLink: '/notifications',
-                        };                       
-                        if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
-                            const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                            
-                            if (checkExists == true) {
-                              await FirebaseService.sendNotifications(notify);
-                              return "Shop registered successfully"
-                            }
-                            else {
-                                return "Shop registered successfully"
-                            }
-                          }
-                          else { 
-                            const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                            return "Shop registered successfully"
-                          }
-                    } else {
-                        // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                        // if (checkExists == true) {
-                        //   await FirebaseService.sendNotifications(notify);
-                        //   return "Shop registered successfully"
-                        // }
-                        // else {
-                        //     return "Shop registered successfully"
-                        // }
-                        return "Shop registered successfully"
-                    }
+                    // const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
+                    // if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
+                    //     const tokenSet = new Set();
+                    //     for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
+                    //       try {
+                    //         const tokens = JSON.parse(item.fcmToken || '[]');
+                    //         tokens.forEach(t => tokenSet.add(t));
+                    //       } catch (e) {
+                    //         console.log("Invalid JSON:", item.fcmToken);
+                    //       }
+                    //     }                        
+                    //     const uniqueTokens = [...tokenSet];                          
+                    //     var notify = {
+                    //         userId: fetchPreferenceWithIds.ids,
+                    //         token: uniqueTokens,
+                    //         msgTitle: `${capitalize(body.shopName)}`,
+                    //         msgImage:images.shopImage,
+                    //         msgDesc: "New shop has been added",
+                    //         msgType: "newShop",
+                    //         msgStatus: "accepted",
+                    //         msgLink: registerShop.id,
+                    //         // msgLink: '/notifications',
+                    //     };                       
+                    //     if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
+                    //         const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                    //         
+                    //         if (checkExists == true) {
+                    //           await FirebaseService.sendNotifications(notify);
+                    //           return "Shop registered successfully"
+                    //         }
+                    //         else {
+                    //             return "Shop registered successfully"
+                    //         }
+                    //       }
+                    //       else { 
+                    //         const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                    //         return "Shop registered successfully"
+                    //       }
+                    // } else {
+                    //     // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                    //     // if (checkExists == true) {
+                    //     //   await FirebaseService.sendNotifications(notify);
+                    //     //   return "Shop registered successfully"
+                    //     // }
+                    //     // else {
+                    //     //     return "Shop registered successfully"
+                    //     // }
+                    //     return "Shop registered successfully"
+                    // }
+                    handleShopNotification(token, body, images, registerShop.id);
+                    return "Shop registered successfully";
                 } else {
                     throw Error.InternalError("Failed to register the shop")
                 }  
@@ -508,54 +580,56 @@ let data = {
                 //     // return "Video uploaded"
                 // }
                 if (videoUpload != null && videoUpload != undefined && Object.keys(videoUpload).length != 0) {
-                    const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForVideoUsers(token)
-                    if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
-                        const tokenSet = new Set();
-                        for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
-                          try {
-                            const tokens = JSON.parse(item.fcmToken || '[]');
-                            tokens.forEach(t => tokenSet.add(t));
-                          } catch (e) {
-                            console.log("Invalid JSON:", item.fcmToken);
-                          }
-                        }                        
-                        const uniqueTokens = [...tokenSet];                          
-                        var notify = {
-                            userId: fetchPreferenceWithIds.ids,
-                            token: uniqueTokens,
-                            msgTitle: `${capitalize(body.videoTitle)}`,
-                            msgImage:video,
-                            msgDesc: "New video has been added",
-                            msgType: "newVideo",
-                            msgStatus: "accepted",
-                            msgLink:videoUpload.id,
-                            // msgLink: '/notifications',
-                          };                       
-                          if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
-                            const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                            if (checkExists == true) {
-                              await FirebaseService.sendNotifications(notify);
-                              return "Video uploaded"
-                            }
-                            else {
-                                return "Video uploaded"
-                            }
-                          }
-                          else { 
-                            const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                            return "Video uploaded"
-                          }
-                    } else {
-                        // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
-                        // if (checkExists == true) {
-                        //   await FirebaseService.sendNotifications(notify);
-                        //   return "Video uploaded"
-                        // }
-                        // else {
-                        //     return "Video uploaded"
-                        // }
-                        return "Video uploaded"
-                    }
+                    // const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForVideoUsers(token)
+                    // if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
+                    //     const tokenSet = new Set();
+                    //     for (const item of fetchPreferenceWithIds.preferenceMatchedUsers) {
+                    //       try {
+                    //         const tokens = JSON.parse(item.fcmToken || '[]');
+                    //         tokens.forEach(t => tokenSet.add(t));
+                    //       } catch (e) {
+                    //         console.log("Invalid JSON:", item.fcmToken);
+                    //       }
+                    //     }                        
+                    //     const uniqueTokens = [...tokenSet];                          
+                    //     var notify = {
+                    //         userId: fetchPreferenceWithIds.ids,
+                    //         token: uniqueTokens,
+                    //         msgTitle: `${capitalize(body.videoTitle)}`,
+                    //         msgImage:video,
+                    //         msgDesc: "New video has been added",
+                    //         msgType: "newVideo",
+                    //         msgStatus: "accepted",
+                    //         msgLink:videoUpload.id,
+                    //         // msgLink: '/notifications',
+                    //       };                       
+                    //       if (uniqueTokens != null && uniqueTokens != undefined && uniqueTokens.length != 0) {
+                    //         const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                    //         if (checkExists == true) {
+                    //           await FirebaseService.sendNotifications(notify);
+                    //           return "Video uploaded"
+                    //         }
+                    //         else {
+                    //             return "Video uploaded"
+                    //         }
+                    //       }
+                    //       else { 
+                    //         const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                    //         return "Video uploaded"
+                    //       }
+                    // } else {
+                    //     // const [fetch, checkExists] = await appDbController.Notifications.addPushMessageBulk(notify);
+                    //     // if (checkExists == true) {
+                    //     //   await FirebaseService.sendNotifications(notify);
+                    //     //   return "Video uploaded"
+                    //     // }
+                    //     // else {
+                    //     //     return "Video uploaded"
+                    //     // }
+                    //     return "Video uploaded"
+                    // }
+                    handleVideoNotification(token, body, video, videoUpload.id);
+                    return "Video uploaded";
                 }
                 else {
                    throw Error.InternalError("Failed to upload the video")

@@ -170,6 +170,10 @@ shop.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  websiteLink: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   address: {
    type: DataTypes.TEXT('long'),
     allowNull: true,
