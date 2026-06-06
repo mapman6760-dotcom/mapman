@@ -96,6 +96,7 @@ const { shopRouter } = await import("./src/App/Shop/routes/index.js");
 const { adminRouter } = await import("./src/App/Admin/routes/index.Routes.js");
 
 const app = express();
+app.set('trust proxy', true);
 
 //Enable cross origin policy
 app.use(cors({ origin: "*", optionsSuccessStatus: 200, methods: "GET,POST,PUT", preflightContinue: false, credentials: true, }));

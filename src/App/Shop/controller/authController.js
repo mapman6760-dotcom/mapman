@@ -11,7 +11,7 @@ export const emailLogin = async (req, res) => {
   const ipv = req.socket.remoteAddress;
   const browser = req.get("User-Agent");
   const deviceInfo = { ip: ipv4, ipv: ipv, userAgent: browser };
-  authMiddleware.Student.emailLogin(req, deviceInfo)
+  authMiddleware.User.emailLogin(req, deviceInfo)
     .then((data) => {
       const response = ApplicationResult.forCreated();
       var statuscode = 0;
@@ -98,7 +98,7 @@ export const verifyCode = async (req, res) => {
 };
 
 export const verifyStudentEmail = async (req, res) => {
-  authMiddleware.Student.verifyStudentEmail(req)
+  authMiddleware.User.verifyStudentEmail(req)
     .then((data) => {
       const response = ApplicationResult.forCreated();
       var statuscode = 0;
@@ -121,7 +121,7 @@ export const verifyStudentEmail = async (req, res) => {
 };
 
 export const verifyStaffEmail = async (req, res) => {
-  authMiddleware.Student.verifyStaffEmail(req)
+  authMiddleware.User.verifyStaffEmail(req)
     .then((data) => {
       const response = ApplicationResult.forCreated();
       var statuscode = 0;

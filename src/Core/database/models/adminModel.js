@@ -57,11 +57,11 @@ adminAuth.init({
   },
   ipv4: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   userAgent: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   status: {
     type: DataTypes.ENUM('active', 'inactive'),
