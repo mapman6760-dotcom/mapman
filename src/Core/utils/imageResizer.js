@@ -320,10 +320,11 @@ function checkAttachmentType(file, callback) {
 //   });
 // };
 
-const compressAndUploadVideoBackground = async (filename, mimetype) => {
+const compressAndUploadVideoBackground = async (tempFilename, finalMp4Filename) => {
   const localDir = path.join(__dirname, "/assets/compressed/videos/");
-  const inputPath = path.join(localDir, filename);
-  const tempOutputPath = path.join(localDir, "compress-" + filename);
+  const inputPath = path.join(localDir, tempFilename);
+  const outputPath = path.join(localDir, finalMp4Filename);
+  const tempOutputPath = path.join(localDir, "compress-" + finalMp4Filename);
 
   try {
     // Wait a couple seconds to make sure the HTTP request completed and DB row is created
@@ -364,29 +365,40 @@ const compressAndUploadVideoBackground = async (filename, mimetype) => {
         .save(tempOutputPath);
     });
 
-    // Replace original file with compressed file locally
-    if (fs.existsSync(tempOutputPath)) {
+    // Delete the original raw upload file (if it had a different format like .mov or .avi)
+    if (fs.existsSync(inputPath) && inputPath !== outputPath) {
       fs.unlinkSync(inputPath);
-      fs.renameSync(tempOutputPath, inputPath);
+    }
+
+    // Replace final video path with compressed file locally
+    if (fs.existsSync(tempOutputPath)) {
+      if (fs.existsSync(outputPath)) {
+        fs.unlinkSync(outputPath);
+      }
+      fs.renameSync(tempOutputPath, outputPath);
     }
 
     // S3 upload if configured
     if (s3Client && process.env.AWS_BUCKET_NAME) {
-      const fileStream = fs.createReadStream(inputPath);
-      const s3Key = `videos/${filename}`;
+      const fileStream = fs.createReadStream(outputPath);
+      const s3Key = `videos/${finalMp4Filename}`;
 
       const uploadParams = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: s3Key,
         Body: fileStream,
-        ContentType: mimetype,
+        ContentType: "video/mp4", // Force to video/mp4 MIME type
       };
 
       await s3Client.send(new PutObjectCommand(uploadParams));
-      const s3Url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+      
+      // Construct CDN or S3 URL
+      const s3Url = process.env.CDN_URL 
+        ? `${process.env.CDN_URL.replace(/\/$/, "")}/${s3Key}` 
+        : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
       // Query database to update the video URL
-      const localUrl = `/videos/${filename}`;
+      const localUrl = `/videos/${finalMp4Filename}`;
       let updated = false;
       // Retry database update up to 10 times in case database insertion has slight latency
       for (let i = 0; i < 10; i++) {
@@ -411,7 +423,7 @@ const compressAndUploadVideoBackground = async (filename, mimetype) => {
       }
 
       // Cleanup local file after uploading to S3
-      fs.unlink(inputPath, (err) => {
+      fs.unlink(outputPath, (err) => {
         if (err) console.error("Error deleting local video file:", err);
       });
     }
@@ -436,11 +448,15 @@ export const videoResizer = async (req, res, next) => {
     }
 
     try {
+      // Get the base filename without extension, and force the target to end with .mp4
+      const ext = path.extname(req.file.filename);
+      const finalMp4Filename = req.file.filename.replace(ext, ".mp4");
+
       // Immediately set local path so database registration proceeds instantly
-      req.video = `/videos/${req.file.filename}`;
+      req.video = `/videos/${finalMp4Filename}`;
       
       // Spawn video compression & upload asynchronously in the background
-      compressAndUploadVideoBackground(req.file.filename, req.file.mimetype);
+      compressAndUploadVideoBackground(req.file.filename, finalMp4Filename);
       
       next();
     } catch (err) {
