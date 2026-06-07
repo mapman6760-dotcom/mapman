@@ -342,6 +342,7 @@ const compressAndUploadVideoBackground = async (filename, mimetype) => {
           "-crf 20",
           "-preset superfast",
           "-pix_fmt yuv420p",
+          "-movflags +faststart",
           "-acodec aac"
         ])
         .on("end", () => resolve())
@@ -353,6 +354,7 @@ const compressAndUploadVideoBackground = async (filename, mimetype) => {
               "-crf 20",
               "-preset superfast",
               "-pix_fmt yuv420p",
+              "-movflags +faststart",
               "-an"
             ])
             .on("end", () => resolve())
