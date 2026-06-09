@@ -320,11 +320,11 @@ function checkAttachmentType(file, callback) {
 //   });
 // };
 
-const compressAndUploadVideoBackground = async (tempFilename, finalMp4Filename) => {
+const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => {
   const localDir = path.join(__dirname, "/assets/compressed/videos/");
   const inputPath = path.join(localDir, tempFilename);
-  const outputPath = path.join(localDir, finalMp4Filename);
-  const tempOutputPath = path.join(localDir, "compress-" + finalMp4Filename);
+  const outputDir = path.join(localDir, videoBaseName);
+  const playlistPath = path.join(outputDir, "playlist.m3u8");
 
   try {
     // Wait a couple seconds to make sure the HTTP request completed and DB row is created
@@ -335,70 +335,89 @@ const compressAndUploadVideoBackground = async (tempFilename, finalMp4Filename) 
       return;
     }
 
-    // 🎥 Compress video using ffmpeg (H.264 / AAC at original resolution)
-    await new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .outputOptions([
-          "-vcodec libx264",
-          "-crf 20",
-          "-preset superfast",
-          "-pix_fmt yuv420p",
-          "-movflags +faststart",
-          "-acodec aac"
-        ])
-        .on("end", () => resolve())
-        .on("error", (err) => {
-          console.warn("Background FFmpeg compression with audio failed, retrying without audio stream:", err.message);
-          ffmpeg(inputPath)
-            .outputOptions([
-              "-vcodec libx264",
-              "-crf 20",
-              "-preset superfast",
-              "-pix_fmt yuv420p",
-              "-movflags +faststart",
-              "-an"
-            ])
-            .on("end", () => resolve())
-            .on("error", (retryErr) => reject(retryErr))
-            .save(tempOutputPath);
-        })
-        .save(tempOutputPath);
-    });
-
-    // Delete the original raw upload file (if it had a different format like .mov or .avi)
-    if (fs.existsSync(inputPath) && inputPath !== outputPath) {
-      fs.unlinkSync(inputPath);
+    // Ensure output directory exists
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Replace final video path with compressed file locally
-    if (fs.existsSync(tempOutputPath)) {
-      if (fs.existsSync(outputPath)) {
-        fs.unlinkSync(outputPath);
-      }
-      fs.renameSync(tempOutputPath, outputPath);
+    const runFfmpeg = (hasAudio) => {
+      return new Promise((resolve, reject) => {
+        const options = [
+          "-vcodec libx264",
+          "-crf 24", // Compress video
+          "-preset superfast",
+          "-pix_fmt yuv420p",
+          "-hls_time 10", // Segment duration
+          "-hls_list_size 0", // Include all segments
+          "-hls_segment_filename", path.join(outputDir, "segment-%03d.ts"),
+          "-f hls"
+        ];
+        if (hasAudio) {
+          options.push("-acodec aac", "-b:a 128k");
+        } else {
+          options.push("-an");
+        }
+
+        ffmpeg(inputPath)
+          .outputOptions(options)
+          .on("end", resolve)
+          .on("error", (err) => {
+            if (hasAudio) {
+              console.warn("HLS transcoding with audio failed, retrying without audio stream:", err.message);
+              runFfmpeg(false).then(resolve).catch(reject);
+            } else {
+              reject(err);
+            }
+          })
+          .save(playlistPath);
+      });
+    };
+
+    // 🎥 Compress and segment video using ffmpeg
+    await runFfmpeg(true);
+
+    // Delete the original raw upload file (which sits in the parent videos directory)
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
     }
 
     // S3 upload if configured
     if (s3Client && process.env.AWS_BUCKET_NAME) {
-      const fileStream = fs.createReadStream(outputPath);
-      const s3Key = `videos/${finalMp4Filename}`;
+      if (fs.existsSync(outputDir)) {
+        const files = fs.readdirSync(outputDir);
+        for (const file of files) {
+          const filePath = path.join(outputDir, file);
+          const fileStream = fs.createReadStream(filePath);
+          const s3Key = `videos/${videoBaseName}/${file}`;
+          const ext = path.extname(file).toLowerCase();
+          
+          let contentType = "video/MP2T";
+          if (ext === ".m3u8") {
+            contentType = "application/x-mpegURL";
+          }
 
-      const uploadParams = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: s3Key,
-        Body: fileStream,
-        ContentType: "video/mp4", // Force to video/mp4 MIME type
-      };
+          const uploadParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: s3Key,
+            Body: fileStream,
+            ContentType: contentType,
+          };
 
-      await s3Client.send(new PutObjectCommand(uploadParams));
-      
-      // Construct CDN or S3 URL
-      const s3Url = process.env.CDN_URL 
-        ? `${process.env.CDN_URL.replace(/\/$/, "")}/${s3Key}` 
-        : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+          await s3Client.send(new PutObjectCommand(uploadParams));
+        }
+
+        // Cleanup local compressed files & folder after uploading to S3
+        fs.rmSync(outputDir, { recursive: true, force: true });
+      }
+
+      // Construct S3 / CloudFront CDN URL
+      const baseUrl = process.env.CLOUDFRONT_URL || process.env.CDN_URL;
+      const s3Url = baseUrl
+        ? `${baseUrl.replace(/\/$/, "")}/videos/${videoBaseName}/playlist.m3u8`
+        : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/videos/${videoBaseName}/playlist.m3u8`;
 
       // Query database to update the video URL
-      const localUrl = `/videos/${finalMp4Filename}`;
+      const localUrl = `/videos/${videoBaseName}/playlist.m3u8`;
       let updated = false;
       // Retry database update up to 10 times in case database insertion has slight latency
       for (let i = 0; i < 10; i++) {
@@ -409,7 +428,7 @@ const compressAndUploadVideoBackground = async (tempFilename, finalMp4Filename) 
           if (videoRow) {
             await videoRow.update({ video: s3Url });
             updated = true;
-            console.log(`Successfully updated S3 URL in database for video ID: ${videoRow.id}`);
+            console.log(`Successfully updated CloudFront/S3 HLS URL in database for video ID: ${videoRow.id}`);
             break;
           }
         } catch (dbErr) {
@@ -421,16 +440,14 @@ const compressAndUploadVideoBackground = async (tempFilename, finalMp4Filename) 
       if (!updated) {
         console.warn(`Could not find database row for video URL: ${localUrl} after multiple attempts.`);
       }
-
-      // Cleanup local file after uploading to S3
-      fs.unlink(outputPath, (err) => {
-        if (err) console.error("Error deleting local video file:", err);
-      });
     }
   } catch (err) {
     console.error("Background video processing failed:", err.message);
-    if (fs.existsSync(tempOutputPath)) {
-      fs.unlink(tempOutputPath, () => {});
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
     }
   }
 };
@@ -448,15 +465,15 @@ export const videoResizer = async (req, res, next) => {
     }
 
     try {
-      // Get the base filename without extension, and force the target to end with .mp4
+      // Get the base filename without extension
       const ext = path.extname(req.file.filename);
-      const finalMp4Filename = req.file.filename.replace(ext, ".mp4");
+      const videoBaseName = req.file.filename.replace(ext, "");
 
       // Immediately set local path so database registration proceeds instantly
-      req.video = `/videos/${finalMp4Filename}`;
+      req.video = `/videos/${videoBaseName}/playlist.m3u8`;
       
       // Spawn video compression & upload asynchronously in the background
-      compressAndUploadVideoBackground(req.file.filename, finalMp4Filename);
+      compressAndUploadVideoBackground(req.file.filename, videoBaseName);
       
       next();
     } catch (err) {
