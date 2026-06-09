@@ -40,8 +40,8 @@ managementMiddleware.Management = {
     }
   },
   
-  addCategoryVideo: async ({body,video}) => {
-    const created = await adminDbController.Category.addCategoryVideo(body, video)
+  addCategoryVideo: async ({body,video,thumbnail}) => {
+    const created = await adminDbController.Category.addCategoryVideo(body, video, thumbnail)
     if (created != null && created != undefined && Object.keys(created).length != 0) {
       return "Category video added"
     } else {

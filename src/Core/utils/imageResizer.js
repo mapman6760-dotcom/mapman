@@ -376,6 +376,25 @@ const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => 
     // 🎥 Compress and segment video using ffmpeg
     await runFfmpeg(true);
 
+    // 🎥 Generate video thumbnail at 2 seconds
+    await new Promise((resolve) => {
+      ffmpeg(inputPath)
+        .screenshots({
+          timestamps: ["2"], // Capture at 2 seconds
+          filename: "thumbnail.jpg",
+          folder: outputDir,
+          size: "320x240",
+        })
+        .on("end", () => {
+          console.log("Video thumbnail generated successfully.");
+          resolve();
+        })
+        .on("error", (err) => {
+          console.warn("Video thumbnail generation failed (might be too short):", err.message);
+          resolve(); // Resolve anyway so video processing is not blocked
+        });
+    });
+
     // Delete the original raw upload file (which sits in the parent videos directory)
     if (fs.existsSync(inputPath)) {
       fs.unlinkSync(inputPath);
@@ -394,6 +413,8 @@ const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => 
           let contentType = "video/MP2T";
           if (ext === ".m3u8") {
             contentType = "application/x-mpegURL";
+          } else if (ext === ".jpg" || ext === ".jpeg") {
+            contentType = "image/jpeg";
           }
 
           const uploadParams = {
@@ -416,29 +437,47 @@ const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => 
         ? `${baseUrl.replace(/\/$/, "")}/videos/${videoBaseName}/playlist.m3u8`
         : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/videos/${videoBaseName}/playlist.m3u8`;
 
-      // Query database to update the video URL
+      const s3ThumbnailUrl = baseUrl
+        ? `${baseUrl.replace(/\/$/, "")}/videos/${videoBaseName}/thumbnail.jpg`
+        : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/videos/${videoBaseName}/thumbnail.jpg`;
+
+      // Query database to update the video URL and thumbnail URL
       const localUrl = `/videos/${videoBaseName}/playlist.m3u8`;
-      let updated = false;
-      // Retry database update up to 10 times in case database insertion has slight latency
+      
+      // Update shop videos table
+      let updatedShopVideo = false;
       for (let i = 0; i < 10; i++) {
         try {
           const videoRow = await appDbController.Models.video.findOne({
             where: { video: localUrl }
           });
           if (videoRow) {
-            await videoRow.update({ video: s3Url });
-            updated = true;
-            console.log(`Successfully updated CloudFront/S3 HLS URL in database for video ID: ${videoRow.id}`);
+            await videoRow.update({ video: s3Url, thumbnail: s3ThumbnailUrl });
+            updatedShopVideo = true;
+            console.log(`Successfully updated CloudFront/S3 HLS URL and Thumbnail in video database for ID: ${videoRow.id}`);
             break;
           }
         } catch (dbErr) {
-          console.error("Database update attempt failed:", dbErr.message);
+          console.error("Shop video database update attempt failed:", dbErr.message);
         }
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
-      if (!updated) {
-        console.warn(`Could not find database row for video URL: ${localUrl} after multiple attempts.`);
+      // Update category videos table
+      for (let i = 0; i < 10; i++) {
+        try {
+          const catVideoRow = await appDbController.Models.categoryVideo.findOne({
+            where: { categoryVideo: localUrl }
+          });
+          if (catVideoRow) {
+            await catVideoRow.update({ categoryVideo: s3Url, thumbnail: s3ThumbnailUrl });
+            console.log(`Successfully updated CloudFront/S3 HLS URL and Thumbnail in categoryVideo database for ID: ${catVideoRow.id}`);
+            break;
+          }
+        } catch (dbErr) {
+          console.error("Category video database update attempt failed:", dbErr.message);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
   } catch (err) {
@@ -461,6 +500,7 @@ export const videoResizer = async (req, res, next) => {
     // allow null video
     if (!req.file) {
       req.video = null;
+      req.thumbnail = null;
       return next();
     }
 
@@ -471,6 +511,7 @@ export const videoResizer = async (req, res, next) => {
 
       // Immediately set local path so database registration proceeds instantly
       req.video = `/videos/${videoBaseName}/playlist.m3u8`;
+      req.thumbnail = `/videos/${videoBaseName}/thumbnail.jpg`;
       
       // Spawn video compression & upload asynchronously in the background
       compressAndUploadVideoBackground(req.file.filename, videoBaseName);

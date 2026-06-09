@@ -288,6 +288,10 @@ categoryVideo.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  thumbnail: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   status: {
     type: DataTypes.ENUM('active', 'inactive'),
     defaultValue: 'active',
@@ -316,6 +320,10 @@ video.init({
     allowNull:false
   },
   video: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  thumbnail: {
     type: DataTypes.STRING,
     allowNull: true,
   },

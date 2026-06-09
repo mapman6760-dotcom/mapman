@@ -264,12 +264,13 @@ adminDbController.Category = {
     }
   },
 
-  addCategoryVideo: async (data,video) => {
+  addCategoryVideo: async (data,video,thumbnail) => {
     try {
       return await adminDbController.Models.categoryVideo.create({
         categoryId:data.categoryId,
         categoryName:data.categoryName,
         categoryVideo:video,
+        thumbnail:thumbnail || null,
       })
     } catch (error) {
       return null;

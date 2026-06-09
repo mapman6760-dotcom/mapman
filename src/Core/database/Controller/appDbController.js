@@ -795,12 +795,13 @@ appDbController.Shop = {
     }
   },
 
-  videoUpload: async (data,token,video)=>{
+  videoUpload: async (data,token,video,thumbnail)=>{
     try {
       return await appDbController.Models.video.create({
         profileId:token,
         shopId: data.shopId,
         video: video,
+        thumbnail: data.thumbnail || thumbnail || null,
         videoTitle:data.videoTitle,
         shopName:data.shopName,
         category:data.category,

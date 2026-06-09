@@ -570,12 +570,12 @@ let data = {
         }
     },
 
-    videoRegister: async ({ body, token, video }) => {
+    videoRegister: async ({ body, token, video, thumbnail }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkShop = await appDbController.Shop.getMyShop(token,body)
             if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
-                const videoUpload=await appDbController.Shop.videoUpload(body,token,video)
+                const videoUpload=await appDbController.Shop.videoUpload(body,token,video,thumbnail)
                 // if (videoUpload != null && videoUpload != undefined && Object.keys(videoUpload).length != 0) {
                 //     // return "Video uploaded"
                 // }
