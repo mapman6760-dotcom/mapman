@@ -381,12 +381,25 @@ const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => 
       ffmpeg(inputPath)
         .screenshots({
           timestamps: ["2"], // Capture at 2 seconds
-          filename: "thumbnail.jpg",
+          filename: "temp-thumbnail.jpg",
           folder: outputDir,
-          size: "320x240",
+          size: "1280x720", // 16:9 HD rectangle shape
         })
-        .on("end", () => {
-          console.log("Video thumbnail generated successfully.");
+        .on("end", async () => {
+          try {
+            const tempPath = path.join(outputDir, "temp-thumbnail.jpg");
+            const finalPath = path.join(outputDir, "thumbnail.jpg");
+            if (fs.existsSync(tempPath)) {
+              // Compress using sharp to keep file size in KB very small (quality 80)
+              await sharp(tempPath)
+                .jpeg({ quality: 80 })
+                .toFile(finalPath);
+              fs.unlinkSync(tempPath);
+              console.log("Video thumbnail compressed via sharp successfully.");
+            }
+          } catch (err) {
+            console.error("Sharp thumbnail compression failed:", err.message);
+          }
           resolve();
         })
         .on("error", (err) => {
