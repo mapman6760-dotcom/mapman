@@ -597,7 +597,11 @@ const processAndSaveImage = async (buffer, filename) => {
     };
 
     await s3Client.send(new PutObjectCommand(uploadParams));
-    return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+
+    const baseUrl = process.env.CLOUDFRONT_URL || process.env.CDN_URL;
+    return baseUrl
+      ? `${baseUrl.replace(/\/$/, "")}/${s3Key}`
+      : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
   } else {
     const outputDir = path.join(__dirname, "/assets/compressed/images/");
     fs.mkdirSync(outputDir, { recursive: true });
