@@ -445,10 +445,10 @@ adminDbController.Banners = {
     try {
       return await adminDbController.Models.banners.create({
           backgroundImage: images.backgroundImage,
-          image: images.image,
-          title: data.title,
-          subtitle: data.subtitle,
-          contact: data.contact,
+          image: images.image||"",
+          title: data.title||"",
+          subtitle: data.subtitle||"",
+          contact: data.contact||"",
           status:"active"
       })
     } catch (error) {
