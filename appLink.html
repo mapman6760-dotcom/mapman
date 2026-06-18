@@ -1,9 +1,22 @@
+
 <script>
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location.href = "https://apps.apple.com/in/app/mapman-app/id6762550173";
-    } else if (/Android/i.test(navigator.userAgent)) {
-        window.location.href = "https://play.google.com/store/apps/details?id=com.mapman.mapman";
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        // Try to open the iOS app using the custom scheme
+        window.location.href = "mapman://";
+        
+        // Fallback to App Store after 1.5 seconds if the app is not installed
+        setTimeout(() => {
+            window.location.href = "https://apps.apple.com/in/app/mapman-app/id6762550173";
+        }, 1500);
+
+    } else if (/Android/i.test(userAgent)) {
+        // Try to open the Android app via Chrome Intent. If not installed, redirects to Play Store.
+        window.location.href = "intent://#Intent;scheme=mapman;package=com.mapman.mapman;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.mapman.mapman;end";
+
     } else {
+        // Fallback for desktop users
         window.location.href = "https://mapman.in";
     }
 </script>
