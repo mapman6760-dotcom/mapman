@@ -1352,6 +1352,16 @@ let data = {
         }
     },
 
+    mapmanAppLink: async ({token}) => {
+        // const checkUser = await appDbController.Profile.getProfile(token);
+        // if (checkUser != null && checkUser != undefined && Object.keys(checkUser).length != 0) {
+            return `/appLink`
+        // }
+        // else {
+        //   return "User not found"
+        // }
+    },
+
     fetchBanners: async () => {
         const fetchBanners = await appDbController.Banners.fetchBanners();
         if (fetchBanners != null && fetchBanners != undefined && Object.keys(fetchBanners).length != 0) {

@@ -94,6 +94,7 @@ const { Logger } = await import("./src/Core/lib/logger.js");
 //require routers
 const { shopRouter } = await import("./src/App/Shop/routes/index.js");
 const { adminRouter } = await import("./src/App/Admin/routes/index.Routes.js");
+import { appController } from "./src/App/Shop/controller/appController.js";
 
 const app = express();
 app.set('trust proxy', true);
@@ -112,6 +113,7 @@ app.use("/events", express.static(path.join(__dirname, "./assets/compressed/even
 app.use("/gallery", express.static(path.join(__dirname, "./assets/compressed/gallery/")));
 app.use("/privacyPolicy", express.static(path.join(__dirname,"./privacy.html")));
 app.use("/terms-and-condtions", express.static(path.join(__dirname,"./termAndConditions.html")));
+app.use("/appLink", express.static(path.join(__dirname,"./appLink.html")));
 app.use("/logo", express.static(path.join(__dirname,"./mapmanLogo.png")));
 
 //Parsing incoming requests
@@ -124,7 +126,10 @@ app.use(helmet());
 //Routers
 app.use("/admin", adminRouter);
 app.use("/shop", shopRouter);
-
+// app.get("/mapman-app-link", appController.App.mapmanAppLink);
+app.get("/mapman-app-link", (req, res) => {
+    res.sendFile(path.join(__dirname, "./appLink.html"));
+});
 //Check Status
 app.use('/status', async (req, res) => { res.json({ data: `${process.env.APP_NAME} API is Now Live`,image:'https://t3.ftcdn.net/jpg/06/33/54/78/360_F_633547842_AugYzexTpMJ9z1YcpTKUBoqBF0CUCk10.jpg' }) });
 

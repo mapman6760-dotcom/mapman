@@ -82,6 +82,7 @@ appRouter.get("/notificationOpenStatus", appAuthenticate, appController.App.noti
 
 appRouter.get("/privacyPolicy", appAuthenticate, appController.App.privacyPolicy);
 appRouter.get("/terms", appAuthenticate, appController.App.terms);
+appRouter.get("/mapman-app-link",  appController.App.mapmanAppLink);
 
 //Banner
 appRouter.get("/fetchBanners", appAuthenticate, appController.App.fetchBanners);
