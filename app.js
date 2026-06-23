@@ -134,6 +134,7 @@ app.use(helmet());
 app.use("/admin", adminRouter);
 app.use("/shop", shopRouter);
 //Check Status
+// app.use('/status', async (req, res) => { res.json({ data: `${process.env.APP_NAME} API is Now Live`,image:'https://t3.ftcdn.net/jpg/06/33/54/78/360_F_633547842_AugYzexTpMJ9z1YcpTKUBoqBF0CUCk10.jpg' }) });
 app.use('/status', async (req, res) => { res.json({ data: `${process.env.APP_NAME} API is Now Live`,image:'https://t3.ftcdn.net/jpg/06/33/54/78/360_F_633547842_AugYzexTpMJ9z1YcpTKUBoqBF0CUCk10.jpg' }) });
 
 //404 Handlers
