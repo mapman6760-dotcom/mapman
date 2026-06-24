@@ -94,7 +94,6 @@ const { Logger } = await import("./src/Core/lib/logger.js");
 //require routers
 const { shopRouter } = await import("./src/App/Shop/routes/index.js");
 const { adminRouter } = await import("./src/App/Admin/routes/index.Routes.js");
-import { appController } from "./src/App/Shop/controller/appController.js";
 
 const app = express();
 app.set('trust proxy', true);
@@ -139,7 +138,7 @@ app.use('/status', async (req, res) => { res.json({ data: `${process.env.APP_NAM
 
 //404 Handlers
 app.get("/", async (req, res) => {
-    res.status(404).render("404", { message: "Unable to find the requested resource", name: process.env.APP_NAME });
+    res.status(404).render("404", { message: "", name: process.env.APP_NAME });
 });
 
 app.use(function (req, res, next) {

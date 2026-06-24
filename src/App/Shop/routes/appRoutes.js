@@ -95,6 +95,9 @@ appRouter.post("/versionControl",  appController.App.versionControl);
 appRouter.get("/getVersion",  appController.App.getVersion);
 
 
+//Contact us 
+appRouter.post("/contactUs",appController.App.contactUs)
+
 
 
 export { appRouter };

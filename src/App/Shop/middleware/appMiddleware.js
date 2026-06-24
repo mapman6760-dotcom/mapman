@@ -1462,6 +1462,16 @@ let data = {
         }
     },
       
+      
+    contactUs: async ({ body }) => {
+        const contactUs = await appDbController.Notifications.contactUs(body)
+        if (contactUs != null && contactUs != undefined && Object.keys(contactUs).length != 0) {
+            return "Details submitted"
+        } else {
+            throw Error.SomethingWentWrong("Failed to submit the details")
+        }
+    },
+      
 };
 
 

@@ -1870,6 +1870,18 @@ appDbController.Notifications = {
     }
   },
 
+  contactUs: async (data) => {
+    try {
+      return await appDbController.Models.contactUs.create({
+        name:data.name,
+        email:data.email,
+        subject:data.subject,
+        message:data.message,
+      })
+    }catch(error){
+      return null
+    }
+  }
 
 }
 
