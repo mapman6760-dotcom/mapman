@@ -410,6 +410,24 @@ adminDbController.Shop = {
       return null
     }
   },
+
+  changeShopStatus: async (data) => {
+    try {
+      return await adminDbController.Models.shop.update(
+        {
+        status: data.status
+        },
+        {
+          where: {
+          id:data.shopId,
+          }
+        }
+      )
+    } catch (error) {
+      return null
+    }
+  },
+  
 }
 
 adminDbController.Banners = {
@@ -491,6 +509,16 @@ adminDbController.Banners = {
   fetchCategoryBanners: async (data) => {
     try {
       return await adminDbController.Models.categoryBanners.findAll({
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
+  getContact: async () => {
+    try {
+      return await adminDbController.Models.contactUs.findAll({
         raw:true
       })
     } catch (error) {

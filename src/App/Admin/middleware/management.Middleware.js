@@ -97,7 +97,21 @@ managementMiddleware.Management = {
           } else {
               return "Reported shops not found"
             }          
-        
+  },
+
+  reportedShopsStatus: async ({body}) => {     
+          const checkShop = await adminDbController.Shop.getShopById(body)
+          if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+          const changeShopStatus = await adminDbController.Shop.changeShopStatus(body)
+            if (changeShopStatus != null && changeShopStatus != undefined && Object.keys(changeShopStatus).length != 0) {
+                  return  "Shop status changed"
+                }
+                else {
+                  throw Error.SomethingWentWrong("Failed to change the shop status")
+                }
+          } else {
+              return "Shop not found"
+            }          
   },
 
   getIssueReports: async () => {     
@@ -109,7 +123,6 @@ managementMiddleware.Management = {
           } else {
               return "Issue reports not found"
             }          
-        
   },
 
   fetchBanners: async () => {     
@@ -154,6 +167,16 @@ managementMiddleware.Management = {
           } else {
               return "Banner not found"
             }          
+  },
+
+
+  getContact: async () => {     
+          const getContact = await adminDbController.Banners.getContact()
+          if (getContact != null && getContact != undefined && Object.keys(getContact).length != 0) {
+             return getContact
+          } else {
+              return "Banners not found"
+            }         
   },
 
   fetchCategoryBanners: async () => {     

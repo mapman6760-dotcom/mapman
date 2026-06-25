@@ -1443,10 +1443,10 @@ appDbController.Shop = {
           //   [Op.ne]: token
           // },
           [Op.or]: [
-            { shopName: { [Op.like]: `%${data.input}%` } },
+            // { shopName: { [Op.like]: `%${data.input}%` } },
             { category: { [Op.like]: `%${data.input}%` } },
             // { category: { [Op.like]: `%${data.category}%`||`%${data.input}%` } },
-            { description: { [Op.like]: `%${data.input}%` } }
+            // { description: { [Op.like]: `%${data.input}%` } }
             ],
             status: "active",
           },

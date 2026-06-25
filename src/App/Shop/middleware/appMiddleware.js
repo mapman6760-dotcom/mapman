@@ -12,6 +12,7 @@ import { FirebaseService } from "../../../Core/utils/notifier.js";
 import { category } from "../../../Core/database/models/shopModel.js";
 const excelToJson = require('convert-excel-to-json');
 import { adminDbController } from "../../../Core/database/Controller/adminDbController.js";
+import { messagingFunction } from "../../../Core/utils/message.js";
 export class appMiddleware { }
 
 const handleShopNotification = async (token, body, images, registerShopId) => {
@@ -1466,6 +1467,7 @@ let data = {
     contactUs: async ({ body }) => {
         const contactUs = await appDbController.Notifications.contactUs(body)
         if (contactUs != null && contactUs != undefined && Object.keys(contactUs).length != 0) {
+            messagingFunction.sendContactUsEmail(body);
             return "Details submitted"
         } else {
             throw Error.SomethingWentWrong("Failed to submit the details")

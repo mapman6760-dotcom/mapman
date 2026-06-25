@@ -211,5 +211,33 @@ export const messagingFunction = {
     );
     throw error;
   }
+},
+sendContactUsEmail: async (data) => {
+  try {
+    const result = await client.transactionalEmails.sendTransacEmail({
+      subject: `New Contact Us Message: ${data.subject || 'No Subject'}`,
+      sender: {
+        name: process.env.SENDER_NAME || "Mapman Contact",
+        email: process.env.SENDER_EMAIL,
+      },
+      to: [{ email: process.env.CONTACT_US_RECEIVER_EMAIL || "mapman6760@gmail.com" }],
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; color: #333;">
+            <h2 style="color: #2c7be5;">New Contact Us Submission</h2>
+            <p><strong>Name:</strong> ${data.name}</p>
+            <p><strong>Email:</strong> ${data.email}</p>
+            <p><strong>Subject:</strong> ${data.subject || 'N/A'}</p>
+            <p><strong>Message:</strong></p>
+            <blockquote style="background: #f9f9f9; border-left: 5px solid #ccc; padding: 12px 15px; margin: 10px 0;">
+                ${(data.message || '').replace(/\n/g, '<br>')}
+            </blockquote>
+        </div>
+      `,
+    });
+    return { data: true, messageId: result.messageId };
+  } catch (error) {
+    console.error("Error sending contact us email via Brevo:", error);
+    return null;
+  }
 }
 };

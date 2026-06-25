@@ -146,6 +146,26 @@ ManagementController.Management = {
         });
     },
 
+    reportedShopsStatus: async (req, res) => {
+        managementMiddleware.Management.reportedShopsStatus(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
     getReportedShops: async (req, res) => {
         managementMiddleware.Management.getReportedShops(req)
         .then((data) => {
@@ -228,6 +248,26 @@ ManagementController.Management = {
 
     deleteBanner: async (req, res) => {
         managementMiddleware.Management.deleteBanner(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    getContact: async (req, res) => {
+        managementMiddleware.Management.getContact(req)
         .then((data) => {
             const response = ApplicationResult.forCreated();
             var statuscode = 0;

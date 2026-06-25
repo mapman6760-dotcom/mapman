@@ -18,6 +18,7 @@ managementRouter.get("/getCategoryVideos",adminAuthenticate,ManagementController
 managementRouter.get("/getShop",adminAuthenticate,ManagementController.Management.getShop);
 managementRouter.get("/getShopDetails",adminAuthenticate,ManagementController.Management.getShopDetails);
 managementRouter.get("/getReportedShops", adminAuthenticate, ManagementController.Management.getReportedShops);
+managementRouter.post("/changeReportedShopsStatus", adminAuthenticate, ManagementController.Management.reportedShopsStatus);
 
 managementRouter.get("/getIssueReports", adminAuthenticate, ManagementController.Management.getIssueReports);
 
@@ -29,6 +30,8 @@ managementRouter.post("/addBanners",adminAuthenticate,uploader.fields([
 ]), Upload.bannerResizer,ManagementController.Management.addBanners);
 managementRouter.get("/deleteBanner",adminAuthenticate,ManagementController.Management.deleteBanner);
 
+//Contact us
+managementRouter.get("/getContact", adminAuthenticate, ManagementController.Management.getContact);
 
 //Category Banners
 managementRouter.get("/fetchCategoryBanners",adminAuthenticate,ManagementController.Management.fetchCategoryBanners);
@@ -37,6 +40,8 @@ managementRouter.post("/addCategoryBanners",adminAuthenticate,uploader.fields([
     { name: "image", maxCount: 1 },,
 ]), Upload.bannerResizer,ManagementController.Management.addCategoryBanners);
 managementRouter.get("/deleteCategoryBanner",adminAuthenticate,ManagementController.Management.deleteCategoryBanner);
+
+
 
 
 export { managementRouter }
