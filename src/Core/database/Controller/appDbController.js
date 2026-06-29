@@ -547,7 +547,7 @@ appDbController.Profile = {
 
   deleteAccount: async (token) => {
     try {
-      return await appDbController.Models.profile.update(
+      const terminate= await appDbController.Models.profile.update(
         {
          status:"terminated"
         },
@@ -558,7 +558,38 @@ appDbController.Profile = {
           }
         }
       )
+      const update= await appDbController.Models.shop.update(
+        {
+        status:"inactive"
+        },
+        {
+          where: {
+            profileId: token,
+            status:"active"
+          }
+        }
+      )
+        const update1 = await appDbController.Models.video.update(
+          {
+            status: "inactive"
+          },
+          {
+            where: {
+              profileId: token,
+              status: "active"
+            }
+          }
+        )
+      // console.log("terminate ",terminate)
+      // console.log("update ",update)
+      // console.log("update1 ",update1)
+        if (terminate[0]!=0 && update[0] != 0 && update1[0] != 0) {
+          return "Account deleted"
+        } else {
+          throw Error.InternalError("Failed to delete the account")
+        }
     } catch (error) {
+      console.log(error)
       return null
     }
   },

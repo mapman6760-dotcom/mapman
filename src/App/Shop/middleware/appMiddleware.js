@@ -1171,8 +1171,8 @@ let data = {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const deleteAccount = await appDbController.Profile.deleteAccount(token)
-            if (deleteAccount != null && deleteAccount != undefined && deleteAccount[0] != 0) {
-                return "Account deleted"
+            if (deleteAccount != null && deleteAccount != undefined) {
+                return deleteAccount
             } else {
                 throw Error.InternalError("Failed to delete the account")
             }
