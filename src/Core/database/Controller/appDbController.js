@@ -420,12 +420,16 @@ appDbController.Profile = {
     try{
       return await appDbController.Models.category.findAll({
         where: {
+          categoryImage: {
+             [Op.ne]:null  
+          },
           status: "active",
         },
         raw: true,
         attributes:["id","categoryName","categoryImage","categoryType"]
       })
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -1546,6 +1550,21 @@ appDbController.Banners = {
       where: {
         status:"active"
       },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  getShops: async () => {
+    try
+    {
+      return await appDbController.Models.shop.findAll({
+      where: {
+        status:"active",
+        },
+          limit: 10,
+        raw: true
       })
     } catch (error) {
       return null

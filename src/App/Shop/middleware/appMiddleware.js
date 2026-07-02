@@ -1128,13 +1128,20 @@ let data = {
             } else {
                 fetchCategoryBanners=[]
             }
+            let getShops = await appDbController.Banners.getShops()
+            if (getShops != null && getShops != undefined && (getShops).length != 0) {
+                getShops=getShops
+            } else {
+                getShops=[]
+            }
             return {
                 profile: fetchUser.profilePic,
                 userName: fetchUser.userName,
                 topBanners: fetchBanners,
                 category: category,
                 reviewStatus: reviewAdded,
-                categoryBanners:fetchCategoryBanners
+                categoryBanners: fetchCategoryBanners,
+                shops:getShops
            } 
         } else {
             return "Profile not found";
@@ -1156,11 +1163,18 @@ let data = {
             } else {
                 fetchCategoryBanners=[]
             }
+            let getShops = await appDbController.Banners.getShops()
+            if (getShops != null && getShops != undefined && (getShops).length != 0) {
+                getShops=getShops
+            } else {
+                getShops=[]
+            }
             
             return {
                 topBanners: fetchBanners,
                 category: category,
-                categoryBanners: fetchCategoryBanners
+                categoryBanners: fetchCategoryBanners,
+                shops:getShops
                 }
             } else {
                 return []
