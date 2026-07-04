@@ -1468,7 +1468,8 @@ appDbController.Shop = {
             //   [Op.ne]: token
             // },
               status: "active",
-          }
+          }, raw: true,
+          attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
           });
       }
       else{
@@ -1485,10 +1486,13 @@ appDbController.Shop = {
             ],
             status: "active",
           },
-          raw:true
+          raw: true,
+          attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
+
         });
       }    
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -1502,7 +1506,9 @@ appDbController.Shop = {
             //   [Op.ne]: token
             // },
               status: "active",
-          }
+          }, raw: true,
+          attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
+
           });
       }
       else{
@@ -1519,7 +1525,9 @@ appDbController.Shop = {
             ],
             status: "active",
           },
-          raw:true
+          raw: true,
+          attributes: ['id', 'shopName', 'category', 'shopImage', 'lat', 'long', 'status', 'address'],
+
         });
       }    
     } catch (error) {

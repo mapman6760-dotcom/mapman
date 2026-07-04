@@ -85,6 +85,7 @@ import chalk from "chalk";
 import path from "path";
 const __dirname = path.resolve();
 import helmet from "helmet";
+import compression from "compression";
 
 // Use dynamic imports to prevent ES module hoisting from loading config BEFORE dotenv runs
 const config = await import("./config/config.js");
@@ -104,6 +105,7 @@ app.use(cors({ origin: "*", optionsSuccessStatus: 200, methods: "GET,POST,PUT", 
 app.set("view engine", "ejs");
 app.set("views", "./src/Core/views/ui/");
 app.use(express.static("pages"));
+app.use(compression());
 
 app.use("/images", express.static(path.join(__dirname, "./assets/compressed/images/")));
 app.use("/videos", express.static(path.join(__dirname, "./assets/compressed/videos/")));
