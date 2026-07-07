@@ -230,6 +230,17 @@ shop.init({
 }, {
   sequelize: connection,
   freezeTableName: true,
+  indexes: [
+    {
+      type: 'FULLTEXT',
+      name: 'shops_search_idx',
+      fields: ['shopName', 'category', 'description']
+    },
+    {
+      name: 'status_idx',
+      fields: ['status']
+    }
+  ]
 });
 
 class category extends Model { }

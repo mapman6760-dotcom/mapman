@@ -1464,27 +1464,19 @@ appDbController.Shop = {
       if (data.input == "all"){
         return await appDbController.Models.shop.findAll({
           where: {
-            // profileId: {
-            //   [Op.ne]: token
-            // },
               status: "active",
           }, raw: true,
           attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
           });
       }
       else{
+        const escapedInput = data.input.replace(/['"\\]/g, '\\$&');
         return await appDbController.Models.shop.findAll({
         where: {
-          // profileId: {
-          //   [Op.ne]: token
-          // },
-          [Op.or]: [
-            // { shopName: { [Op.like]: `%${data.input}%` } },
-            { category: { [Op.like]: `%${data.input}%` } },
-            // { category: { [Op.like]: `%${data.category}%`||`%${data.input}%` } },
-            // { description: { [Op.like]: `%${data.input}%` } }
-            ],
             status: "active",
+            [Op.and]: [
+              Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
+            ]
           },
           raw: true,
           attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
@@ -1502,9 +1494,6 @@ appDbController.Shop = {
       if (data.input == "all"){
         return await appDbController.Models.shop.findAll({
           where: {
-            // profileId: {
-            //   [Op.ne]: token
-            // },
               status: "active",
           }, raw: true,
           attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
@@ -1512,18 +1501,13 @@ appDbController.Shop = {
           });
       }
       else{
+        const escapedInput = data.input.replace(/['"\\]/g, '\\$&');
         return await appDbController.Models.shop.findAll({
         where: {
-          // profileId: {
-          //   [Op.ne]: token
-          // },
-          [Op.or]: [
-            { shopName: { [Op.like]: `%${data.input}%` } },
-            { category: { [Op.like]: `%${data.input}%` } },
-            // { category: { [Op.like]: `%${data.category}%`||`%${data.input}%` } },
-            { description: { [Op.like]: `%${data.input}%` } }
-            ],
             status: "active",
+            [Op.and]: [
+              Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
+            ]
           },
           raw: true,
           attributes: ['id', 'shopName', 'category', 'shopImage', 'lat', 'long', 'status', 'address'],
@@ -1567,11 +1551,16 @@ appDbController.Banners = {
   getShops: async () => {
     try
     {
+      const count = await appDbController.Models.shop.count({
+        where: { status: "active" }
+      });
+      const offset = count > 10 ? Math.floor(Math.random() * (count - 10)) : 0;
       return await appDbController.Models.shop.findAll({
-      where: {
-        status:"active",
+        where: {
+          status: "active",
         },
-          limit: 10,
+        limit: 10,
+        offset: offset,
         raw: true
       })
     } catch (error) {

@@ -17,4 +17,16 @@ export const dbSync = async () => {
   //Create Db Models
   await connection.sync({ force: false });
   
+  // Dynamically apply FULLTEXT and status indexes to the shop table if they do not exist
+  try {
+    await connection.query("ALTER TABLE shop ADD FULLTEXT INDEX shops_search_idx (shopName, category, description);");
+  } catch (err) {
+    // Index already exists or table is not ready
+  }
+
+  try {
+    await connection.query("ALTER TABLE shop ADD INDEX status_idx (status);");
+  } catch (err) {
+    // Index already exists or table is not ready
+  }
 };
