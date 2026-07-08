@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["...", "vips", "pkg-config", "gcc", "g++", "make"]
-
-[variables]
-npm_config_build_from_source = "true"
