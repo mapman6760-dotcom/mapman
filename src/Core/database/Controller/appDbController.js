@@ -1475,7 +1475,8 @@ appDbController.Shop = {
         where: {
             status: "active",
             [Op.and]: [
-              Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
+              // Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
+              Sequelize.literal(`MATCH(category) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
             ]
           },
           raw: true,
@@ -1506,7 +1507,8 @@ appDbController.Shop = {
         where: {
             status: "active",
             [Op.and]: [
-              Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
+              // Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
+              Sequelize.literal(`MATCH(category) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
             ]
           },
           raw: true,

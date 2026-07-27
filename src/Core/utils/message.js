@@ -53,7 +53,6 @@ export const messagingFunction = {
       return response.data
 
     } catch (error) {
-      console.log("madhu")
       console.error(error.response?.data || error.message);
       throw Error.SomethingWentWrong();
     }
