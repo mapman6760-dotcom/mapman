@@ -1474,10 +1474,9 @@ appDbController.Shop = {
         return await appDbController.Models.shop.findAll({
         where: {
             status: "active",
-            [Op.and]: [
-              // Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
-              Sequelize.literal(`MATCH(category) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
-            ]
+            category: {
+              [Op.like]: `%${escapedInput}%`
+            }
           },
           raw: true,
           attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
@@ -1506,10 +1505,9 @@ appDbController.Shop = {
         return await appDbController.Models.shop.findAll({
         where: {
             status: "active",
-            [Op.and]: [
-              // Sequelize.literal(`MATCH(shopName, category, description) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
-              Sequelize.literal(`MATCH(category) AGAINST('${escapedInput}*' IN BOOLEAN MODE)`)
-            ]
+            category: {
+              [Op.like]: `%${escapedInput}%`
+            }
           },
           raw: true,
           attributes: ['id', 'shopName', 'category', 'shopImage', 'lat', 'long', 'status', 'address'],
