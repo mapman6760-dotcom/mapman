@@ -772,4 +772,94 @@ appController.App = {
             });
     },
 
+    createBannerImage: async (req, res) => {
+        appMiddleware.App.createBannerImage(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    createBannerText: async (req, res) => {
+        appMiddleware.App.createBannerText(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    deleteBanner: async (req, res) => {
+        appMiddleware.App.deleteBanner(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    fetchShopBanner: async (req, res) => {
+        appMiddleware.App.fetchShopBanner(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    manageOffers: async (req, res) => {
+        appMiddleware.App.manageOffers(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    fetchShopOffers: async (req, res) => {
+        appMiddleware.App.fetchShopOffers(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
 };

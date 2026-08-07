@@ -765,4 +765,108 @@ contactUs.init(
   { sequelize: connection, freezeTableName: true }
 );
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs};
+class shopBanners extends Model { }
+
+shopBanners.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },    
+    shopId: {
+      type: DataTypes.BIGINT,
+      allowNull:false
+    },
+    profileId: {
+      type: DataTypes.BIGINT,
+      allowNull:false
+    },
+    bannerType: {
+      type: DataTypes.ENUM("image","text"),
+      allowNull: true,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    headerText: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    cta: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    illustration: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    color: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM("active","inactive"),
+      defaultValue: "active",
+      allowNull: true,
+    },
+ 
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
+class myOffers extends Model { }
+
+myOffers.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },    
+    shopId: {
+      type: DataTypes.BIGINT,
+      allowNull:false
+    },
+    profileId: {
+      type: DataTypes.BIGINT,
+      allowNull:false
+    },
+    offerTitle: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    offerPercentage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    offerExpiry: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    offerDetails: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    termsAndConditions: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM("active","inactive"),
+      defaultValue: "active",
+      allowNull: true,
+    },
+ 
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs,shopBanners,myOffers};

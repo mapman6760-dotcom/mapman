@@ -1477,7 +1477,6 @@ let data = {
         }
     },
       
-      
     contactUs: async ({ body }) => {
         const contactUs = await appDbController.Notifications.contactUs(body)
         if (contactUs != null && contactUs != undefined && Object.keys(contactUs).length != 0) {
@@ -1485,6 +1484,173 @@ let data = {
             return "Details submitted"
         } else {
             throw Error.SomethingWentWrong("Failed to submit the details")
+        }
+    },
+      
+    createBannerImage: async ({ token, body, image }) => {
+        // console.log("token",token)
+        // console.log("body",body)
+        // console.log("image",image)
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {   
+            const fetchUser = await appDbController.Shop.getMyShop(token, body);
+            if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+                if (body.type == "update") {
+                    console.log("update")
+                    const checkShop = await appDbController.Notifications.getShopBannerId(token, body)
+                    if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                        const bannerUpdate = await appDbController.Notifications.updateBannerImage(token, body, image)
+                        // return bannerUpdate
+                        if (bannerUpdate != null && bannerUpdate != undefined ) {
+                            return bannerUpdate
+                        } else {
+                                    throw Error.InternalError("Failed to update banner image")
+                        }
+                        
+                    } else {
+                        return Error.SomethingWentWrong("Banner not found")
+                    }
+                } else if (body.type == "add") {
+                    console.log("add")
+                    // else {
+                    const fetchBanners = await appDbController.Notifications.fetchShopBanner(token,body)
+                    console.log("fetchShopBanner",fetchBanners.length)
+                    //Get all the token banners
+                    if (fetchBanners != null && fetchBanners != undefined && fetchBanners.length != 0) {
+                        if (fetchBanners.length <= 1) {
+                            const addBanner = await appDbController.Notifications.createBannerImage(token, body, image)
+                            if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
+                                return "Banner added ";
+                            } else {
+                                throw Error.InternalError("Failed to add the banner")
+                            }
+                        } else {
+                            throw Error.SomethingWentWrong("You already added 2 banners!..")
+                        }
+                    }
+                    //If token shops not found add the shop
+                    else {
+                        const addBanner = await appDbController.Notifications.createBannerImage(token, body, image)
+                            if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
+                                return "Banner added";
+                            } else {
+                                throw Error.InternalError("Failed to add the banner")
+                            }
+                    }
+                } else {
+                    throw Error.SomethingWentWrong("Select update/add banner")
+                }
+            } else {
+                return "Shop not found"
+            }
+        } else {
+            return "Profile not found";
+        }
+    },
+      
+    createBannerText: async ({ token,body,image }) => {
+         const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {   
+            const fetchUser = await appDbController.Shop.getMyShop(token, body);
+            if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+                if (body.type == "update") {
+                    console.log("update")
+                    const checkBanner = await appDbController.Notifications.getShopBannerId(token, body)
+                    console.log("checkBanner ",checkBanner)
+                    if (checkBanner != null && checkBanner != undefined && Object.keys(checkBanner).length != 0) {
+                        if (image != null) {
+                            image=image
+                        } else {
+                            image=checkBanner.illustration
+                        }
+                        console.log("after image is", image)
+                        const bannerUpdate = await appDbController.Notifications.updateBannerText(token,image,body)
+                        // return bannerUpdate
+                        if (bannerUpdate != null && bannerUpdate != undefined ) {
+                            return bannerUpdate
+                        } else {
+                                    throw Error.InternalError("Failed to update banner")
+                        }
+                        
+                    } else {
+                        return Error.SomethingWentWrong("Banner not found")
+                    }
+                } else if (body.type == "add") {
+                    console.log("add")
+                    // else {
+                    const fetchBanners = await appDbController.Notifications.fetchShopBanner(token,body)
+                    console.log("fetchShopBanner",fetchBanners.length)
+                    //Get all the token banners
+                    if (fetchBanners != null && fetchBanners != undefined && fetchBanners.length != 0) {
+                        if (fetchBanners.length <= 1) {
+                            const addBanner = await appDbController.Notifications.createBannerText(token,image,body)
+                            if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
+                                return "Banner added ";
+                            } else {
+                                throw Error.InternalError("Failed to add the banner")
+                            }
+                        } else {
+                            throw Error.SomethingWentWrong("You already added 2 banners!..")
+                        }
+                    }
+                    //If token shops not found add the shop
+                    else {
+                        const addBanner = await appDbController.Notifications.createBannerText(token,image,body)
+                            if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
+                                return "Banner added";
+                            } else {
+                                throw Error.InternalError("Failed to add the banner")
+                            }
+                    }
+                } else {
+                    throw Error.SomethingWentWrong("Select update/add banner")
+                }
+            } else {
+                return "Shop not found"
+            }
+        } else {
+            return "Profile not found";
+        }
+    },
+      
+    deleteBanner: async ({ token, body }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+        const deleteBanner = await appDbController.Notifications.deleteBanner(token,body)
+        if (deleteBanner != null && deleteBanner != undefined && Object.keys(deleteBanner).length != 0) {
+            return deleteBanner
+        } else {
+            throw Error.SomethingWentWrong("Failed to delete the banner ")
+            }
+            } else {
+            return "Profile not found";
+        }
+    },      
+      
+    fetchShopBanner: async ({ token,query }) => {
+        const fetchShopBanner = await appDbController.Notifications.fetchShopBanner(token,query)
+        if (fetchShopBanner != null && fetchShopBanner != undefined && Object.keys(fetchShopBanner).length != 0) {
+            return fetchShopBanner
+        } else {
+            return []
+        }
+    },
+      
+    manageOffers: async ({ body }) => {
+        const manageOffers = await appDbController.Notifications.createOffers(body)
+        if (manageOffers != null && manageOffers != undefined && Object.keys(manageOffers).length != 0) {
+            return "Details submitted"
+        } else {
+            throw Error.SomethingWentWrong("Failed to submit the details")
+        }
+    },
+            
+    fetchShopOffers: async ({ body }) => {
+        const fetchShopOffers = await appDbController.Notifications.fetchShopOffers(body)
+        if (fetchShopOffers != null && fetchShopOffers != undefined && Object.keys(fetchShopOffers).length != 0) {
+            return fetchShopOffers
+        } else {
+            return null
         }
     },
       

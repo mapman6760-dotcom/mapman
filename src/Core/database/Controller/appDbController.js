@@ -4,6 +4,7 @@ import * as Models from "../models/index.js";
 import require from "requirejs";
 import * as Error from "../../errors/ErrorConstant.js"
 import { categoryId } from "../../schema/schema.js";
+import { cpSync } from "fs";
 const { Op, Sequelize, where } = require("sequelize");
 export class appDbController { }
 appDbController.scope = "defaultScope";
@@ -1928,7 +1929,200 @@ appDbController.Notifications = {
     }catch(error){
       return null
     }
+  },
+  
+  getShopBannerImage: async (token,data) => {
+    try {
+      return await appDbController.Models.shopBanners.findAll({
+        where: {
+          profileId: token,
+          id:data.shopId,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  getShopBannerId: async (token,data) => {
+    try {
+      return await appDbController.Models.shopBanners.findOne({
+        where: {
+          profileId: token,
+          id: data.shopId,
+          id:data.bannerId,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  createBannerImage: async (token,data,image)=> {
+    try {
+      return await appDbController.Models.shopBanners.create({
+        profileId: token,
+        shopId:data.shopId,
+        image: image,
+        bannerType:data.bannerType,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  updateBannerImage: async (token,data,image) => {
+    try {
+      const update= await appDbController.Models.shopBanners.update(
+        {
+        image: image,
+        },
+        {
+          where: {
+          profileId: token,
+          id:data.bannerId,
+          shopId: data.shopId,
+          status:"active"
+          }
+        })
+      if (update[0] != 0) {
+        return "Banner image updated"
+      } else {
+        throw Error.InternalError("Failed to update banner image")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  createBannerText: async (token,image,data) => {
+    try {
+      return await appDbController.Models.shopBanners.create({
+        shopId: data.shopId,
+        profileId:token,
+        headerText: data.headerText,
+        description: data.description,
+        cta: data.cta,
+        illustration: image,
+        color: data.color,
+        status: "active"
+      })
+    }catch(error){
+      return null
+    }
+  },
+
+  updateBannerText: async (token,image,data) => {
+    try {
+      const update= await appDbController.Models.shopBanners.update({
+        headerText: data.headerText,
+        description: data.description,
+        cta: data.cta,
+        illustration: image,
+        color: data.color,
+      },
+        {
+          where: {
+            status: "active",
+            shopId: data.shopId,
+            id: data.bannerId,
+            profileId:token
+        }
+        })
+      if (update[0] != 0) {
+        return "Banner updated"
+      } else {
+        throw Error.InternalError("Failed to update  the banner")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteBanner: async (token,data) => {
+    try {
+      console.log(data)
+      const update= await appDbController.Models.shopBanners.update(
+        {
+        status: data.status
+        },
+        {
+          where: {
+            id: data.bannerId,
+            profileId: token,
+            shopId:data.shopId
+          }
+        }
+      )
+      if (update[0] != 0)
+      {
+        return "Banner deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete the banner")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  fetchShopBanner: async(token,data) => {
+  try {
+    return await appDbController.Models.shopBanners.findAll({
+      where: {
+        shopId: data.shopId,
+        profileId: token,
+        status:"active"
+      }
+    })
+  } catch (error) {
+    return null
   }
+  },
+  
+  createOffers: async (data) => {
+    try {
+      return await appDbController.Models.myOffers.create({
+        shopId: data.shopId,
+        userId: data.userId,
+        offerTitle: data.offerTitle,
+        offerPercentage: data.offerPercentage,
+        offerExpiry: data.offerExpiry,
+        offerDetails: data.offerDetails,
+        termsAndConditions: data.termsAndConditions,
+        status: "active"
+      })
+    }catch(error){
+      return null
+    }
+  },
+
+  updateOffers: async (data) => {
+    try {
+      return await appDbController.Models.shopBanners.update({
+        offerTitle: data.offerTitle,
+        offerPercentage: data.offerPercentage,
+        offerExpiry: data.offerExpiry,
+        offerDetails: data.offerDetails,
+        termsAndConditions: data.termsAndConditions,
+      },
+        {
+          where: {
+            shopId: data.shopId,
+            userId: data.userId,
+            status: "active",
+          }
+      })
+    }catch(error){
+      return null
+    }
+  },
 
 }
 
