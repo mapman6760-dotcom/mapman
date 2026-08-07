@@ -107,6 +107,7 @@ appRouter.get("/fetchShopBanners",appAuthenticate,appController.App.fetchShopBan
 
 //Create banners
 appRouter.post("/manageOffers",appAuthenticate,appController.App.manageOffers)
+appRouter.post("/deleteOffers",appAuthenticate,appController.App.deleteOffers)
 appRouter.get("/fetchShopOffers",appAuthenticate,appController.App.fetchShopOffers)
 
 

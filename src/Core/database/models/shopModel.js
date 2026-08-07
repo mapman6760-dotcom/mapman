@@ -852,11 +852,11 @@ myOffers.init(
       allowNull: true,
     },
     offerDetails: {
-      type: DataTypes.STRING,
+    type: DataTypes.TEXT("long"),
       allowNull: true,
     },
     termsAndConditions: {
-      type: DataTypes.STRING,
+    type: DataTypes.TEXT("long"),
       allowNull: true,
     },
     status: {

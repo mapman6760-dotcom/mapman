@@ -1636,23 +1636,92 @@ let data = {
         }
     },
       
-    manageOffers: async ({ body }) => {
-        const manageOffers = await appDbController.Notifications.createOffers(body)
-        if (manageOffers != null && manageOffers != undefined && Object.keys(manageOffers).length != 0) {
-            return "Details submitted"
+    manageOffers: async ({ token,body }) => {
+        // console.log("token",token)
+        // console.log("body",body)
+        // console.log("image",image)
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {   
+            const fetchUser = await appDbController.Shop.getMyShop(token, body);
+            if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+                if (body.type == "update") {
+                    const checkShop = await appDbController.Notifications.getShopOfferId(token, body)
+                    if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+                        const updateOffer = await appDbController.Notifications.updateOffers(token, body)
+                        if (updateOffer != null && updateOffer != undefined ) {
+                            return updateOffer
+                        } else {
+                            throw Error.InternalError("Failed to update offer")
+                        }
+                        
+                    } else {
+                        return Error.SomethingWentWrong("Offer not found")
+                    }
+                } else if (body.type == "add") {
+                    // else {
+                    const fetchOffers = await appDbController.Notifications.fetchShopOffers(token,body)
+                    //Get all the token banners
+                    if (fetchOffers != null && fetchOffers != undefined && fetchOffers.length != 0) {
+                        if (fetchOffers.length <= 1) {
+                            const addBanner = await appDbController.Notifications.createOffers(token, body)
+                            if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
+                                return "Offer added ";
+                            } else {
+                                throw Error.InternalError("Failed to add the offer")
+                            }
+                        } else {
+                            throw Error.SomethingWentWrong("You already added 2 offers!..")
+                        }
+                    }
+                    //If token shops not found add the shop
+                    else {
+                        const addBanner = await appDbController.Notifications.createOffers(token, body)
+                            if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
+                                return "Offer added";
+                            } else {
+                                throw Error.InternalError("Failed to add the offer")
+                            }
+                    }
+                } else {
+                    throw Error.SomethingWentWrong("Select update/add offer")
+                }
+            } else {
+                return "Shop not found"
+            }
         } else {
-            throw Error.SomethingWentWrong("Failed to submit the details")
+            return "Profile not found";
         }
     },
             
-    fetchShopOffers: async ({ body }) => {
-        const fetchShopOffers = await appDbController.Notifications.fetchShopOffers(body)
+    fetchShopOffers: async ({ token,query }) => {
+        const fetchShopOffers = await appDbController.Notifications.fetchShopOffers(token,query)
         if (fetchShopOffers != null && fetchShopOffers != undefined && Object.keys(fetchShopOffers).length != 0) {
-            return fetchShopOffers
+            const parsedData = fetchShopOffers.map(offer => {
+            return {
+                ...offer,
+                offerDetails: offer.offerDetails ? JSON.parse(offer.offerDetails) : [],
+                termsAndConditions: offer.termsAndConditions ? JSON.parse(offer.termsAndConditions) : []
+            };
+        });
+            return parsedData
         } else {
-            return null
+            return 
         }
     },
+
+     deleteOffers: async ({ token, body }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+        const deleteOffers = await appDbController.Notifications.deleteOffers(token,body)
+        if (deleteOffers != null && deleteOffers != undefined && Object.keys(deleteOffers).length != 0) {
+            return deleteOffers
+        } else {
+            throw Error.SomethingWentWrong("Failed to delete the offer")
+        }
+        } else {
+            return "Profile not found";
+        }
+    },   
       
 };
 

@@ -1936,7 +1936,7 @@ appDbController.Notifications = {
       return await appDbController.Models.shopBanners.findAll({
         where: {
           profileId: token,
-          id:data.shopId,
+          shopId:data.shopId,
           status:"active"
         },raw:true
       })
@@ -1950,8 +1950,22 @@ appDbController.Notifications = {
       return await appDbController.Models.shopBanners.findOne({
         where: {
           profileId: token,
-          id: data.shopId,
+          shopId: data.shopId,
           id:data.bannerId,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  getShopOfferId: async (token,data) => {
+    try {
+      return await appDbController.Models.myOffers.findOne({
+        where: {
+          profileId: token,
+          shopId: data.shopId,
+          id:data.offerId,
           status:"active"
         },raw:true
       })
@@ -2079,6 +2093,26 @@ appDbController.Notifications = {
         shopId: data.shopId,
         profileId: token,
         status:"active"
+      }, raw: true,
+      attributes: {
+        exclude:["createdAt","updatedAt"]
+      }
+    })
+  } catch (error) {
+    return null
+  }
+  },
+
+  fetchShopOffers: async(token,data) => {
+  try {
+    return await appDbController.Models.myOffers.findAll({
+      where: {
+        shopId: data.shopId,
+        profileId: token,
+        status:"active"
+      }, raw: true,
+      attributes: {
+        exclude:["createdAt","updatedAt"]
       }
     })
   } catch (error) {
@@ -2086,16 +2120,16 @@ appDbController.Notifications = {
   }
   },
   
-  createOffers: async (data) => {
+  createOffers: async (token,data) => {
     try {
       return await appDbController.Models.myOffers.create({
         shopId: data.shopId,
-        userId: data.userId,
+        profileId: token,
         offerTitle: data.offerTitle,
         offerPercentage: data.offerPercentage,
         offerExpiry: data.offerExpiry,
-        offerDetails: data.offerDetails,
-        termsAndConditions: data.termsAndConditions,
+        offerDetails: JSON.stringify(data.offerDetails),
+        termsAndConditions: JSON.stringify(data.termsAndConditions),
         status: "active"
       })
     }catch(error){
@@ -2103,23 +2137,56 @@ appDbController.Notifications = {
     }
   },
 
-  updateOffers: async (data) => {
+  updateOffers: async (token,data) => {
     try {
-      return await appDbController.Models.shopBanners.update({
+      const update= await appDbController.Models.myOffers.update({
         offerTitle: data.offerTitle,
         offerPercentage: data.offerPercentage,
         offerExpiry: data.offerExpiry,
-        offerDetails: data.offerDetails,
-        termsAndConditions: data.termsAndConditions,
+        offerDetails: JSON.stringify(data.offerDetails),
+        termsAndConditions: JSON.stringify(data.termsAndConditions),
       },
         {
           where: {
             shopId: data.shopId,
-            userId: data.userId,
+            profileId: token,
+            id:data.offerId,
             status: "active",
           }
-      })
-    }catch(error){
+        })
+      if (update[0] != 0) {
+        return "Offer updated"
+      } else {
+        throw Error.SomethingWentWrong("Failed to update offer")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteOffers: async (token,data) => {
+    try {
+      const update= await appDbController.Models.myOffers.update(
+        {
+        status: data.status
+        },
+        {
+          where: {
+            id: data.offerId,
+            profileId: token,
+            shopId:data.shopId
+          }
+        }
+      )
+      if (update[0] != 0)
+      {
+        return "Offer deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete the offer")
+      }
+    } catch (error) {
+      console.log(error)
       return null
     }
   },

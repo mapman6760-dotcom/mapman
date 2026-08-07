@@ -847,6 +847,21 @@ appController.App = {
             });
     },
 
+    deleteOffers: async (req, res) => {
+        appMiddleware.App.deleteOffers(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response,null,(response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
     fetchShopOffers: async (req, res) => {
         appMiddleware.App.fetchShopOffers(req)
             .then((data) => {
