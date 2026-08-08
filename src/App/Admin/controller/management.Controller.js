@@ -346,4 +346,175 @@ ManagementController.Management = {
         });
     },
 
+    createColor: async (req, res) => {
+        managementMiddleware.Management.createColor(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    createIllustration: async (req, res) => {
+        managementMiddleware.Management.createIllustration(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    createBannerCharge: async (req, res) => {
+        managementMiddleware.Management.createBannerCharge(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    fetchColors: async (req, res) => {
+        managementMiddleware.Management.fetchColors(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    deleteColor: async (req, res) => {
+        managementMiddleware.Management.deleteColor(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    fetchIllustrations: async (req, res) => {
+        managementMiddleware.Management.fetchIllustrations(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    deleteIllustration: async (req, res) => {
+        managementMiddleware.Management.deleteIllustration(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    fetchBannerCharges: async (req, res) => {
+        managementMiddleware.Management.fetchBannerCharges(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    deleteBannerCharge: async (req, res) => {
+        managementMiddleware.Management.deleteBannerCharge(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
 };

@@ -1723,6 +1723,51 @@ let data = {
         }
     },   
       
+    fetchColors: async ({token}) => {
+         const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+
+        const get = await appDbController.Settings.fetchColors()
+        if (get != null && get != undefined && Object.keys(get).length != 0) {
+            return get
+        } else {
+            return []
+            }
+            } else {
+            return "Profile not found";
+        }
+            
+    },
+
+        fetchIllustration: async ({token}) => {
+         const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+
+        const get = await appDbController.Settings.fetchIllustrations()
+        if (get != null && get != undefined && Object.keys(get).length != 0) {
+            return get
+        } else {
+            return []
+            }
+            } else {
+            return "Profile not found";
+        }
+    },
+
+            fetchBannerCharge: async ({token}) => {
+         const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+
+        const get = await appDbController.Settings.fetchBannerCharges()
+        if (get != null && get != undefined && Object.keys(get).length != 0) {
+            return get
+        } else {
+            return []
+            }
+            } else {
+            return "Profile not found";
+        }
+    },
 };
 
 

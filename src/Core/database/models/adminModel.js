@@ -152,7 +152,81 @@ categoryBanners.init({
   freezeTableName: true,
 });
 
+class color extends Model { }
 
+color.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  color: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive'),
+    defaultValue: 'active',
+    allowNull: false,
+  },
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
 
-export { admin, adminAuth,banners,categoryBanners };
+class illustration extends Model { }
 
+illustration.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  illustration: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive'),
+    defaultValue: 'active',
+    allowNull: false,
+  },
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
+
+class bannerCharge extends Model { }
+
+bannerCharge.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  bannerCharge: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  gst: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  total: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive'),
+    defaultValue: 'active',
+    allowNull: false,
+  },
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
+
+export { admin, adminAuth, banners, categoryBanners, color, illustration, bannerCharge };

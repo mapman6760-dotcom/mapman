@@ -223,4 +223,85 @@ managementMiddleware.Management = {
             }          
         
   },
+
+  createColor: async ({body}) => {
+    const created = await adminDbController.Settings.createColor(body)
+    if (created != null && created != undefined && Object.keys(created).length != 0) {
+      return "Color created"
+    } else {
+       throw Error.SomethingWentWrong("Failed to create color")
+    }
+  },
+
+  createIllustration: async ({image}) => {
+    const created = await adminDbController.Settings.createIllustration(image)
+    if (created != null && created != undefined && Object.keys(created).length != 0) {
+      return "Illustration created"
+    } else {
+       throw Error.SomethingWentWrong("Failed to create illustration")
+    }
+  },
+
+  createBannerCharge: async ({body}) => {
+    const created = await adminDbController.Settings.createBannerCharge(body)
+    if (created != null && created != undefined && Object.keys(created).length != 0) {
+      return "Banner charge created"
+    } else {
+       throw Error.SomethingWentWrong("Failed to create banner charge")
+    }
+  },
+
+  fetchColors: async () => {
+    const get = await adminDbController.Settings.fetchColors()
+    if (get != null && get != undefined && Object.keys(get).length != 0) {
+      return get
+    } else {
+       return []
+    }
+  },
+
+  deleteColor: async ({body}) => {
+    const deleted = await adminDbController.Settings.deleteColor(body)
+    if (deleted != null && deleted != undefined && Object.keys(deleted).length != 0) {
+      return deleted
+    } else {
+       throw Error.SomethingWentWrong("Failed to delete color")
+    }
+  },
+
+  fetchIllustrations: async () => {
+    const get = await adminDbController.Settings.fetchIllustrations()
+    if (get != null && get != undefined && Object.keys(get).length != 0) {
+      return get
+    } else {
+       return []
+    }
+  },
+
+  deleteIllustration: async ({body}) => {
+    const deleted = await adminDbController.Settings.deleteIllustration(body)
+    if (deleted != null && deleted != undefined && Object.keys(deleted).length != 0) {
+      return deleted
+    } else {
+       throw Error.SomethingWentWrong("Failed to delete illustration")
+    }
+  },
+
+  fetchBannerCharges: async () => {
+    const get = await adminDbController.Settings.fetchBannerCharges()
+    if (get != null && get != undefined && Object.keys(get).length != 0) {
+      return get
+    } else {
+       return []
+    }
+  },
+
+  deleteBannerCharge: async ({body}) => {
+    const deleted = await adminDbController.Settings.deleteBannerCharge(body)
+    if (deleted != null && deleted != undefined && Object.keys(deleted).length != 0) {
+      return deleted
+    } else {
+       throw Error.SomethingWentWrong("Failed to delete banner charge")
+    }
+  },
 }

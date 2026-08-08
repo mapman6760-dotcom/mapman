@@ -41,7 +41,18 @@ managementRouter.post("/addCategoryBanners",adminAuthenticate,uploader.fields([
 ]), Upload.bannerResizer,ManagementController.Management.addCategoryBanners);
 managementRouter.get("/deleteCategoryBanner",adminAuthenticate,ManagementController.Management.deleteCategoryBanner);
 
+managementRouter.post("/createColor", adminAuthenticate, ManagementController.Management.createColor);
+managementRouter.post("/createIllustration", adminAuthenticate,Upload.Resizer, ManagementController.Management.createIllustration);
+managementRouter.post("/createBannerCharge", adminAuthenticate, ManagementController.Management.createBannerCharge);
 
+managementRouter.get("/fetchColors", adminAuthenticate, ManagementController.Management.fetchColors);
+managementRouter.post("/deleteColor", adminAuthenticate, ManagementController.Management.deleteColor);
+
+managementRouter.get("/fetchIllustrations", adminAuthenticate, ManagementController.Management.fetchIllustrations);
+managementRouter.post("/deleteIllustration", adminAuthenticate, ManagementController.Management.deleteIllustration);
+
+managementRouter.get("/fetchBannerCharges", adminAuthenticate, ManagementController.Management.fetchBannerCharges);
+managementRouter.post("/deleteBannerCharge", adminAuthenticate, ManagementController.Management.deleteBannerCharge);
 
 
 export { managementRouter }

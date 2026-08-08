@@ -592,3 +592,154 @@ adminDbController.Banners = {
   },
 
 }
+
+adminDbController.Settings = {
+  createColor: async (data) => {
+    try {
+      return await adminDbController.Models.color.create({
+        color: data.color,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  createIllustration: async (image) => {
+    try {
+      return await adminDbController.Models.illustration.create({
+        illustration: image,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  createBannerCharge: async (data) => {
+    try {
+      return await adminDbController.Models.bannerCharge.create({
+        bannerCharge: data.bannerCharge,
+        gst: data.gst,
+        total: data.total,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  fetchColors: async () => {
+    try {
+      return await adminDbController.Models.color.findAll({
+        // where: {
+        //   status: "active"
+        // },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteColor: async (data) => {
+    try {
+      const updated = await adminDbController.Models.color.update(
+        {
+          status: data.status || "inactive"
+        },
+        {
+          where: {
+            id: data.id
+          }
+        }
+      )
+      if (updated[0] != 0) {
+        return "Color deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete color")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  fetchIllustrations: async () => {
+    try {
+      return await adminDbController.Models.illustration.findAll({
+        // where: {
+        //   status: "active"
+        // },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteIllustration: async (data) => {
+    try {
+      const updated = await adminDbController.Models.illustration.update(
+        {
+          status: data.status || "inactive"
+        },
+        {
+          where: {
+            id: data.id
+          }
+        }
+      )
+      if (updated[0] != 0) {
+        return "Illustration deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete illustration")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  fetchBannerCharges: async () => {
+    try {
+      return await adminDbController.Models.bannerCharge.findAll({
+        // where: {
+        //   status: "active"
+        // },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteBannerCharge: async (data) => {
+    try {
+      const updated = await adminDbController.Models.bannerCharge.update(
+        {
+          status: data.status || "inactive"
+        },
+        {
+          where: {
+            id: data.id
+          }
+        }
+      )
+      if (updated[0] != 0) {
+        return "Banner charge deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete banner charge")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  }
+}

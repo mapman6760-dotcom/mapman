@@ -110,7 +110,9 @@ appRouter.post("/manageOffers",appAuthenticate,appController.App.manageOffers)
 appRouter.post("/deleteOffers",appAuthenticate,appController.App.deleteOffers)
 appRouter.get("/fetchShopOffers",appAuthenticate,appController.App.fetchShopOffers)
 
-
+appRouter.get("/fetchColors", appAuthenticate, appController.App.fetchColors);
+appRouter.get("/fetchIllustrations", appAuthenticate, appController.App.fetchIllustration);
+appRouter.get("/fetchBannerCharge", appAuthenticate, appController.App.fetchBannerCharge);
 
 
 export { appRouter };

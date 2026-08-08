@@ -2193,3 +2193,48 @@ appDbController.Notifications = {
 
 }
 
+appDbController.Settings = {
+  fetchColors: async () => {
+    try {
+      return await appDbController.Models.color.findAll({
+        where: {
+          status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+
+  fetchIllustrations: async () => {
+    try {
+      return await appDbController.Models.illustration.findAll({
+        where: {
+          status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+  
+  fetchBannerCharges: async () => {
+    try {
+      return await appDbController.Models.bannerCharge.findAll({
+        where: {
+          status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+}
