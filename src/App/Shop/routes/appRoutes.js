@@ -101,7 +101,7 @@ appRouter.post("/contactUs",appController.App.contactUs)
 
 //Create banners
 appRouter.post("/manageBannerImage",Uploaders.Resizer,appAuthenticate,appController.App.createBannerImage)
-appRouter.post("/manageBannerText",Uploaders.Resizer,appAuthenticate,appController.App.createBannerText)
+appRouter.post("/manageBannerText",appAuthenticate,appController.App.createBannerText)
 appRouter.post("/deleteBanner",appAuthenticate,appController.App.deleteBanner)
 appRouter.get("/fetchShopBanners",appAuthenticate,appController.App.fetchShopBanner)
 

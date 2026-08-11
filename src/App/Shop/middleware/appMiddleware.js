@@ -1548,7 +1548,7 @@ let data = {
         }
     },
       
-    createBannerText: async ({ token,body,image }) => {
+    createBannerText: async ({ token,body }) => {
          const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {   
             const fetchUser = await appDbController.Shop.getMyShop(token, body);
@@ -1558,13 +1558,12 @@ let data = {
                     const checkBanner = await appDbController.Notifications.getShopBannerId(token, body)
                     console.log("checkBanner ",checkBanner)
                     if (checkBanner != null && checkBanner != undefined && Object.keys(checkBanner).length != 0) {
-                        if (image != null) {
-                            image=image
-                        } else {
-                            image=checkBanner.illustration
-                        }
-                        console.log("after image is", image)
-                        const bannerUpdate = await appDbController.Notifications.updateBannerText(token,image,body)
+                        // if (image != null) {
+                        //     image=image
+                        // } else {
+                        //     image=checkBanner.illustration
+                        // }
+                        const bannerUpdate = await appDbController.Notifications.updateBannerText(token,body)
                         // return bannerUpdate
                         if (bannerUpdate != null && bannerUpdate != undefined ) {
                             return bannerUpdate
@@ -1583,7 +1582,7 @@ let data = {
                     //Get all the token banners
                     if (fetchBanners != null && fetchBanners != undefined && fetchBanners.length != 0) {
                         if (fetchBanners.length <= 1) {
-                            const addBanner = await appDbController.Notifications.createBannerText(token,image,body)
+                            const addBanner = await appDbController.Notifications.createBannerText(token,body)
                             if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
                                 return "Banner added ";
                             } else {

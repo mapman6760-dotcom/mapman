@@ -2014,15 +2014,16 @@ appDbController.Notifications = {
     }
   },
 
-  createBannerText: async (token,image,data) => {
+  createBannerText: async (token,data) => {
     try {
       return await appDbController.Models.shopBanners.create({
         shopId: data.shopId,
         profileId:token,
+        bannerType:data.bannerType,
         headerText: data.headerText,
         description: data.description,
         cta: data.cta,
-        illustration: image,
+        illustration: data.illustration,
         color: data.color,
         status: "active"
       })
@@ -2031,13 +2032,13 @@ appDbController.Notifications = {
     }
   },
 
-  updateBannerText: async (token,image,data) => {
+  updateBannerText: async (token,data) => {
     try {
       const update= await appDbController.Models.shopBanners.update({
         headerText: data.headerText,
         description: data.description,
         cta: data.cta,
-        illustration: image,
+        illustration: data.illustration,
         color: data.color,
       },
         {
