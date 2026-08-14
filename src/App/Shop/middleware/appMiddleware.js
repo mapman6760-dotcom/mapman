@@ -1688,8 +1688,12 @@ let data = {
         }
     },
             
-    fetchShopOffers: async ({ token,query }) => {
-        const fetchShopOffers = await appDbController.Notifications.fetchShopOffers(token,query)
+    fetchShopOffers: async ({ token, query }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+        const checkShop = await appDbController.Shop.getMyShop(token,query)
+        if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
+            const fetchShopOffers = await appDbController.Notifications.fetchShopOffers(token, query)
         if (fetchShopOffers != null && fetchShopOffers != undefined && Object.keys(fetchShopOffers).length != 0) {
             const parsedData = fetchShopOffers.map(offer => {
             return {
@@ -1700,7 +1704,13 @@ let data = {
         });
             return parsedData
         } else {
-            return 
+            return []
+                }
+        } else {
+            return "Shop not found"
+        }
+        } else {
+            return "Profile not found";
         }
     },
 
