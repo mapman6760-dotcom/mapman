@@ -114,5 +114,9 @@ appRouter.get("/fetchColors", appAuthenticate, appController.App.fetchColors);
 appRouter.get("/fetchIllustrations", appAuthenticate, appController.App.fetchIllustration);
 appRouter.get("/fetchBannerCharge", appAuthenticate, appController.App.fetchBannerCharge);
 
+//Fetch all offers
+appRouter.get("/fetchAllOffers", appAuthenticate, appController.App.fetchAllOffers);
+appRouter.get("/offerStatusOpen", appAuthenticate, appController.App.offerStatusOpen);
+
 
 export { appRouter };

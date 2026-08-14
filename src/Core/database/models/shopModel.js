@@ -859,6 +859,11 @@ myOffers.init(
     type: DataTypes.TEXT("long"),
       allowNull: true,
     },
+    openStatus: {
+      type: DataTypes.ENUM("opened", "notOpened"),
+      defaultValue: "notOpened",
+      allowNull: false,
+    },
     status: {
       type: DataTypes.ENUM("active","inactive"),
       defaultValue: "active",

@@ -1849,7 +1849,6 @@ appDbController.Notifications = {
         msgType: data.msgType,
         msgStatus: data.msgStatus,
       }));
-      console.log("payload ",payload)
       // return await appDbController.Models.pushMessaging.bulkCreate(payload);
       const records = await appDbController.Models.pushMessaging.bulkCreate(payload);
 
@@ -1959,12 +1958,27 @@ appDbController.Notifications = {
       return null
     }
   },
+  
   getShopOfferId: async (token,data) => {
     try {
       return await appDbController.Models.myOffers.findOne({
         where: {
           profileId: token,
           shopId: data.shopId,
+          id:data.offerId,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  getOfferId: async (token,data) => {
+    try {
+      return await appDbController.Models.myOffers.findOne({
+        where: {
+          profileId: token,
           id:data.offerId,
           status:"active"
         },raw:true
@@ -2188,6 +2202,46 @@ appDbController.Notifications = {
       }
     } catch (error) {
       console.log(error)
+      return null
+    }
+  },
+
+  fetchAllOffers: async (token) => {
+    try {
+      return await appDbController.Models.myOffers.findAll({
+        where: {
+          profileId: {
+            [Op.ne]: token
+          },
+          status:"active"
+        },
+        order: [["createdAt", "DESC"]],
+        raw: true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+  
+  offerOpenStatus: async (token, data) => {
+    try {
+      const update= await appDbController.Models.myOffers.update(
+        {
+          openStatus: "opened"
+        },
+        {
+          where: {
+            profileId: token,
+            id:data.offerId
+          },
+        }
+      );
+      if (update[0] != 0) {
+        return "Offer opened"
+      } else {
+        throw Error.SomethingWentWrong("Failed to open")
+      }
+    } catch (error) {
       return null
     }
   },

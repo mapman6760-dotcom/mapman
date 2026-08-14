@@ -1511,10 +1511,8 @@ let data = {
                         return Error.SomethingWentWrong("Banner not found")
                     }
                 } else if (body.type == "add") {
-                    console.log("add")
                     // else {
                     const fetchBanners = await appDbController.Notifications.fetchShopBanner(token,body)
-                    console.log("fetchShopBanner",fetchBanners.length)
                     //Get all the token banners
                     if (fetchBanners != null && fetchBanners != undefined && fetchBanners.length != 0) {
                         if (fetchBanners.length <= 1) {
@@ -1575,10 +1573,8 @@ let data = {
                         return Error.SomethingWentWrong("Banner not found")
                     }
                 } else if (body.type == "add") {
-                    console.log("add")
                     // else {
                     const fetchBanners = await appDbController.Notifications.fetchShopBanner(token,body)
-                    console.log("fetchShopBanner",fetchBanners.length)
                     //Get all the token banners
                     if (fetchBanners != null && fetchBanners != undefined && fetchBanners.length != 0) {
                         if (fetchBanners.length <= 1) {
@@ -1594,7 +1590,7 @@ let data = {
                     }
                     //If token shops not found add the shop
                     else {
-                        const addBanner = await appDbController.Notifications.createBannerText(token,image,body)
+                        const addBanner = await appDbController.Notifications.createBannerText(token,body)
                             if (addBanner != null && addBanner != undefined && Object.keys(addBanner).length != 0) {
                                 return "Banner added";
                             } else {
@@ -1753,20 +1749,41 @@ let data = {
         }
     },
 
-            fetchBannerCharge: async ({token}) => {
+    fetchAllOffers: async ({token}) => {
          const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-
-        const get = await appDbController.Settings.fetchBannerCharges()
+        const get = await appDbController.Notifications.fetchAllOffers(token)
         if (get != null && get != undefined && Object.keys(get).length != 0) {
             return get
         } else {
             return []
-            }
-            } else {
+        }
+        } else {
             return "Profile not found";
         }
     },
+
+    
+    offerStatusOpen: async ({token,query}) => {
+         const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+        const get = await appDbController.Notifications.getOfferId(token,query)
+        if (get != null && get != undefined && Object.keys(get).length != 0) {
+        const update = await appDbController.Notifications.offerOpenStatus(token,query)
+            if (update != null && update != undefined ) {
+                return update
+            }
+            else {
+                throw Error.SomethingWentWrong("Failed to open")
+            }
+        } else {
+            return "Offer not found"
+        }
+        } else {
+            return "Profile not found";
+        }
+    },
+
 };
 
 
