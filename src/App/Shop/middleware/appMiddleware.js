@@ -1764,7 +1764,30 @@ let data = {
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
         const get = await appDbController.Notifications.fetchAllOffers(token)
         if (get != null && get != undefined && Object.keys(get).length != 0) {
-            return get
+            const updatedOffers = get.map(offer => {
+                let openStatusList = [];
+                try {
+                    openStatusList = JSON.parse(offer.openStatus || "[]");
+                    if (!Array.isArray(openStatusList)) {
+                        openStatusList = [];
+                    }
+                } catch (e) {
+                    openStatusList = [];
+                }
+
+                // Check if current user's profile ID (token) has opened this offer
+                const isOpened = openStatusList.includes(token) || 
+                                 openStatusList.includes(Number(token)) || 
+                                 openStatusList.includes(String(token));
+
+                return {
+                    ...offer,
+                    offerDetails: offer.offerDetails ? JSON.parse(offer.offerDetails) : [],
+                    termsAndConditions: offer.termsAndConditions ? JSON.parse(offer.termsAndConditions) : [],
+                    isOpened: isOpened
+                };
+            });
+            return updatedOffers;
         } else {
             return []
         }
@@ -1779,7 +1802,25 @@ let data = {
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
         const get = await appDbController.Notifications.getOfferId(token,query)
         if (get != null && get != undefined && Object.keys(get).length != 0) {
-        const update = await appDbController.Notifications.offerOpenStatus(token,query)
+            let openStatusList = [];
+            try {
+                openStatusList = JSON.parse(get.openStatus || "[]");
+                if (!Array.isArray(openStatusList)) {
+                    openStatusList = [];
+                }
+            } catch (e) {
+                openStatusList = [];
+            }
+            
+            const profileId = Number(token);
+            if (!openStatusList.includes(profileId)) {
+                openStatusList.push(profileId);
+            }
+            
+            const update = await appDbController.Notifications.offerOpenStatus(token, {
+                offerId: query.offerId,
+                openStatus: JSON.stringify(openStatusList)
+            })
             if (update != null && update != undefined ) {
                 return update
             }

@@ -1978,12 +1978,13 @@ appDbController.Notifications = {
     try {
       return await appDbController.Models.myOffers.findOne({
         where: {
-          profileId: token,
+          // profileId: token,
           id:data.offerId,
           status:"active"
         },raw:true
       })
     } catch (error) {
+      console.log(error)
       return null
     }
   },
@@ -2145,6 +2146,7 @@ appDbController.Notifications = {
         offerExpiry: data.offerExpiry,
         offerDetails: JSON.stringify(data.offerDetails),
         termsAndConditions: JSON.stringify(data.termsAndConditions),
+        openStatus:"[]",
         status: "active"
       })
     }catch(error){
@@ -2227,11 +2229,11 @@ appDbController.Notifications = {
     try {
       const update= await appDbController.Models.myOffers.update(
         {
-          openStatus: "opened"
+          openStatus: data.openStatus
         },
         {
           where: {
-            profileId: token,
+            // profileId: token,
             id:data.offerId
           },
         }

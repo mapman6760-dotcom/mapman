@@ -860,8 +860,7 @@ myOffers.init(
       allowNull: true,
     },
     openStatus: {
-      type: DataTypes.ENUM("opened", "notOpened"),
-      defaultValue: "notOpened",
+      type:DataTypes.STRING,
       allowNull: false,
     },
     status: {
