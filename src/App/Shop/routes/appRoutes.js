@@ -103,12 +103,15 @@ appRouter.post("/contactUs",appController.App.contactUs)
 appRouter.post("/manageBannerImage",Uploaders.Resizer,appAuthenticate,appController.App.createBannerImage)
 appRouter.post("/manageBannerText",appAuthenticate,appController.App.createBannerText)
 appRouter.post("/deleteBanner",appAuthenticate,appController.App.deleteBanner)
-appRouter.get("/fetchShopBanners",appAuthenticate,appController.App.fetchShopBanner)
+appRouter.get("/fetchShopBanners", appAuthenticate, appController.App.fetchShopBanner)
+
 
 //Create banners
 appRouter.post("/manageOffers",appAuthenticate,appController.App.manageOffers)
 appRouter.post("/deleteOffers",appAuthenticate,appController.App.deleteOffers)
-appRouter.get("/fetchShopOffers",appAuthenticate,appController.App.fetchShopOffers)
+appRouter.get("/fetchShopOffers", appAuthenticate, appController.App.fetchShopOffers)
+appRouter.get("/fetchMonthlyBanners", appAuthenticate, appController.App.fetchSchedule);
+appRouter.get("/fetchDayBanners", appAuthenticate, appController.App.fetchDayBanners);
 
 appRouter.get("/fetchColors", appAuthenticate, appController.App.fetchColors);
 appRouter.get("/fetchIllustrations", appAuthenticate, appController.App.fetchIllustration);
@@ -117,6 +120,5 @@ appRouter.get("/fetchBannerCharge", appAuthenticate, appController.App.fetchBann
 //Fetch all offers
 appRouter.get("/fetchAllOffers", appAuthenticate, appController.App.fetchAllOffers);
 appRouter.get("/offerStatusOpen", appAuthenticate, appController.App.offerStatusOpen);
-
 
 export { appRouter };

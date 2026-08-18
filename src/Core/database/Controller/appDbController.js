@@ -1996,6 +1996,7 @@ appDbController.Notifications = {
         shopId:data.shopId,
         image: image,
         bannerType:data.bannerType,
+        bannerSchedule: JSON.stringify(data.bannerSchedule || []),
         status: "active"
       })
     } catch (error) {
@@ -2008,14 +2009,15 @@ appDbController.Notifications = {
     try {
       const update= await appDbController.Models.shopBanners.update(
         {
-        image: image,
+          image: image,
+          bannerSchedule: JSON.stringify(data.bannerSchedule || []),
         },
         {
           where: {
-          profileId: token,
-          id:data.bannerId,
-          shopId: data.shopId,
-          status:"active"
+            profileId: token,
+            id:data.bannerId,
+            shopId: data.shopId,
+            status:"active"
           }
         })
       if (update[0] != 0) {
@@ -2040,6 +2042,7 @@ appDbController.Notifications = {
         cta: data.cta,
         illustration: data.illustration,
         color: data.color,
+        bannerSchedule: JSON.stringify(data.bannerSchedule || []),
         status: "active"
       })
     }catch(error){
@@ -2055,6 +2058,7 @@ appDbController.Notifications = {
         cta: data.cta,
         illustration: data.illustration,
         color: data.color,
+        bannerSchedule: JSON.stringify(data.bannerSchedule || []),
       },
         {
           where: {
@@ -2244,6 +2248,21 @@ appDbController.Notifications = {
         throw Error.SomethingWentWrong("Failed to open")
       }
     } catch (error) {
+      return null
+    }
+  },
+
+  fetchSchedule: async(token, data) => {
+    try {
+      return await appDbController.Models.shopBanners.findAll({
+        where: {
+          // profileId: token,
+          status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
       return null
     }
   },

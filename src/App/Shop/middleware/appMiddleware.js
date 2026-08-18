@@ -1625,7 +1625,25 @@ let data = {
     fetchShopBanner: async ({ token,query }) => {
         const fetchShopBanner = await appDbController.Notifications.fetchShopBanner(token,query)
         if (fetchShopBanner != null && fetchShopBanner != undefined && Object.keys(fetchShopBanner).length != 0) {
-            return fetchShopBanner
+            const parsedBanners = fetchShopBanner.map(banner => {
+                let parsedSchedule = [];
+                try {
+                    parsedSchedule = JSON.parse(banner.bannerSchedule || "[]");
+                    if (typeof parsedSchedule === 'string') {
+                        parsedSchedule = JSON.parse(parsedSchedule);
+                    }
+                    if (!Array.isArray(parsedSchedule)) {
+                        parsedSchedule = [];
+                    }
+                } catch (e) {
+                    parsedSchedule = [];
+                }
+                return {
+                    ...banner,
+                    bannerSchedule: parsedSchedule
+                }
+            });
+            return parsedBanners;
         } else {
             return []
         }
@@ -1830,6 +1848,123 @@ let data = {
         } else {
             return "Offer not found"
         }
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    fetchSchedule: async ({ token, query }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const getBanners = await appDbController.Notifications.fetchSchedule(token, query)
+            if (getBanners != null && getBanners != undefined && getBanners.length != 0) {
+                let allDates = [];
+                getBanners.forEach(banner => {
+                    if (banner.bannerSchedule) {
+                        try {
+                            let dates = JSON.parse(banner.bannerSchedule);
+                            if (typeof dates === 'string') {
+                                dates = JSON.parse(dates);
+                            }
+                            if (Array.isArray(dates)) {
+                                allDates.push(...dates);
+                            }
+                        } catch (e) {
+                            // Ignore invalid JSON
+                        }
+                    }
+                });
+
+                // Filter unique sorted dates
+                let uniqueDates = [...new Set(allDates)].sort();
+
+                // If query.month is provided, filter by month (expected: YYYY-MM)
+                if (query.month) {
+                    uniqueDates = uniqueDates.filter(dateStr => {
+                        try {
+                            const d = new Date(dateStr);
+                            if (/^\d{4}-\d{2}$/.test(query.month)) {
+                                const [year, month] = query.month.split('-');
+                                return d.getFullYear() === parseInt(year) && (d.getMonth() + 1) === parseInt(month);
+                            }
+                            const target = new Date(query.month);
+                            if (!isNaN(target.getTime())) {
+                                return d.getFullYear() === target.getFullYear() && d.getMonth() === target.getMonth();
+                            }
+                            return dateStr.includes(query.month);
+                        } catch (e) {
+                            return false;
+                        }
+                    });
+                }
+
+                return uniqueDates;
+            } else {
+                return [];
+            }
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    fetchDayBanners: async ({ token, query }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            if (!query.date) {
+                throw Error.SomethingWentWrong("Date parameter is required (YYYY-MM-DD)");
+            }
+            const getBanners = await appDbController.Notifications.fetchSchedule(token, query)
+            if (getBanners != null && getBanners != undefined && getBanners.length != 0) {
+                const targetDate = query.date;
+                const matchedBanners = [];
+                
+                getBanners.forEach(banner => {
+                    let parsedSchedule = [];
+                    if (banner.bannerSchedule) {
+                        try {
+                            parsedSchedule = JSON.parse(banner.bannerSchedule);
+                            if (typeof parsedSchedule === 'string') {
+                                parsedSchedule = JSON.parse(parsedSchedule);
+                            }
+                        } catch (e) {
+                            parsedSchedule = [];
+                        }
+                    }
+                    
+                    if (Array.isArray(parsedSchedule)) {
+                        const isScheduledToday = parsedSchedule.some(d => {
+                            if (d === targetDate) return true;
+                            try {
+                                const dateObj1 = new Date(d);
+                                const dateObj2 = new Date(targetDate);
+                                return !isNaN(dateObj1.getTime()) && !isNaN(dateObj2.getTime()) &&
+                                       dateObj1.getFullYear() === dateObj2.getFullYear() &&
+                                       dateObj1.getMonth() === dateObj2.getMonth() &&
+                                       dateObj1.getDate() === dateObj2.getDate();
+                            } catch (err) {
+                                return false;
+                            }
+                        });
+                        
+                        if (isScheduledToday) {
+                            matchedBanners.push({
+                                ...banner,
+                                bannerSchedule: parsedSchedule
+                            });
+                        }
+                    }
+                });
+                
+                return {
+                    count: matchedBanners.length,
+                    banners: matchedBanners
+                };
+            } else {
+                return {
+                    count: 0,
+                    banners: []
+                };
+            }
         } else {
             return "Profile not found";
         }

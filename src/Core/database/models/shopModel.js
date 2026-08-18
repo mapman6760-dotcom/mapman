@@ -811,6 +811,10 @@ shopBanners.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    bannerSchedule: {
+      type: DataTypes.TEXT("long"),
+      allowNull: true,
+    },
     status: {
       type: DataTypes.ENUM("active","inactive"),
       defaultValue: "active",
