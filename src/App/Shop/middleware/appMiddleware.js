@@ -1782,7 +1782,41 @@ let data = {
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
         const get = await appDbController.Notifications.fetchAllOffers(token)
         if (get != null && get != undefined && Object.keys(get).length != 0) {
-            const updatedOffers = get.map(offer => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const activeOffers = get.filter(offer => {
+                if (!offer.offerExpiry) {
+                    return true;
+                }
+                try {
+                    const daysMatch = String(offer.offerExpiry).trim().match(/^(\d+)\s*(day|days|d)?$/i);
+                    if (daysMatch) {
+                        const expiryDays = parseInt(daysMatch[1]);
+                        const createdAtDate = new Date(offer.createdAt);
+                        const expiryDate = new Date(createdAtDate);
+                        expiryDate.setDate(expiryDate.getDate() + expiryDays);
+                        expiryDate.setHours(0, 0, 0, 0);
+                        
+                        const isKeep = expiryDate >= today;
+                        console.log(`[Offer Filter] ID: ${offer.id}, Expiry: ${offer.offerExpiry}, CreatedAt: ${offer.createdAt}, ExpiryDate: ${expiryDate.toISOString()}, Today: ${today.toISOString()}, Keep: ${isKeep}`);
+                        return isKeep;
+                    }
+                    const expiryDate = new Date(offer.offerExpiry);
+                    if (!isNaN(expiryDate.getTime())) {
+                        expiryDate.setHours(0, 0, 0, 0);
+                        
+                        const isKeep = expiryDate >= today;
+                        console.log(`[Offer Filter] ID: ${offer.id}, Expiry Date: ${offer.offerExpiry}, ExpiryDate: ${expiryDate.toISOString()}, Today: ${today.toISOString()}, Keep: ${isKeep}`);
+                        return isKeep;
+                    }
+                    return true;
+                } catch (e) {
+                    // console.error("[Offer Filter] Error filtering offer ID:", offer.id, e);
+                    return true;
+                }
+            });
+
+            const updatedOffers = activeOffers.map(offer => {
                 let openStatusList = [];
                 try {
                     openStatusList = JSON.parse(offer.openStatus || "[]");
@@ -1875,8 +1909,15 @@ let data = {
                     }
                 });
 
-                // Filter unique sorted dates
-                let uniqueDates = [...new Set(allDates)].sort();
+                // Count occurrences of each date string
+                const dateCounts = {};
+                allDates.forEach(dateStr => {
+                    dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+                });
+
+                // Filter to only include dates scheduled exactly 6 times across all banners
+                let uniqueDates = Object.keys(dateCounts).filter(dateStr => dateCounts[dateStr] === 6);
+                uniqueDates.sort();
 
                 // If query.month is provided, filter by month (expected: YYYY-MM)
                 if (query.month) {
@@ -1885,7 +1926,8 @@ let data = {
                             const d = new Date(dateStr);
                             if (/^\d{4}-\d{2}$/.test(query.month)) {
                                 const [year, month] = query.month.split('-');
-                                return d.getFullYear() === parseInt(year) && (d.getMonth() + 1) === parseInt(month);
+                                return d.getFullYear() === parseInt(year) && (d
+                                    .getMonth() + 1) === parseInt(month);
                             }
                             const target = new Date(query.month);
                             if (!isNaN(target.getTime())) {
