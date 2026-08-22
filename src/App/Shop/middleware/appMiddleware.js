@@ -1134,6 +1134,53 @@ let data = {
             } else {
                 getShops=[]
             }
+
+            // Get today's local date string in YYYY-MM-DD format
+            const todayDate = new Date();
+            const year = todayDate.getFullYear();
+            const month = String(todayDate.getMonth() + 1).padStart(2, '0');
+            const day = String(todayDate.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            // Fetch active shop banners
+            const shopBannersRaw = await appDbController.Banners.fetchActiveShopBanners();
+            const todayShopBanners = [];
+            if (shopBannersRaw && shopBannersRaw.length !== 0) {
+                shopBannersRaw.forEach(banner => {
+                    let parsedSchedule = [];
+                    if (banner.bannerSchedule) {
+                        try {
+                            parsedSchedule = JSON.parse(banner.bannerSchedule);
+                            if (typeof parsedSchedule === 'string') {
+                                parsedSchedule = JSON.parse(parsedSchedule);
+                            }
+                        } catch (e) {
+                            parsedSchedule = [];
+                        }
+                    }
+                    if (Array.isArray(parsedSchedule)) {
+                        const isToday = parsedSchedule.some(d => {
+                            if (d === todayStr) return true;
+                            try {
+                                const d1 = new Date(d);
+                                const d2 = new Date(todayStr);
+                                return !isNaN(d1.getTime()) && !isNaN(d2.getTime()) &&
+                                       d1.getFullYear() === d2.getFullYear() &&
+                                       d1.getMonth() === d2.getMonth() &&
+                                       d1.getDate() === d2.getDate();
+                            } catch (e) {
+                                return false;
+                            }
+                        });
+                        if (isToday) {
+                            todayShopBanners.push({
+                                ...banner,
+                                bannerSchedule: parsedSchedule
+                            });
+                        }
+                    }
+                });
+            }
+
             return {
                 profile: fetchUser.profilePic,
                 userName: fetchUser.userName,
@@ -1141,7 +1188,8 @@ let data = {
                 category: category,
                 reviewStatus: reviewAdded,
                 categoryBanners: fetchCategoryBanners,
-                shops:getShops
+                shops: getShops,
+                shopBanners: todayShopBanners
            } 
         } else {
             return "Profile not found";
@@ -1170,11 +1218,59 @@ let data = {
                 getShops=[]
             }
             
+            // Get today's local date string in YYYY-MM-DD format
+            const todayDate = new Date();
+            const year = todayDate.getFullYear();
+            const month = String(todayDate.getMonth() + 1).padStart(2, '0');
+            const day = String(todayDate.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            // Fetch active shop banners
+            const shopBannersRaw = await appDbController.Banners.fetchActiveShopBanners();
+            const todayShopBanners = [];
+            if (shopBannersRaw && shopBannersRaw.length !== 0) {
+                shopBannersRaw.forEach(banner => {
+                    let parsedSchedule = [];
+                    if (banner.bannerSchedule) {
+                        try {
+                            parsedSchedule = JSON.parse(banner.bannerSchedule);
+                            if (typeof parsedSchedule === 'string') {
+                                parsedSchedule = JSON.parse(parsedSchedule);
+                            }
+                        } catch (e) {
+                            parsedSchedule = [];
+                        }
+                    }
+                    if (Array.isArray(parsedSchedule)) {
+                        const isToday = parsedSchedule.some(d => {
+                            if (d === todayStr) return true;
+                            try {
+                                const d1 = new Date(d);
+                                const d2 = new Date(todayStr);
+                                return !isNaN(d1.getTime()) && !isNaN(d2.getTime()) &&
+                                       d1.getFullYear() === d2.getFullYear() &&
+                                       d1.getMonth() === d2.getMonth() &&
+                                       d1.getDate() === d2.getDate();
+                            } catch (e) {
+                                return false;
+                            }
+                        });
+                        if (isToday) {
+                            todayShopBanners.push({
+                                ...banner,
+                                bannerSchedule: parsedSchedule
+                            });
+                        }
+                    }
+                });
+            }
+
             return {
                 topBanners: fetchBanners,
                 category: category,
                 categoryBanners: fetchCategoryBanners,
-                shops:getShops
+                shops: getShops,
+                shopBanners: todayShopBanners
                 }
             } else {
                 return []

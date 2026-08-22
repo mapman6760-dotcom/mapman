@@ -1569,6 +1569,20 @@ appDbController.Banners = {
     }
   },
 
+  fetchActiveShopBanners: async () => {
+    try {
+      return await appDbController.Models.shopBanners.findAll({
+        where: {
+          status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
   getVersion: async (data) => {
     try {
       return await appDbController.Models.versionControl.findOne({
