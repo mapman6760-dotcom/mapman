@@ -803,14 +803,18 @@ shopBanners.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    illustration: {
+    backgroundImage: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    color: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    // illustration: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
+    // color: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
     bannerSchedule: {
       type: DataTypes.TEXT("long"),
       allowNull: true,

@@ -2054,8 +2054,9 @@ appDbController.Notifications = {
         headerText: data.headerText,
         description: data.description,
         cta: data.cta,
-        illustration: data.illustration,
-        color: data.color,
+        // illustration: data.illustration,
+        // color: data.color,
+        backgroundImage:data.backgroundImage,
         bannerSchedule: JSON.stringify(data.bannerSchedule || []),
         status: "active"
       })
@@ -2064,14 +2065,15 @@ appDbController.Notifications = {
     }
   },
 
-  updateBannerText: async (token,data) => {
+  updateBannerText: async (token,data,image) => {
     try {
       const update= await appDbController.Models.shopBanners.update({
         headerText: data.headerText,
         description: data.description,
         cta: data.cta,
-        illustration: data.illustration,
-        color: data.color,
+        // illustration: data.illustration,
+        // color: data.color,
+        backgroundImage:data.backgroundImage,
         bannerSchedule: JSON.stringify(data.bannerSchedule || []),
       },
         {
@@ -2327,4 +2329,19 @@ appDbController.Settings = {
     }
   },
 
+  fetchBackgroundImage: async () => {
+    try {
+      return await appDbController.Models.backgroundImage.findAll({
+        where: {
+          status: "active"
+        },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
 }
+

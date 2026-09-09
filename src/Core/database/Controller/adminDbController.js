@@ -741,5 +741,55 @@ adminDbController.Settings = {
       console.log(error)
       return null
     }
+  },
+
+  addBackgroundImage: async (image) => {
+    try {
+      return await adminDbController.Models.backgroundImage.create({
+        backgroundImage: image,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  fetchBackgroundImage: async () => {
+    try {
+      return await adminDbController.Models.backgroundImage.findAll({
+        // where: {
+        //   status: "active"
+        // },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteBackgroundImage: async (data) => {
+    try {
+      const updated = await adminDbController.Models.backgroundImage.update(
+        {
+          status: data.status || "inactive"
+        },
+        {
+          where: {
+            id: data.id
+          }
+        }
+      )
+      if (updated[0] != 0) {
+        return "Background image deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete background image")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
   }
 }
+

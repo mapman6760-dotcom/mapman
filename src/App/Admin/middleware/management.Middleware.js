@@ -304,4 +304,31 @@ managementMiddleware.Management = {
        throw Error.SomethingWentWrong("Failed to delete banner charge")
     }
   },
-}
+
+  addBackgroundImage: async ({image}) => {
+    const created = await adminDbController.Settings.addBackgroundImage(image)
+    if (created != null && created != undefined && Object.keys(created).length != 0) {
+      return "Background image created"
+    } else {
+       throw Error.SomethingWentWrong("Failed to create background image")
+    }
+  },
+
+  fetchBackgroundImage: async () => {
+    const get = await adminDbController.Settings.fetchBackgroundImage()
+    if (get != null && get != undefined && Object.keys(get).length != 0) {
+      return get
+    } else {
+       return []
+    }
+  },
+
+  deleteBackgroundImage: async ({body}) => {
+    const deleted = await adminDbController.Settings.deleteBackgroundImage(body)
+    if (deleted != null && deleted != undefined && Object.keys(deleted).length != 0) {
+      return deleted
+    } else {
+       throw Error.SomethingWentWrong("Failed to delete background image")
+    }
+  },
+}

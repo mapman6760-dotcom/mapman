@@ -1873,6 +1873,22 @@ let data = {
         }
     },
 
+    fetchBackgroundImage: async ({token}) => {
+         const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+
+        const get = await appDbController.Settings.fetchBackgroundImage()
+        if (get != null && get != undefined && Object.keys(get).length != 0) {
+            return get
+        } else {
+            return []
+            }
+            } else {
+            return "Profile not found";
+        }
+    },
+
+
     fetchAllOffers: async ({token}) => {
          const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {

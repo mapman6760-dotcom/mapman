@@ -41,18 +41,22 @@ managementRouter.post("/addCategoryBanners",adminAuthenticate,uploader.fields([
 ]), Upload.bannerResizer,ManagementController.Management.addCategoryBanners);
 managementRouter.get("/deleteCategoryBanner",adminAuthenticate,ManagementController.Management.deleteCategoryBanner);
 
-managementRouter.post("/createColor", adminAuthenticate, ManagementController.Management.createColor);
-managementRouter.post("/createIllustration", adminAuthenticate,Upload.Resizer, ManagementController.Management.createIllustration);
+// managementRouter.post("/createColor", adminAuthenticate, ManagementController.Management.createColor);
+// managementRouter.post("/createIllustration", adminAuthenticate,Upload.Resizer, ManagementController.Management.createIllustration);
 managementRouter.post("/createBannerCharge", adminAuthenticate, ManagementController.Management.createBannerCharge);
 
-managementRouter.get("/fetchColors", adminAuthenticate, ManagementController.Management.fetchColors);
-managementRouter.post("/deleteColor", adminAuthenticate, ManagementController.Management.deleteColor);
+// managementRouter.get("/fetchColors", adminAuthenticate, ManagementController.Management.fetchColors);
+// managementRouter.post("/deleteColor", adminAuthenticate, ManagementController.Management.deleteColor);
 
-managementRouter.get("/fetchIllustrations", adminAuthenticate, ManagementController.Management.fetchIllustrations);
-managementRouter.post("/deleteIllustration", adminAuthenticate, ManagementController.Management.deleteIllustration);
+// managementRouter.get("/fetchIllustrations", adminAuthenticate, ManagementController.Management.fetchIllustrations);
+// managementRouter.post("/deleteIllustration", adminAuthenticate, ManagementController.Management.deleteIllustration);
 
 managementRouter.get("/fetchBannerCharges", adminAuthenticate, ManagementController.Management.fetchBannerCharges);
 managementRouter.post("/deleteBannerCharge", adminAuthenticate, ManagementController.Management.deleteBannerCharge);
 
+managementRouter.post("/addBackgroundImage", adminAuthenticate, Upload.Resizer, ManagementController.Management.addBackgroundImage);
+managementRouter.get("/fetchBackgroundImage", adminAuthenticate, ManagementController.Management.fetchBackgroundImage);
+managementRouter.post("/deleteBackgroundImage", adminAuthenticate, ManagementController.Management.deleteBackgroundImage);
 
-export { managementRouter }
+
+export { managementRouter }

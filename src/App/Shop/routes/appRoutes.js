@@ -113,9 +113,11 @@ appRouter.get("/fetchShopOffers", appAuthenticate, appController.App.fetchShopOf
 appRouter.get("/fetchMonthlyBanners", appAuthenticate, appController.App.fetchSchedule);
 appRouter.get("/fetchDayBanners", appAuthenticate, appController.App.fetchDayBanners);
 
-appRouter.get("/fetchColors", appAuthenticate, appController.App.fetchColors);
-appRouter.get("/fetchIllustrations", appAuthenticate, appController.App.fetchIllustration);
+// appRouter.get("/fetchColors", appAuthenticate, appController.App.fetchColors);
+// appRouter.get("/fetchIllustrations", appAuthenticate, appController.App.fetchIllustration);
 appRouter.get("/fetchBannerCharge", appAuthenticate, appController.App.fetchBannerCharge);
+appRouter.get("/fetchBackgroundImage", appAuthenticate, appController.App.fetchBackgroundImage);
+
 
 //Fetch all offers
 appRouter.get("/fetchAllOffers", appAuthenticate, appController.App.fetchAllOffers);
