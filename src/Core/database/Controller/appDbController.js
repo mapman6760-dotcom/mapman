@@ -2060,7 +2060,8 @@ appDbController.Notifications = {
         bannerSchedule: JSON.stringify(data.bannerSchedule || []),
         status: "active"
       })
-    }catch(error){
+    } catch (error) {
+      console.log(error)
       return null
     }
   },
