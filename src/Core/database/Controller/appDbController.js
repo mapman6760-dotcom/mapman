@@ -1571,12 +1571,28 @@ appDbController.Banners = {
 
   fetchActiveShopBanners: async () => {
     try {
-      return await appDbController.Models.shopBanners.findAll({
+      const shopBanners= await appDbController.Models.shopBanners.findAll({
         where: {
           status: "active"
         },
         raw: true
       })
+      for (let i = 0; i < shopBanners.length; i++){
+        if (shopBanners[i].bannerType == "text")
+        {
+          const fetchShopName = await appDbController.Models.shop.findOne({
+          where: {
+            id: shopBanners[i].shopId,
+            status: "active"
+          },
+          raw:true
+        })
+        shopBanners[i].shopName=fetchShopName.shopName
+        } else {
+            shopBanners[i].shopName=null
+        }
+      }
+      return shopBanners
     } catch (error) {
       console.log(error)
       return null
