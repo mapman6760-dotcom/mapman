@@ -803,6 +803,10 @@ shopBanners.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    font: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     backgroundImage: {
       type: DataTypes.STRING(500),
       allowNull: true,
