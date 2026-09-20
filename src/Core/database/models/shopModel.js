@@ -807,6 +807,14 @@ shopBanners.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    fontColor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    backgroundColor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     backgroundImage: {
       type: DataTypes.STRING(500),
       allowNull: true,
