@@ -594,6 +594,35 @@ adminDbController.Banners = {
 }
 
 adminDbController.Settings = {
+  userExists: async (data) => {
+    try {
+      return await adminDbController.Models.profile.findOne({
+        where: {
+          id: data.userId,
+          status:"active"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+    },
+
+  getCoupon: async (data) => {
+    try {
+      return await adminDbController.Models.coupons.findOne({
+        where: {
+          id: data.couponId,
+          status:"active"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+    
+  },
+
   createColor: async (data) => {
     try {
       return await adminDbController.Models.color.create({
@@ -790,6 +819,89 @@ adminDbController.Settings = {
       console.log(error)
       return null
     }
-  }
+  },
+
+  addCoupon: async (data) => {
+    try {
+      return await adminDbController.Models.coupons.create({
+        title: data.title,
+        description: data.description,
+        couponCode: data.couponCode,
+        expiryPeriod: data.expiryPeriod,
+        couponAmount: data.couponAmount,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  fetchCoupons: async () => {
+    try {
+      return await adminDbController.Models.coupons.findAll({
+        // where: {
+        //   status: "active"
+        // },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  deleteCoupons: async (data) => {
+    try {
+      const updated = await adminDbController.Models.coupons.update(
+        {
+          status: data.status || "inactive"
+        },
+        {
+          where: {
+            id: data.id
+          }
+        }
+      )
+      if (updated[0] != 0) {
+        return "Coupon deleted"
+      } else {
+        throw Error.SomethingWentWrong("Failed to delete coupon")
+      }
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
+  couponAssigned: async (data) => {
+    try {
+      return await adminDbController.Models.couponAssignees.findOne({
+        where: {
+          couponId: data.couponId,
+          userId: data.userId,
+          status:"active"
+        }
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  assignCoupon: async (data) => {
+    try {
+      return await adminDbController.Models.couponAssignees.create({
+        title: data.title,
+        description:data.description,
+        couponCode: data.couponCode,
+        couponId: data.couponId,
+        userId: data.userId,
+        status: "active"
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
 }
 

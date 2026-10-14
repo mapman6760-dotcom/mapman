@@ -61,6 +61,11 @@ profile.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  wallet: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue:0
+  },
   fcmToken: {
     type: DataTypes.TEXT("long"),
     allowNull: true,
@@ -892,5 +897,7 @@ myOffers.init(
   },
   { sequelize: connection, freezeTableName: true }
 );
+
+
 
 export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs,shopBanners,myOffers};

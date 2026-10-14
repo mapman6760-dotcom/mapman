@@ -123,4 +123,9 @@ appRouter.get("/fetchBackgroundImage", appAuthenticate, appController.App.fetchB
 appRouter.get("/fetchAllOffers", appAuthenticate, appController.App.fetchAllOffers);
 appRouter.get("/offerStatusOpen", appAuthenticate, appController.App.offerStatusOpen);
 
+//Coupns
+appRouter.get("/listAssignedCoupons", appAuthenticate, appController.App.listAssignedCoupons);
+appRouter.post("/applyCoupons", appAuthenticate, appController.App.applyCoupons);
+
+
 export { appRouter };

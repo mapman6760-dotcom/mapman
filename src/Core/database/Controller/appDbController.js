@@ -442,7 +442,7 @@ appDbController.Profile = {
           id: token,
           status:"active"
         },
-        attributes:["id","userName","profilePic","phone","email","points","fcmToken","state","district","country"],
+        attributes:["id","userName","profilePic","phone","email","points","fcmToken","state","district","country","wallet"],
         raw: true
       })
     } catch (error) {
@@ -2368,3 +2368,94 @@ appDbController.Settings = {
 
 }
 
+appDbController.Coupons = {
+  listAssignedCoupons: async(token) => {
+    try {
+      return await appDbController.Models.couponAssignees.findAll({
+        where: {
+          userId: token,
+          status:"active"
+        },
+        raw:true
+      })      
+    } catch (error) {
+      return null
+    }
+  },
+
+  checkCoupon: async (data) => {
+    try {
+      return await appDbController.Models.coupons.findOne({
+        where: {
+          id: data.couponId,
+          status:"active"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  checkCouponAssigned: async (token,data) => {
+    try {
+      return await appDbController.Models.couponAssignees.findOne({
+        where: {
+          couponId: data.couponId,
+          userId: token,
+          status:"active"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  couponApplied: async (token,data) => {
+    try {
+      return await appDbController.Models.couponApplies.findOne({
+        where: {
+          couponId: data.couponId,
+          userId: token,
+          status:"applied"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  applyCoupons: async (token, data) => {
+    console.log("data ",data)
+    try {
+      const update = await appDbController.Models.couponApplies.create({
+        couponCode:data.couponCode,
+        couponId:data.couponId,
+        userId:token,
+        couponAmount: data.couponAmount,
+        status:"applied"        
+      })
+      const update1 = await appDbController.Models.profile.update(
+        {
+          wallet:data.walletAmount
+        },
+        {
+          where: {
+            id: token,
+            status:"active"
+          }
+        }
+      )
+      if (update != 0 && update1 != null && update1 != undefined) {
+        return "Coupon applied"
+      } else {
+        throw Error.SomethingWentWrong("Failed to apply the coupon")
+      }
+    } catch (error) {
+      return null
+    }
+  }
+    
+}

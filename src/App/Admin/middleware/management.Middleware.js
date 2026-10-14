@@ -331,4 +331,57 @@ managementMiddleware.Management = {
        throw Error.SomethingWentWrong("Failed to delete background image")
     }
   },
-}
+
+
+  addCoupon: async ({body}) => {
+    const created = await adminDbController.Settings.addCoupon(body)
+    if (created != null && created != undefined && Object.keys(created).length != 0) {
+      return "Coupon created"
+    } else {
+       throw Error.SomethingWentWrong("Failed to add coupon")
+    }
+  },
+
+  fetchCoupons: async () => {
+    const get = await adminDbController.Settings.fetchCoupons()
+    if (get != null && get != undefined && Object.keys(get).length != 0) {
+      return get
+    } else {
+       return []
+    }
+  },
+
+  deleteCoupons: async ({body}) => {
+    const deleted = await adminDbController.Settings.deleteCoupons(body)
+    if (deleted != null && deleted != undefined && Object.keys(deleted).length != 0) {
+      return deleted
+    } else {
+       throw Error.SomethingWentWrong("Failed to delete coupon")
+    }
+  },
+
+  assignCoupon: async ({ body }) => {
+    const userExists = await adminDbController.Settings.userExists(body)
+    if (userExists != null && userExists != undefined && Object.keys(userExists).length != 0) {
+      const fetchCoupon = await adminDbController.Settings.getCoupon(body)
+      if (fetchCoupon != null && fetchCoupon != undefined && Object.keys(fetchCoupon).length != 0) {
+        const couponAssigned = await adminDbController.Settings.couponAssigned(body)
+        if (couponAssigned != null && couponAssigned != undefined && Object.keys(couponAssigned).length != 0) {
+            return "This coupon already assigned to this member"
+        } else {
+          const assign = await adminDbController.Settings.assignCoupon(body)
+          if (assign != null && assign != undefined && Object.keys(assign).length != 0) {
+            return "Coupon assigned"
+          } else {
+            throw Error.SomethingWentWrong("Failed to assign coupon")
+          }
+        }
+      } else {
+        return "Coupon not found"
+      }
+    } else {
+      return "User not found"
+    }
+  },
+
+}

@@ -2124,6 +2124,53 @@ let data = {
         }
     },
 
+    listAssignedCoupons: async ({token}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const listCoupons = await appDbController.Coupons.listAssignedCoupons(token)
+            if (listCoupons != null && listCoupons != undefined && listCoupons.length != 0) {
+                return listCoupons
+            } else {
+                return []
+            }
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    applyCoupons: async ({token,body}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        console.log("fetch",fetchUser)
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const checkCoupon = await appDbController.Coupons.checkCoupon(body)
+            if (checkCoupon != null && checkCoupon != undefined && Object.keys(checkCoupon).length != 0) {
+                const checkCouponAssigned = await appDbController.Coupons.checkCouponAssigned(token, body) 
+                if (checkCouponAssigned != null && checkCouponAssigned != undefined && Object.keys(checkCouponAssigned).length != 0) {
+                    const couponApplied = await appDbController.Coupons.couponApplied(token, body)
+                    if (couponApplied != null && couponApplied != undefined && Object.keys(couponApplied).length != 0) {
+                        return "This coupon already applied"
+                    } else {
+                        body.couponAmount = checkCoupon.couponAmount
+                        console.log(body.couponAmount,"coupon")
+                        console.log(fetchUser.wallet,"wallet")
+                        body.walletAmount=Number(fetchUser.wallet)+Number(body.couponAmount)
+                        const applyCoupon = await appDbController.Coupons.applyCoupons(token, body)
+                        if (applyCoupon != null && applyCoupon != undefined) {
+                            return "Coupon applied"
+                        } else {
+                            throw Error.SomethingWentWrong("Failed to apply the coupon")
+                        }
+                    }
+                } else {
+                    return "This coupon not for this profile"
+                }
+            } else {
+                return "Coupon not found"
+            }
+        } else {
+            return "Profile not found";
+        }
+    }
 };
 
 

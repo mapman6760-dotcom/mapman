@@ -574,5 +574,81 @@ ManagementController.Management = {
         });
     },
 
+    addCoupon: async (req, res) => {
+        managementMiddleware.Management.addCoupon(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    fetchCoupons: async (req, res) => {
+        managementMiddleware.Management.fetchCoupons(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    deleteCoupons: async (req, res) => {
+        managementMiddleware.Management.deleteCoupons(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
+    assignCoupon: async (req, res) => {
+        managementMiddleware.Management.assignCoupon(req)
+        .then((data) => {
+            const response = ApplicationResult.forCreated();
+            var statuscode = 0;
+            ApplicationResponse.success(
+                response,
+                null,
+                (response) => (statuscode = response.status)
+            );
+            res.json({ status: statuscode, data: data });
+        })
+        .catch((error) => {
+            ApplicationResponse.error(error, null, (response) => {
+                res.status(response.status).json(response);
+            });
+        });
+    },
+
 };
 

@@ -58,5 +58,11 @@ managementRouter.post("/addBackgroundImage", adminAuthenticate, Upload.Resizer, 
 managementRouter.get("/fetchBackgroundImage", adminAuthenticate, ManagementController.Management.fetchBackgroundImage);
 managementRouter.post("/deleteBackgroundImage", adminAuthenticate, ManagementController.Management.deleteBackgroundImage);
 
+//Coupons management
 
-export { managementRouter }
+managementRouter.post("/addCoupon", adminAuthenticate,ManagementController.Management.addCoupon);
+managementRouter.get("/fetchCoupons", adminAuthenticate, ManagementController.Management.fetchCoupons);
+managementRouter.post("/deleteCoupon", adminAuthenticate, ManagementController.Management.deleteCoupons);
+managementRouter.post("/assignCoupon", adminAuthenticate, ManagementController.Management.assignCoupon);
+
+export { managementRouter }

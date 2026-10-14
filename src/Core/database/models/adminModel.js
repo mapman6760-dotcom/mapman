@@ -252,5 +252,118 @@ backgroundImage.init({
   freezeTableName: true,
 });
 
-export { admin, adminAuth, banners, categoryBanners, bannerCharge, backgroundImage };
+class coupons extends Model { }
+
+coupons.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  couponCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  expiryPeriod: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  couponAmount: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive'),
+    defaultValue: 'active',
+    allowNull: false,
+  },
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
+
+class couponAssignees extends Model { }
+
+couponAssignees.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  couponCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  couponId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive','expired'),
+    defaultValue: 'active',
+    allowNull: false,
+  },
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
+
+class couponApplies extends Model { }
+
+couponApplies.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  couponCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  couponAmount: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  couponId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive','applied','expired'),
+    defaultValue: 'active',
+    allowNull: false,
+  },
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
+
+export { admin, adminAuth, banners, categoryBanners, bannerCharge, backgroundImage,coupons,couponAssignees,couponApplies };
 
