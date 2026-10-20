@@ -356,7 +356,7 @@ couponApplies.init({
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('active', 'inactive','applied','expired'),
+    type: DataTypes.ENUM('active', 'inactive','scratched','applied','expired'),
     defaultValue: 'active',
     allowNull: false,
   },

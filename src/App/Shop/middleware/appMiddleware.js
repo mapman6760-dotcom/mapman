@@ -2140,26 +2140,28 @@ let data = {
 
     applyCoupons: async ({token,body}) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
-        console.log("fetch",fetchUser)
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
             const checkCoupon = await appDbController.Coupons.checkCoupon(body)
             if (checkCoupon != null && checkCoupon != undefined && Object.keys(checkCoupon).length != 0) {
                 const checkCouponAssigned = await appDbController.Coupons.checkCouponAssigned(token, body) 
                 if (checkCouponAssigned != null && checkCouponAssigned != undefined && Object.keys(checkCouponAssigned).length != 0) {
-                    const couponApplied = await appDbController.Coupons.couponApplied(token, body)
-                    if (couponApplied != null && couponApplied != undefined && Object.keys(couponApplied).length != 0) {
-                        return "This coupon already applied"
-                    } else {
-                        body.couponAmount = checkCoupon.couponAmount
-                        console.log(body.couponAmount,"coupon")
-                        console.log(fetchUser.wallet,"wallet")
-                        body.walletAmount=Number(fetchUser.wallet)+Number(body.couponAmount)
-                        const applyCoupon = await appDbController.Coupons.applyCoupons(token, body)
-                        if (applyCoupon != null && applyCoupon != undefined) {
-                            return "Coupon applied"
+                    const couponScratched = await appDbController.Coupons.couponScratched(token, body)
+                    if (couponScratched != null && couponScratched != undefined && Object.keys(couponScratched).length != 0) {
+                        const couponApplied = await appDbController.Coupons.couponApplied(token, body)
+                        if (couponApplied != null && couponApplied != undefined && Object.keys(couponApplied).length != 0) {
+                            return "This coupon already applied"
                         } else {
-                            throw Error.SomethingWentWrong("Failed to apply the coupon")
+                            body.couponAmount = checkCoupon.couponAmount
+                            body.walletAmount = Number(fetchUser.wallet) + Number(body.couponAmount)
+                            const applyCoupon = await appDbController.Coupons.applyCoupons(token, body)
+                            if (applyCoupon != null && applyCoupon != undefined) {
+                                return "Coupon applied"
+                            } else {
+                                throw Error.SomethingWentWrong("Failed to apply the coupon")
+                            }
                         }
+                    } else {
+                        return "Coupon not scratched"
                     }
                 } else {
                     return "This coupon not for this profile"
@@ -2168,6 +2170,45 @@ let data = {
                 return "Coupon not found"
             }
         } else {
+            return "Profile not found";
+        }
+    },
+
+    walletBalance: async ({token}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            return { wallet: fetchUser.wallet }
+        } else {
+            return { wallet: 0 }
+        }
+    },
+
+    scratchCoupon: async ({token,body}) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+         const checkCoupon = await appDbController.Coupons.checkCoupon(body)
+            if (checkCoupon != null && checkCoupon != undefined && Object.keys(checkCoupon).length != 0) {
+                const checkCouponAssigned = await appDbController.Coupons.checkCouponAssigned(token, body) 
+                if (checkCouponAssigned != null && checkCouponAssigned != undefined && Object.keys(checkCouponAssigned).length != 0) {
+                    const couponScratched = await appDbController.Coupons.couponScratched(token, body)
+                    if (couponScratched != null && couponScratched != undefined && Object.keys(couponScratched).length != 0) {
+                        return "Coupon already scratched"
+                    } else {
+                        body.couponAmount = checkCoupon.couponAmount
+                        const scratchCoupon = await appDbController.Coupons.scratchCoupon(token, body)
+                        if (scratchCoupon != null && scratchCoupon != undefined) {
+                            return "Coupon scratched"
+                        } else {
+                            throw Error.SomethingWentWrong("Failed to scratch the coupon")
+                        }
+                    }
+                } else {
+                    return "This coupon not for this profile"
+                }
+            } else {
+                return "Coupon not found"
+            }
+            } else {
             return "Profile not found";
         }
     }

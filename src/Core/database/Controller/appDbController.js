@@ -2412,6 +2412,35 @@ appDbController.Coupons = {
     }
   },
 
+  couponScratched: async (token,data) => {
+    try {
+      return await appDbController.Models.couponApplies.findOne({
+        where: {
+          couponId: data.couponId,
+          userId: token,
+          status:"scratched"
+        },
+        raw:true
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
+  scratchCoupon: async (token,data) => {
+    try {
+      return await appDbController.Models.couponApplies.create({
+        couponCode:data.couponCode,
+        couponId:data.couponId,
+        userId:token,
+        couponAmount: data.couponAmount,
+        status:"scratched"
+      })
+    } catch (error) {
+      return null
+    }
+  },
+
   couponApplied: async (token,data) => {
     try {
       return await appDbController.Models.couponApplies.findOne({
@@ -2428,14 +2457,17 @@ appDbController.Coupons = {
   },
 
   applyCoupons: async (token, data) => {
-    console.log("data ",data)
     try {
-      const update = await appDbController.Models.couponApplies.create({
-        couponCode:data.couponCode,
-        couponId:data.couponId,
-        userId:token,
-        couponAmount: data.couponAmount,
+      const update = await appDbController.Models.couponApplies.update(
+      {
         status:"applied"        
+        },
+        {
+          where: {
+            couponId: data.couponId,
+            userId: token,
+            status:"scratched"
+        }
       })
       const update1 = await appDbController.Models.profile.update(
         {
@@ -2448,12 +2480,13 @@ appDbController.Coupons = {
           }
         }
       )
-      if (update != 0 && update1 != null && update1 != undefined) {
+      if (update != 0 && update1 !=0) {
         return "Coupon applied"
       } else {
         throw Error.SomethingWentWrong("Failed to apply the coupon")
       }
     } catch (error) {
+      console.log(error)
       return null
     }
   }

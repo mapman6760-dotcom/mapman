@@ -125,7 +125,9 @@ appRouter.get("/offerStatusOpen", appAuthenticate, appController.App.offerStatus
 
 //Coupns
 appRouter.get("/listAssignedCoupons", appAuthenticate, appController.App.listAssignedCoupons);
+appRouter.get("/walletBalance", appAuthenticate, appController.App.walletBalance);
 appRouter.post("/applyCoupons", appAuthenticate, appController.App.applyCoupons);
+appRouter.post("/scratchCoupon", appAuthenticate, appController.App.scratchCoupon);
 
 
 export { appRouter };
