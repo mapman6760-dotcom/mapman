@@ -2371,13 +2371,27 @@ appDbController.Settings = {
 appDbController.Coupons = {
   listAssignedCoupons: async(token) => {
     try {
-      return await appDbController.Models.couponAssignees.findAll({
+      let assignees= await appDbController.Models.couponAssignees.findAll({
         where: {
           userId: token,
-          status:"active"
+          status: "active"
         },
-        raw:true
-      })      
+        raw: true
+      })
+      for (let i = 0; i < assignees.length; i++){
+        const couponScratch = await appDbController.Models.couponApplies.findOne({
+        where: {
+          couponId:assignees[i].couponId,
+          userId:token
+        },raw:true
+        })
+        if (couponScratch != null && couponScratch != undefined) {
+          assignees[i].scratchStatus=couponScratch.status
+        } else {
+          assignees[i].scratchStatus="notScratched"
+        }
+      }
+      return assignees
     } catch (error) {
       return null
     }
