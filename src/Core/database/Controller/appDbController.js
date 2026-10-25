@@ -1577,6 +1577,9 @@ appDbController.Banners = {
         },
         raw: true
       })
+      console.log()
+      console.log("shopBanners ",shopBanners)
+
       for (let i = 0; i < shopBanners.length; i++){
         if (shopBanners[i].bannerType == "text")
         {
@@ -1586,7 +1589,8 @@ appDbController.Banners = {
             status: "active"
           },
           raw:true
-        })
+          })
+          console.log("fetchShopName ",fetchShopName)
         shopBanners[i].shopName=fetchShopName.shopName
         } else {
             shopBanners[i].shopName=null
@@ -2371,28 +2375,63 @@ appDbController.Settings = {
 appDbController.Coupons = {
   listAssignedCoupons: async(token) => {
     try {
-      let assignees= await appDbController.Models.couponAssignees.findAll({
-        where: {
-          userId: token,
-          status: "active"
-        },
-        raw: true
-      })
-      for (let i = 0; i < assignees.length; i++){
-        const couponScratch = await appDbController.Models.couponApplies.findOne({
-        where: {
-          couponId:assignees[i].couponId,
-          userId:token
-        },raw:true
-        })
-        if (couponScratch != null && couponScratch != undefined) {
-          assignees[i].scratchStatus=couponScratch.status
-        } else {
-          assignees[i].scratchStatus="notScratched"
-        }
-      }
-      return assignees
+      const { Op } = require("sequelize");
+
+// 1. Fetch active coupons assigned to this user
+const assignees = await appDbController.Models.couponAssignees.findAll({
+  where: {
+    userId: token, // Ensure this is the actual userId, not raw JWT string
+    status: "active"
+  },
+  raw: true
+});
+
+if (!assignees || assignees.length === 0) {
+  return [];
+}
+
+// 2. Extract coupon IDs
+const couponIds = assignees.map(a => a.couponId);
+
+// 3. Fetch coupon details (couponAmount) from `coupons` table in ONE query
+const couponsList = await appDbController.Models.coupons.findAll({
+  where: {
+    id: { [Op.in]: couponIds }
+  },
+  attributes: ['id', 'couponAmount'],
+  raw: true
+});
+
+// 4. Fetch scratch status from `couponApplies` table in ONE query
+const scratchList = await appDbController.Models.couponApplies.findAll({
+  where: {
+    userId: token,
+    couponId: { [Op.in]: couponIds }
+  },
+  attributes: ['couponId', 'status'],
+  raw: true
+});
+
+// 5. Create fast lookup Maps for instant O(1) matching
+const couponMap = new Map();
+couponsList.forEach(c => couponMap.set(c.id, c.couponAmount));
+
+const scratchMap = new Map();
+scratchList.forEach(s => scratchMap.set(s.couponId, s.status));
+
+// 6. Merge data into assignees safely
+assignees.forEach(assignee => {
+  // Get couponAmount from coupons table
+  assignee.couponAmount = couponMap.get(assignee.couponId) || 0;
+
+  // Get scratchStatus from couponApplies table
+  const applyStatus = scratchMap.get(assignee.couponId);
+  assignee.scratchStatus = applyStatus ? applyStatus : "notScratched";
+});
+
+return assignees;
     } catch (error) {
+      console.log(error)
       return null
     }
   },
