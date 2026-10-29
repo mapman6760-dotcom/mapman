@@ -1571,35 +1571,37 @@ appDbController.Banners = {
 
   fetchActiveShopBanners: async () => {
     try {
-      const shopBanners= await appDbController.Models.shopBanners.findAll({
+      const shopBanners = await appDbController.Models.shopBanners.findAll({
         where: {
           status: "active"
         },
         raw: true
-      })
-      console.log()
-      console.log("shopBanners ",shopBanners)
+      });
 
-      for (let i = 0; i < shopBanners.length; i++){
-        if (shopBanners[i].bannerType == "text")
-        {
-          const fetchShopName = await appDbController.Models.shop.findOne({
+      const activeBannersWithShops = [];
+
+      for (let i = 0; i < shopBanners.length; i++) {
+        const fetchShop = await appDbController.Models.shop.findOne({
           where: {
             id: shopBanners[i].shopId,
             status: "active"
           },
-          raw:true
-          })
-          console.log("fetchShopName ",fetchShopName)
-        shopBanners[i].shopName=fetchShopName.shopName
-        } else {
-            shopBanners[i].shopName=null
+          raw: true
+        });
+
+        // Skip banner if the associated shop is inactive or does not exist
+        if (!fetchShop) {
+          continue;
         }
+
+        shopBanners[i].shopName = (shopBanners[i].bannerType === "text") ? fetchShop.shopName : null;
+        activeBannersWithShops.push(shopBanners[i]);
       }
-      return shopBanners
+
+      return activeBannersWithShops;
     } catch (error) {
-      console.log(error)
-      return null
+      console.log(error);
+      return null;
     }
   },
 
