@@ -158,8 +158,8 @@ managementMiddleware.Management = {
           const checkBanner = await adminDbController.Banners.checkBannerId(query)
           if (checkBanner != null && checkBanner != undefined && Object.keys(checkBanner).length != 0) {
           const deleteBanner = await adminDbController.Banners.deleteBanner(query)
-            if (deleteBanner != null && deleteBanner != undefined && deleteBanner.length != 0&&deleteBanner[0]!=0) {
-                  return  "Banner updated"
+            if (deleteBanner != null && deleteBanner != undefined ) {
+                  return  deleteBanner
                 }
                 else {
                   throw Error.SomethingWentWrong("Failed to delete banner")
@@ -212,8 +212,8 @@ managementMiddleware.Management = {
           const checkBanner = await adminDbController.Banners.checkCategoryBannerId(query)
           if (checkBanner != null && checkBanner != undefined && Object.keys(checkBanner).length != 0) {
           const deleteCategoryBanner = await adminDbController.Banners.deleteCategoryBanner(query)
-            if (deleteCategoryBanner != null && deleteCategoryBanner != undefined && deleteCategoryBanner.length != 0&&deleteCategoryBanner[0]!=0) {
-                  return  "Banner updated"
+            if (deleteCategoryBanner != null && deleteCategoryBanner != undefined ) {
+                  return  deleteCategoryBanner
                 }
                 else {
                   throw Error.SomethingWentWrong("Failed to delete banner")

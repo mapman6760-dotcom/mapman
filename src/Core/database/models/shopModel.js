@@ -816,6 +816,10 @@ shopBanners.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    headerColor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     backgroundColor: {
       type: DataTypes.STRING,
       allowNull: true,

@@ -352,22 +352,21 @@ appDbController.Profile = {
     }
   },
 
-  deleteSingleCategory: async (token,data) => {
-    try {
-      return await appDbController.Models.category.update(
-      {
-        status:"inactive"
-      },
-      {
-        where:
-      {
+  deleteSingleCategory: async (token, data) => {
+  try {
+    const deleted = await appDbController.Models.category.destroy({
+      where: {
         addedPerson: token,
-        categoryType:"others",
-        categoryName: data.categoryName,      
-      }}
-    )} catch (error) {
-      return null
-    }
+        categoryType: "others",
+        categoryName: data.categoryName,
+      }
+    });
+
+    return deleted > 0 ? "Category deleted successfully" : null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
   },
 
   points: async (token) => {
@@ -1569,6 +1568,22 @@ appDbController.Banners = {
     }
   },
 
+  checkShopBannerById: async (token,data) => {
+    try {
+      return await appDbController.Models.shopBanners.findOne({
+        where: {
+          id: data.bannerId,
+          profileId:token,
+          status: "active"
+        },
+        raw: true
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
+
   fetchActiveShopBanners: async () => {
     try {
       const shopBanners = await appDbController.Models.shopBanners.findAll({
@@ -2078,6 +2093,7 @@ appDbController.Notifications = {
         cta: data.cta,
         font: data.font,
         fontColor: data.fontColor,
+        headerColor: data.headerColor,
         backgroundColor: data.backgroundColor,
         // illustration: data.illustration,
         // color: data.color,
@@ -2099,6 +2115,7 @@ appDbController.Notifications = {
         cta: data.cta,
         font: data.font,
         fontColor: data.fontColor,
+        headerColor: data.headerColor,
         backgroundColor: data.backgroundColor,
         // illustration: data.illustration,
         // color: data.color,
@@ -2124,32 +2141,27 @@ appDbController.Notifications = {
     }
   },
 
-  deleteBanner: async (token,data) => {
-    try {
-      console.log(data)
-      const update= await appDbController.Models.shopBanners.update(
-        {
-        status: data.status
-        },
-        {
-          where: {
-            id: data.bannerId,
-            profileId: token,
-            shopId:data.shopId
-          }
-        }
-      )
-      if (update[0] != 0)
-      {
-        return "Banner deleted"
-      } else {
-        throw Error.SomethingWentWrong("Failed to delete the banner")
+  deleteBanner: async (token, data) => {
+  try {
+    console.log(data);
+    const deleted = await appDbController.Models.shopBanners.destroy({
+      where: {
+        id: data.bannerId,
+        profileId: token,
+        shopId: data.shopId
       }
-    } catch (error) {
-      console.log(error)
-      return null
+    });
+
+    if (deleted > 0) {
+      return "Banner deleted";
+    } else {
+      throw Error.SomethingWentWrong("Failed to delete the banner");
     }
-  },
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+},
 
   fetchShopBanner: async(token,data) => {
   try {
@@ -2166,6 +2178,20 @@ appDbController.Notifications = {
   } catch (error) {
     return null
   }
+  },
+
+  checkOffer: async (token, data) => {
+    try {
+      return await appDbController.Models.myOffers.findOne({
+        where: {
+          id: data.offerId,
+          profileId: token,
+          status:"active"
+        },raw:true
+      })
+    } catch (error) {
+      return null
+    }
   },
 
   fetchShopOffers: async(token,data) => {
@@ -2231,31 +2257,26 @@ appDbController.Notifications = {
     }
   },
 
-  deleteOffers: async (token,data) => {
-    try {
-      const update= await appDbController.Models.myOffers.update(
-        {
-        status: data.status
-        },
-        {
-          where: {
-            id: data.offerId,
-            profileId: token,
-            shopId:data.shopId
-          }
-        }
-      )
-      if (update[0] != 0)
-      {
-        return "Offer deleted"
-      } else {
-        throw Error.SomethingWentWrong("Failed to delete the offer")
+  deleteOffers: async (token, data) => {
+  try {
+    const deleted = await appDbController.Models.myOffers.destroy({
+      where: {
+        id: data.offerId,
+        profileId: token,
+        shopId: data.shopId
       }
-    } catch (error) {
-      console.log(error)
-      return null
+    });
+
+    if (deleted > 0) {
+      return "Offer deleted";
+    } else {
+      throw Error.SomethingWentWrong("Failed to delete the offer");
     }
-  },
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+},
 
   fetchAllOffers: async (token) => {
     try {

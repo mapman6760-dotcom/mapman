@@ -305,7 +305,7 @@ adminDbController.Category = {
       return await adminDbController.Models.category.findOne({
         where: {
           id: data.id,
-          status:"active"
+          // status:"active"
         },
         raw:true
       })
@@ -315,26 +315,22 @@ adminDbController.Category = {
   },
 
   deleteCategory: async (data) => {
-    try {
-      const updated = await adminDbController.Models.category.update(
-        {
-          status: data.status,
-        },
-        {
-          where: {
-            id: data.id,
-          },
-        }
-      );
-      if (updated[0] != 0) {
-        return "Deleted successfully";
-      } else {
-        throw Error.SomethingWentWrong("Failed to delete");
-      }
-    } catch (error) {
-      return null
+  try {
+    const deleted = await adminDbController.Models.category.destroy({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (deleted > 0) {
+      return "Deleted successfully";
+    } else {
+      throw Error.SomethingWentWrong("Failed to delete");
     }
-  },
+  } catch (error) {
+    return null;
+  }
+},
 
 }
 
@@ -490,22 +486,22 @@ adminDbController.Banners = {
   },
 
   deleteBanner: async (data) => {
-    try {
-      return await adminDbController.Models.banners.update(
-        {
-        status: data.status
-        },
-        {
-          where: {
-          id:data.bannerId,
-          }
-        }
-      )
-    } catch (error) {
-      return null
+  try {
+    const deleted = await adminDbController.Models.banners.destroy({
+      where: {
+        id: data.bannerId,
+      }
+    });
+
+    if (deleted > 0) {
+      return "Deleted successfully";
+    } else {
+      throw Error.SomethingWentWrong("Failed to delete banner");
     }
-  },
-  
+  } catch (error) {
+    return null;
+  }
+},
   fetchCategoryBanners: async (data) => {
     try {
       return await adminDbController.Models.categoryBanners.findAll({
@@ -575,21 +571,22 @@ adminDbController.Banners = {
   },
 
   deleteCategoryBanner: async (data) => {
-    try {
-      return await adminDbController.Models.categoryBanners.update(
-        {
-        status: data.status
-        },
-        {
-          where: {
-          id:data.bannerId,
-          }
-        }
-      )
-    } catch (error) {
-      return null
+  try {
+    const deleted = await adminDbController.Models.categoryBanners.destroy({
+      where: {
+        id: data.bannerId,
+      }
+    });
+
+    if (deleted > 0) {
+      return "Deleted successfully";
+    } else {
+      throw Error.SomethingWentWrong("Failed to delete category banner");
     }
-  },
+  } catch (error) {
+    return null;
+  }
+},
 
 }
 
@@ -799,27 +796,23 @@ adminDbController.Settings = {
   },
 
   deleteBackgroundImage: async (data) => {
-    try {
-      const updated = await adminDbController.Models.backgroundImage.update(
-        {
-          status: data.status || "inactive"
-        },
-        {
-          where: {
-            id: data.id
-          }
-        }
-      )
-      if (updated[0] != 0) {
-        return "Background image deleted"
-      } else {
-        throw Error.SomethingWentWrong("Failed to delete background image")
+  try {
+    const deleted = await adminDbController.Models.backgroundImage.destroy({
+      where: {
+        id: data.id
       }
-    } catch (error) {
-      console.log(error)
-      return null
+    });
+
+    if (deleted > 0) {
+      return "Background image deleted";
+    } else {
+      throw Error.SomethingWentWrong("Failed to delete background image");
     }
-  },
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+},
 
   addCoupon: async (data) => {
     try {
@@ -853,24 +846,19 @@ adminDbController.Settings = {
 
   deleteCoupons: async (data) => {
     try {
-      const updated = await adminDbController.Models.coupons.update(
-        {
-          status: data.status || "inactive"
-        },
-        {
-          where: {
-            id: data.id
-          }
+      const deleted = await adminDbController.Models.coupons.destroy({
+        where: {
+          id: data.id
         }
-      )
-      if (updated[0] != 0) {
-        return "Coupon deleted"
+      });
+      if (deleted > 0) {
+        return "Coupon deleted";
       } else {
-        throw Error.SomethingWentWrong("Failed to delete coupon")
+        throw Error.SomethingWentWrong("Failed to delete coupon");
       }
     } catch (error) {
-      console.log(error)
-      return null
+      console.log(error);
+      return null;
     }
   },
 

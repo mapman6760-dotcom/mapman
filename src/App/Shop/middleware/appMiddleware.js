@@ -122,7 +122,7 @@ appMiddleware.App = {
             const fetchCategory = await appDbController.Profile.fetchSingleCategory(token, body)
             if (fetchCategory != null && fetchCategory != undefined && Object.keys(fetchCategory).length != 0) {
                 const deleteCategory = await appDbController.Profile.deleteSingleCategory(token, body)
-                if (fetchCategory != null && fetchCategory != undefined && fetchCategory[0] != 0) {
+                if (fetchCategory != null && fetchCategory != undefined ) {
                     return "Your category deleted successfully"
                 } else {
                     throw Error.SomethingWentWrong("Failed to delete the category")
@@ -1592,7 +1592,6 @@ let data = {
             const fetchUser = await appDbController.Shop.getMyShop(token, body);
             if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
                 if (body.type == "update") {
-                    console.log("update")
                     const checkShop = await appDbController.Notifications.getShopBannerId(token, body)
                     if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
                         const bannerUpdate = await appDbController.Notifications.updateBannerImage(token, body, image)
@@ -1650,7 +1649,6 @@ let data = {
                 if (body.type == "update") {
                     console.log("update")
                     const checkBanner = await appDbController.Notifications.getShopBannerId(token, body)
-                    console.log("checkBanner ",checkBanner)
                     if (checkBanner != null && checkBanner != undefined && Object.keys(checkBanner).length != 0) {
                         // if (image != null) {
                         //     image=image
@@ -1707,11 +1705,17 @@ let data = {
     deleteBanner: async ({ token, body }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-        const deleteBanner = await appDbController.Notifications.deleteBanner(token,body)
-        if (deleteBanner != null && deleteBanner != undefined && Object.keys(deleteBanner).length != 0) {
-            return deleteBanner
-        } else {
-            throw Error.SomethingWentWrong("Failed to delete the banner ")
+            const checkBanner = await appDbController.Banners.checkShopBannerById(token, body)
+            if(checkBanner!=null&&checkBanner!=undefined)
+            {
+            const deleteBanner = await appDbController.Notifications.deleteBanner(token, body)
+                if (deleteBanner != null && deleteBanner != undefined && Object.keys(deleteBanner).length != 0) {
+                return deleteBanner
+                } else {
+                throw Error.SomethingWentWrong("Failed to delete the banner ")
+                }
+            } else {
+                return "Shop banner not found"
             }
             } else {
             return "Profile not found";
@@ -1830,13 +1834,18 @@ let data = {
 
      deleteOffers: async ({ token, body }) => {
         const fetchUser = await appDbController.Profile.getProfile(token);
-        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
-        const deleteOffers = await appDbController.Notifications.deleteOffers(token,body)
-        if (deleteOffers != null && deleteOffers != undefined && Object.keys(deleteOffers).length != 0) {
-            return deleteOffers
-        } else {
-            throw Error.SomethingWentWrong("Failed to delete the offer")
-        }
+         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+             const checkOffer = await appDbController.Notifications.checkOffer(token, body)
+             if (checkOffer != null && checkOffer != undefined) {
+                 const deleteOffers = await appDbController.Notifications.deleteOffers(token, body)
+                 if (deleteOffers != null && deleteOffers != undefined && Object.keys(deleteOffers).length != 0) {
+                     return deleteOffers
+                 } else {
+                     throw Error.SomethingWentWrong("Failed to delete the offer")
+                 }
+             } else {
+                 return "Offer not found"
+             }   
         } else {
             return "Profile not found";
         }

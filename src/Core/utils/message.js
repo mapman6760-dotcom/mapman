@@ -163,7 +163,7 @@ export const messagingFunction = {
    sendOTPEmail: async (data) => {
      try {
     const result = await client.transactionalEmails.sendTransacEmail({
-      subject: "Your Verification Code",
+      subject: "Your Verification Code For Mapman",
       sender: {
         name: process.env.SENDER_NAME || "OTP Service",
         email: process.env.SENDER_EMAIL,
