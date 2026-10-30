@@ -1467,7 +1467,7 @@ appDbController.Shop = {
           where: {
               status: "active",
           }, raw: true,
-          attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
+          attributes: ['id','shopName','category','shopImage','lat','long','status','address','description'],
           });
       }
       else{
@@ -1480,7 +1480,7 @@ appDbController.Shop = {
             }
           },
           raw: true,
-          attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
+          attributes: ['id','shopName','category','shopImage','lat','long','status','address','description'],
 
         });
       }    
@@ -1497,7 +1497,7 @@ appDbController.Shop = {
           where: {
               status: "active",
           }, raw: true,
-          attributes: ['id','shopName','category','shopImage','lat','long','status','address'],
+          attributes: ['id','shopName','category','shopImage','lat','long','status','address','description'],
 
           });
       }
@@ -1511,7 +1511,7 @@ appDbController.Shop = {
             }
           },
           raw: true,
-          attributes: ['id', 'shopName', 'category', 'shopImage', 'lat', 'long', 'status', 'address'],
+          attributes: ['id', 'shopName', 'category', 'shopImage', 'lat', 'long', 'status', 'address','description'],
 
         });
       }    
