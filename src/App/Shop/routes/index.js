@@ -8,7 +8,7 @@ const shopRouter = Router()
 //authentication
 shopRouter.use('/auth', authRouter);
 
-//students
+//Shop
 shopRouter.use('/', appRouter);
 
 

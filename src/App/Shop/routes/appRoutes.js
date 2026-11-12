@@ -128,6 +128,8 @@ appRouter.get("/listAssignedCoupons", appAuthenticate, appController.App.listAss
 appRouter.get("/walletBalance", appAuthenticate, appController.App.walletBalance);
 appRouter.post("/applyCoupons", appAuthenticate, appController.App.applyCoupons);
 appRouter.post("/scratchCoupon", appAuthenticate, appController.App.scratchCoupon);
+appRouter.post("/payNow", appAuthenticate, appController.App.payNow);
+appRouter.get("/transactionHistory", appAuthenticate, appController.App.transactionHistory);
 
 
 export { appRouter };

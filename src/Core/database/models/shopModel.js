@@ -904,4 +904,55 @@ myOffers.init(
 
 
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs,shopBanners,myOffers};
+class payoutLogs extends Model { }
+
+payoutLogs.init({
+  id: {
+    type: DataTypes.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+  },
+  couponId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  amount: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  payoutId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  mode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM('processing', 'processed', 'reversed', 'failed'),
+    defaultValue: 'processing',
+    allowNull: false,
+  },
+  previousWalletBalance: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  updatedWalletBalance: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  failureReason: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  }
+}, {
+  sequelize: connection,
+  freezeTableName: true,
+});
+
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs,shopBanners,myOffers,payoutLogs};

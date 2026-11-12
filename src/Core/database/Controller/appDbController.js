@@ -2567,4 +2567,81 @@ return assignees;
     }
   }
     
-}
+};
+
+appDbController.Payout = {
+  processDebitAndLog: async (token, amount, payoutData, previousWallet, couponId) => {
+    const t = await connection.transaction();
+    try {
+      const newBalance = Number(previousWallet) - Number(amount);
+
+      // Debit wallet balance
+      await appDbController.Models.profile.update(
+        {
+          wallet: Sequelize.literal(`wallet - ${Number(amount)}`)
+        },
+        {
+          where: {
+            id: token,
+            wallet: { [Op.gte]: Number(amount) }
+          },
+          transaction: t
+        }
+      );
+
+      // Insert record into payoutLogs
+      const log = await appDbController.Models.payoutLogs.create(
+        {
+          userId: token,
+          couponId: couponId || null,
+          amount: amount,
+          payoutId: payoutData.payoutId || null,
+          mode: payoutData.mode || "UPI",
+          status: payoutData.status || "processed",
+          previousWalletBalance: previousWallet,
+          updatedWalletBalance: newBalance,
+          failureReason: null
+        },
+        { transaction: t }
+      );
+
+      await t.commit();
+      return { log, newBalance };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  },
+
+  logFailedPayout: async (token, amount, previousWallet, errorMsg, couponId) => {
+    try {
+      return await appDbController.Models.payoutLogs.create({
+        userId: token,
+        couponId: couponId || null,
+        amount: amount,
+        status: "failed",
+        previousWalletBalance: previousWallet,
+        updatedWalletBalance: previousWallet,
+        failureReason: errorMsg
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  },
+
+  getTransactionHistory: async (token) => {
+    try {
+      return await appDbController.Models.payoutLogs.findAll({
+        where: {
+          userId: token
+        },
+        order: [['createdAt', 'DESC']],
+        raw: true
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+};

@@ -2220,6 +2220,66 @@ let data = {
             } else {
             return "Profile not found";
         }
+    },
+
+    payNow: async ({ token, body }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (!fetchUser || Object.keys(fetchUser).length === 0) {
+            return "Profile not found";
+        }
+
+        const amount = Number(body.amount);
+        if (!amount || amount <= 0) {
+            return "Invalid amount";
+        }
+
+        if (Number(fetchUser.wallet) < amount) {
+            return "Insufficient wallet balance";
+        }
+
+        try {
+            const payoutResponse = {
+                id: `pout_${Date.now()}`,
+                status: "processed",
+                mode: body.payoutMode || "UPI"
+            };
+
+            const { newBalance } = await appDbController.Payout.processDebitAndLog(
+                token,
+                amount,
+                { payoutId: payoutResponse.id, mode: payoutResponse.mode, status: payoutResponse.status },
+                fetchUser.wallet,
+                body.couponId
+            );
+
+            // return {
+            //     message: "Amount successfully credited to your account",
+            //     debitedAmount: amount,
+            //     remainingWalletBalance: newBalance,
+            //     payoutId: payoutResponse.id
+            // };
+            return "Amount successfully credited to your account"
+        } catch (error) {
+            await appDbController.Payout.logFailedPayout(token, amount, fetchUser.wallet, error.message, body.couponId);
+            throw Error.SomethingWentWrong("Payout failed: " + error.message);
+        }
+    },
+
+    transactionHistory: async ({ token }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (!fetchUser || Object.keys(fetchUser).length === 0) {
+            return "Profile not found";
+        }
+
+        const history = await appDbController.Payout.getTransactionHistory(token);
+        if (history != null && history != undefined && history.length > 0) {
+            for (let index = 0; index < history.length; index++) {
+                history[index].createdAt = moment(history[index].createdAt).fromNow();
+            }
+            return history;
+        } else {
+            return [];
+        }
     }
 };
 
