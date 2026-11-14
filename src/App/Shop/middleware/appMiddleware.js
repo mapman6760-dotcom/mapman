@@ -10,6 +10,7 @@ import moment from "moment";
 import capitalize from "lodash/capitalize.js";
 import { FirebaseService } from "../../../Core/utils/notifier.js";
 import { category } from "../../../Core/database/models/shopModel.js";
+import { executeRazorpayPayout } from "../../../Core/utils/razorpay.js";
 const excelToJson = require('convert-excel-to-json');
 import { adminDbController } from "../../../Core/database/Controller/adminDbController.js";
 import { messagingFunction } from "../../../Core/utils/message.js";
@@ -2237,30 +2238,68 @@ let data = {
             return "Insufficient wallet balance";
         }
 
-        try {
-            const payoutResponse = {
-                id: `pout_${Date.now()}`,
-                status: "processed",
-                mode: body.payoutMode || "UPI"
-            };
+        // Helper to mask account number (e.g. 123456789012 -> XXXXXXXX9012)
+        const maskAccountNumber = (accNo) => {
+            if (!accNo) return null;
+            const str = String(accNo).trim();
+            if (str.length <= 4) return str;
+            return "X".repeat(str.length - 4) + str.slice(-4);
+        };
 
+        const maskedAccNumber = maskAccountNumber(body.accountNumber);
+
+        // Execute Payout via Razorpay (or simulation in test mode)
+        let razorpayResult;
+        try {
+            razorpayResult = await executeRazorpayPayout({
+                amount,
+                accountHolderName: body.accountHolderName,
+                accountNumber: body.accountNumber,
+                ifscCode: body.ifscCode,
+                upiId: body.upiId,
+                mode: body.payoutMode,
+                referenceId: `payout_user_${token}_${Date.now()}`,
+                contactName: body.accountHolderName || fetchUser.userName || "Shop Owner",
+                contactEmail: body.email || fetchUser.email || "support@mapman.com",
+                contactPhone: body.phone || fetchUser.phone || "9876543210"
+            });
+        } catch (gatewayErr) {
+            await appDbController.Payout.logFailedPayout(token, amount, fetchUser.wallet, gatewayErr.message, body.couponId, {
+                shopId: body.shopId || null,
+                accountHolderName: body.accountHolderName || null,
+                accountNumber: maskedAccNumber,
+                ifscCode: body.ifscCode ? String(body.ifscCode).toUpperCase().trim() : null,
+                upiId: body.upiId ? String(body.upiId).trim() : null,
+                mode: body.payoutMode || (body.upiId ? "UPI" : "IMPS")
+            });
+            throw Error.SomethingWentWrong(gatewayErr.message);
+        }
+
+        const payoutDetails = {
+            payoutId: razorpayResult.payoutId,
+            status: razorpayResult.status || "processed",
+            mode: razorpayResult.mode || body.payoutMode || (body.upiId ? "UPI" : "IMPS"),
+            shopId: body.shopId || null,
+            accountHolderName: body.accountHolderName || null,
+            accountNumber: maskedAccNumber,
+            ifscCode: body.ifscCode ? String(body.ifscCode).toUpperCase().trim() : null,
+            upiId: body.upiId ? String(body.upiId).trim() : null
+        };
+
+        try {
             const { newBalance } = await appDbController.Payout.processDebitAndLog(
                 token,
                 amount,
-                { payoutId: payoutResponse.id, mode: payoutResponse.mode, status: payoutResponse.status },
+                payoutDetails,
                 fetchUser.wallet,
                 body.couponId
             );
 
-            // return {
-            //     message: "Amount successfully credited to your account",
-            //     debitedAmount: amount,
-            //     remainingWalletBalance: newBalance,
-            //     payoutId: payoutResponse.id
-            // };
-            return "Amount successfully credited to your account"
+            return razorpayResult.isMock
+                ? "Amount successfully debited and payout processed in test mode"
+                : "Amount successfully debited and payout initiated via Razorpay";
         } catch (error) {
-            await appDbController.Payout.logFailedPayout(token, amount, fetchUser.wallet, error.message, body.couponId);
+            await appDbController.Payout.logFailedPayout(token, amount, fetchUser.wallet, error.message, body.couponId, payoutDetails);
             throw Error.SomethingWentWrong("Payout failed: " + error.message);
         }
     },

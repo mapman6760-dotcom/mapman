@@ -29,4 +29,21 @@ export const dbSync = async () => {
   } catch (err) {
     // Index already exists or table is not ready
   }
+
+  // Ensure new bank details and shop columns exist in payoutLogs table
+  const payoutLogsColumns = [
+    "ALTER TABLE payoutLogs ADD COLUMN shopId BIGINT NULL;",
+    "ALTER TABLE payoutLogs ADD COLUMN accountHolderName VARCHAR(255) NULL;",
+    "ALTER TABLE payoutLogs ADD COLUMN accountNumber VARCHAR(255) NULL;",
+    "ALTER TABLE payoutLogs ADD COLUMN ifscCode VARCHAR(255) NULL;",
+    "ALTER TABLE payoutLogs ADD COLUMN upiId VARCHAR(255) NULL;"
+  ];
+
+  for (const query of payoutLogsColumns) {
+    try {
+      await connection.query(query);
+    } catch (err) {
+      // Column already exists or table is not ready
+    }
+  }
 };

@@ -917,6 +917,10 @@ payoutLogs.init({
     type: DataTypes.BIGINT,
     allowNull: false,
   },
+  shopId: {
+    type: DataTypes.BIGINT,
+    allowNull: true,
+  },
   couponId: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -930,6 +934,22 @@ payoutLogs.init({
     allowNull: true,
   },
   mode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  accountHolderName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  accountNumber: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  ifscCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  upiId: {
     type: DataTypes.STRING,
     allowNull: true,
   },

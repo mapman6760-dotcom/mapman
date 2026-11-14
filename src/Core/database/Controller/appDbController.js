@@ -2589,14 +2589,33 @@ appDbController.Payout = {
         }
       );
 
+      // If a coupon was used, update its status to 'applied'
+      if (couponId) {
+        await appDbController.Models.couponApplies.update(
+          { status: "applied" },
+          {
+            where: {
+              couponId: couponId,
+              userId: token
+            },
+            transaction: t
+          }
+        );
+      }
+
       // Insert record into payoutLogs
       const log = await appDbController.Models.payoutLogs.create(
         {
           userId: token,
+          shopId: payoutData.shopId || null,
           couponId: couponId || null,
           amount: amount,
           payoutId: payoutData.payoutId || null,
           mode: payoutData.mode || "UPI",
+          accountHolderName: payoutData.accountHolderName || null,
+          accountNumber: payoutData.accountNumber || null,
+          ifscCode: payoutData.ifscCode || null,
+          upiId: payoutData.upiId || null,
           status: payoutData.status || "processed",
           previousWalletBalance: previousWallet,
           updatedWalletBalance: newBalance,
@@ -2613,12 +2632,19 @@ appDbController.Payout = {
     }
   },
 
-  logFailedPayout: async (token, amount, previousWallet, errorMsg, couponId) => {
+  logFailedPayout: async (token, amount, previousWallet, errorMsg, couponId, payoutData = {}) => {
     try {
       return await appDbController.Models.payoutLogs.create({
         userId: token,
+        shopId: payoutData.shopId || null,
         couponId: couponId || null,
         amount: amount,
+        payoutId: payoutData.payoutId || null,
+        mode: payoutData.mode || "UPI",
+        accountHolderName: payoutData.accountHolderName || null,
+        accountNumber: payoutData.accountNumber || null,
+        ifscCode: payoutData.ifscCode || null,
+        upiId: payoutData.upiId || null,
         status: "failed",
         previousWalletBalance: previousWallet,
         updatedWalletBalance: previousWallet,
