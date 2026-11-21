@@ -1088,4 +1088,79 @@ appController.App = {
             });
     },
 
+    addUpi: async (req, res) => {
+        appMiddleware.App.addUpi(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    fetchUpi: async (req, res) => {
+        appMiddleware.App.fetchUpi(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    getUpi: async (req, res) => {
+        appMiddleware.App.fetchUpi(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    applyOfferCoupon: async (req, res) => {
+        appMiddleware.App.applyOfferCoupon(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
+    offerCouponHistory: async (req, res) => {
+        appMiddleware.App.offerCouponHistory(req)
+            .then((data) => {
+                const response = ApplicationResult.forCreated();
+                var statuscode = 0;
+                ApplicationResponse.success(response, null, (response) => (statuscode = response.status));
+                res.json({ status: statuscode, data: data });
+            })
+            .catch((error) => {
+                ApplicationResponse.error(error, null, (response) => {
+                    res.status(response.status).json(response);
+                });
+            });
+    },
+
 };

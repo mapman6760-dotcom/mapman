@@ -434,6 +434,24 @@ appDbController.Profile = {
     }
   },
 
+  addUpi: async (token, upi) => {
+    try {
+      return await appDbController.Models.profile.update(
+        {
+          upi: upi
+        },
+        {
+          where: {
+            id: token,
+            status: "active"
+          }
+        }
+      );
+    } catch (error) {
+      return null;
+    }
+  },
+
   getProfile: async (token) => {
     try {
       return await appDbController.Models.profile.findOne({
@@ -441,7 +459,7 @@ appDbController.Profile = {
           id: token,
           status:"active"
         },
-        attributes:["id","userName","profilePic","phone","email","points","fcmToken","state","district","country","wallet"],
+        attributes:["id","userName","profilePic","phone","email","points","fcmToken","state","district","country","wallet","upi"],
         raw: true
       })
     } catch (error) {
@@ -686,9 +704,10 @@ appDbController.Shop = {
   
   getShopById: async (data) => {
     try {
+      const shopId = (typeof data === "object" && data !== null) ? (data.shopId || data.id) : data;
       return await appDbController.Models.shop.findOne({
         where: {
-          id: data.shopId,
+          id: shopId,
           status:"active"
         },raw:true
       })
@@ -2221,6 +2240,7 @@ appDbController.Notifications = {
         offerExpiry: data.offerExpiry,
         offerDetails: JSON.stringify(data.offerDetails),
         termsAndConditions: JSON.stringify(data.termsAndConditions),
+        offerCouponCode: data.offerCoupon || null,
         openStatus:"[]",
         status: "active"
       })
@@ -2231,13 +2251,18 @@ appDbController.Notifications = {
 
   updateOffers: async (token,data) => {
     try {
-      const update= await appDbController.Models.myOffers.update({
+      const updateData = {
         offerTitle: data.offerTitle,
         offerPercentage: data.offerPercentage,
         offerExpiry: data.offerExpiry,
         offerDetails: JSON.stringify(data.offerDetails),
         termsAndConditions: JSON.stringify(data.termsAndConditions),
-      },
+      };
+      if (data.offerCoupon !== undefined) {
+        updateData.offerCoupon = data.offerCoupon;
+      }
+      const update= await appDbController.Models.myOffers.update(
+        updateData,
         {
           where: {
             shopId: data.shopId,
@@ -2564,6 +2589,85 @@ return assignees;
     } catch (error) {
       console.log(error)
       return null
+    }
+  },
+
+  findOfferCoupon: async (couponCode) => {
+    try {
+      if (!couponCode) return null;
+      // Check in myOffers by offerCouponCode or offerCoupon
+      const offer = await appDbController.Models.myOffers.findOne({
+        where: {
+          status: "active",
+          [Op.or]: [
+            { offerCouponCode: couponCode },
+            { offerCoupon: couponCode }
+          ]
+        },
+        raw: true
+      });
+      if (offer) return offer;
+      
+      return null;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
+
+  checkOfferCouponApplied: async (token, couponCode) => {
+    try {
+      return await appDbController.Models.offerCouponHistory.findOne({
+        where: {
+          profileId: token,
+          [Op.or]: [
+            { offerCouponCode: couponCode },
+            { couponCode: couponCode }
+          ],
+          status: "applied"
+        },
+        raw: true
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
+
+  logOfferCouponApplied: async (data) => {
+    try {
+      const code = data.offerCouponCode || data.couponCode;
+      return await appDbController.Models.offerCouponHistory.create({
+        profileId: data.profileId,
+        shopId: data.shopId || null,
+        offerId: data.offerId || null,
+        offerCouponCode: code,
+        couponCode: code,
+        amount: data.amount,
+        couponDiscount: data.couponDiscount,
+        totalPay: data.totalPay,
+        cashback: data.cashback,
+        status: "applied"
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
+
+  getOfferCouponHistory: async (profileId) => {
+    try {
+      return await appDbController.Models.offerCouponHistory.findAll({
+        where: {
+          profileId: profileId,
+          status: "applied"
+        },
+        order: [["createdAt", "DESC"]],
+        raw: true
+      });
+    } catch (error) {
+      console.log(error);
+      return [];
     }
   }
     

@@ -1772,7 +1772,20 @@ let data = {
                         return Error.SomethingWentWrong("Offer not found")
                     }
                 } else if (body.type == "add") {
-                    // else {
+                    if (!body.offerCouponCode && !body.offerCoupon) {
+                        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+                        let randomCode = "";
+                        for (let i = 0; i < 6; i++) {
+                            randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        const generatedCode = "OFFER" + randomCode;
+                        body.offerCouponCode = generatedCode;
+                        body.offerCoupon = generatedCode;
+                    } else if (body.offerCouponCode && !body.offerCoupon) {
+                        body.offerCoupon = body.offerCouponCode;
+                    } else if (body.offerCoupon && !body.offerCouponCode) {
+                        body.offerCouponCode = body.offerCoupon;
+                    }
                     const fetchOffers = await appDbController.Notifications.fetchShopOffers(token,body)
                     //Get all the token banners
                     if (fetchOffers != null && fetchOffers != undefined && fetchOffers.length != 0) {
@@ -1813,14 +1826,33 @@ let data = {
         const checkShop = await appDbController.Shop.getMyShop(token,query)
         if (checkShop != null && checkShop != undefined && Object.keys(checkShop).length != 0) {
             const fetchShopOffers = await appDbController.Notifications.fetchShopOffers(token, query)
+            console.log("fetch ",fetchShopOffers)
         if (fetchShopOffers != null && fetchShopOffers != undefined && Object.keys(fetchShopOffers).length != 0) {
+            const appliedHistory = await appDbController.Coupons.getOfferCouponHistory(token);
+            const appliedCodes = new Set(
+                (appliedHistory || [])
+                    .map(h => (h.offerCouponCode || h.couponCode || "").trim().toUpperCase())
+                    .filter(Boolean)
+            );
+            const appliedOfferIds = new Set(
+                (appliedHistory || [])
+                    .filter(h => h.offerId)
+                    .map(h => String(h.offerId))
+            );
+
             const parsedData = fetchShopOffers.map(offer => {
-            return {
-                ...offer,
-                offerDetails: offer.offerDetails ? JSON.parse(offer.offerDetails) : [],
-                termsAndConditions: offer.termsAndConditions ? JSON.parse(offer.termsAndConditions) : []
-            };
-        });
+                const couponCodeVal = offer.offerCouponCode || offer.offerCoupon;
+                const isApplied = Boolean(
+                    (couponCodeVal && appliedCodes.has(couponCodeVal.trim().toUpperCase())) ||
+                    (offer.id && appliedOfferIds.has(String(offer.id)))
+                );
+                return {
+                    ...offer,
+                    offerDetails: offer.offerDetails ? JSON.parse(offer.offerDetails) : [],
+                    termsAndConditions: offer.termsAndConditions ? JSON.parse(offer.termsAndConditions) : [],
+                    offerCouponApplied: isApplied
+                };
+            });
             return parsedData
         } else {
             return []
@@ -1938,6 +1970,18 @@ let data = {
                 }
             });
 
+            const appliedHistory = await appDbController.Coupons.getOfferCouponHistory(token);
+            const appliedCodes = new Set(
+                (appliedHistory || [])
+                    .map(h => (h.offerCouponCode || h.couponCode || "").trim().toUpperCase())
+                    .filter(Boolean)
+            );
+            const appliedOfferIds = new Set(
+                (appliedHistory || [])
+                    .filter(h => h.offerId)
+                    .map(h => String(h.offerId))
+            );
+
             const updatedOffers = activeOffers.map(offer => {
                 let openStatusList = [];
                 try {
@@ -1954,11 +1998,18 @@ let data = {
                                  openStatusList.includes(Number(token)) || 
                                  openStatusList.includes(String(token));
 
+                const couponCodeVal = offer.offerCouponCode || offer.offerCoupon;
+                const isApplied = Boolean(
+                    (couponCodeVal && appliedCodes.has(couponCodeVal.trim().toUpperCase())) ||
+                    (offer.id && appliedOfferIds.has(String(offer.id)))
+                );
+
                 return {
                     ...offer,
                     offerDetails: offer.offerDetails ? JSON.parse(offer.offerDetails) : [],
                     termsAndConditions: offer.termsAndConditions ? JSON.parse(offer.termsAndConditions) : [],
-                    isOpened: isOpened
+                    isOpened: isOpened,
+                    offerCouponApplied: isApplied
                 };
             });
             return updatedOffers;
@@ -2318,6 +2369,245 @@ let data = {
             return history;
         } else {
             return [];
+        }
+    },
+
+    addUpi: async ({ token, body }) => {
+        const profileId = token || body?.profileId;
+        if (!profileId) {
+            throw Error.NotValid("Profile", "Profile ID is required");
+        }
+        const upi = body?.upi || body?.upiId;
+        if (!upi || typeof upi !== 'string' || upi.trim() === '') {
+            throw Error.NotValid("UPI", "UPI ID is required");
+        }
+        const fetchUser = await appDbController.Profile.getProfile(profileId);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const updateUpi = await appDbController.Profile.addUpi(profileId, upi.trim());
+            if (updateUpi != null && updateUpi != undefined && updateUpi[0] != 0) {
+                return "UPI added successfully";
+            } else {
+                throw Error.InternalError("Failed to add UPI");
+            }
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    fetchUpi: async ({ token, query }) => {
+        const profileId = token || query?.profileId;
+        if (!profileId) {
+            throw Error.NotValid("Profile", "Profile ID is required");
+        }
+        const fetchUser = await appDbController.Profile.getProfile(profileId);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            return {
+                upi: fetchUser.upi || null
+            };
+        } else {
+            return "Profile not found";
+        }
+    },
+
+    applyOfferCoupon: async ({ token, body, query }) => {
+        const profileId = token || body?.profileId || query?.profileId;
+        if (!profileId) {
+            throw Error.NotValid("Profile", "Profile is required");
+        }
+        const fetchUser = await appDbController.Profile.getProfile(profileId);
+        if (!fetchUser || Object.keys(fetchUser).length === 0) {
+            return "Profile not found";
+        }
+
+        const rawAmount = body?.amount !== undefined ? body.amount : (body?.totalAmount !== undefined ? body.totalAmount : query?.amount);
+        if (rawAmount === undefined || rawAmount === null || isNaN(Number(rawAmount))) {
+            throw Error.NotValid("Amount", "Valid amount is required");
+        }
+        const amount = Number(rawAmount);
+        const applyType = (body?.applyType || query?.applyType || "").toString().trim();
+        const couponCode = (
+            body?.offerCouponCode || 
+            body?.couponCode || 
+            body?.offerCoupon || 
+            body?.coupon || 
+            body?.offer_coupon_code ||
+            body?.coupon_code ||
+            body?.code ||
+            query?.offerCouponCode ||
+            query?.couponCode ||
+            ""
+        ).toString().trim();
+
+        if (applyType.toLowerCase() === "apply") {
+            if (!couponCode) {
+                throw Error.NotValid("Coupon", "Coupon code is required");
+            }
+
+            // 1. Fetch the offer by coupon code
+            const coupon = await appDbController.Coupons.findOfferCoupon(couponCode);
+            if (!coupon) {
+                throw Error.NotFound("Coupon", "Invalid coupon code");
+            }
+
+            // 2. Check if the offer has expired or not
+            const isOfferExpired = (createdAt, offerExpiry) => {
+                if (!offerExpiry || ["none", "unlimited", "never"].includes(String(offerExpiry).trim().toLowerCase())) {
+                    return false;
+                }
+
+                const created = new Date(createdAt);
+                const todayMidnight = new Date();
+                todayMidnight.setHours(0, 0, 0, 0);
+
+                const expiryStr = String(offerExpiry).trim().toLowerCase();
+
+                // Hours: "12 hours", "24 hrs", "6h"
+                const hoursMatch = expiryStr.match(/^(\d+)\s*(hour|hours|hr|hrs|h)$/);
+                if (hoursMatch) {
+                    const hours = parseInt(hoursMatch[1]);
+                    const expiryTime = created.getTime() + (hours * 60 * 60 * 1000);
+                    return Date.now() > expiryTime;
+                }
+
+                // Days: "1 day", "3 days", "7d", "15"
+                const daysMatch = expiryStr.match(/^(\d+)\s*(day|days|d)?$/);
+                if (daysMatch) {
+                    const days = parseInt(daysMatch[1]);
+                    const expiryDate = new Date(created);
+                    expiryDate.setDate(expiryDate.getDate() + days);
+                    expiryDate.setHours(0, 0, 0, 0);
+                    return todayMidnight > expiryDate;
+                }
+
+                // Weeks: "1 week", "2 weeks", "3w"
+                const weeksMatch = expiryStr.match(/^(\d+)\s*(week|weeks|w)$/);
+                if (weeksMatch) {
+                    const weeks = parseInt(weeksMatch[1]);
+                    const expiryDate = new Date(created);
+                    expiryDate.setDate(expiryDate.getDate() + (weeks * 7));
+                    expiryDate.setHours(0, 0, 0, 0);
+                    return todayMidnight > expiryDate;
+                }
+
+                // Months: "1 month", "2 months", "3m"
+                const monthsMatch = expiryStr.match(/^(\d+)\s*(month|months|m)$/);
+                if (monthsMatch) {
+                    const months = parseInt(monthsMatch[1]);
+                    const expiryDate = new Date(created);
+                    expiryDate.setMonth(expiryDate.getMonth() + months);
+                    expiryDate.setHours(0, 0, 0, 0);
+                    return todayMidnight > expiryDate;
+                }
+
+                // DD/MM/YYYY or DD-MM-YYYY
+                const dmyMatch = expiryStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                if (dmyMatch) {
+                    const day = parseInt(dmyMatch[1]);
+                    const month = parseInt(dmyMatch[2]) - 1;
+                    const year = parseInt(dmyMatch[3]);
+                    const expiryDate = new Date(year, month, day);
+                    expiryDate.setHours(0, 0, 0, 0);
+                    return todayMidnight > expiryDate;
+                }
+
+                // Absolute Date (e.g. "2026-12-31")
+                const parsedDate = new Date(offerExpiry);
+                if (!isNaN(parsedDate.getTime())) {
+                    parsedDate.setHours(0, 0, 0, 0);
+                    return todayMidnight > parsedDate;
+                }
+
+                return false;
+            };
+
+            const expired = isOfferExpired(coupon.createdAt, coupon.offerExpiry);
+            if (expired) {
+                throw Error.NotValid("Offer", "This offer has expired");
+            }
+
+            // 3. Check if that offer's shop is available or not
+            if (!coupon.shopId) {
+                throw Error.NotFound("Shop", "Offer shop not found");
+            }
+            const checkShop = await appDbController.Shop.getShopById({ shopId: coupon.shopId });
+            if (!checkShop || Object.keys(checkShop).length === 0 || checkShop.status !== "active") {
+                throw Error.NotFound("Shop", "Offer shop is not available");
+            }
+
+            // 4. Check if user has already applied this offer coupon code once
+            const alreadyApplied = await appDbController.Coupons.checkOfferCouponApplied(profileId, couponCode);
+            if (alreadyApplied) {
+                throw Error.AlreadyExists("Coupon", "This offer coupon has already been applied and cannot be used again");
+            }
+
+            // 5. Calculate discount from myOffers
+            let couponDiscountPercentage = 0;
+            let couponDiscountAmount = 0;
+
+            if (coupon.offerPercentage) {
+                couponDiscountPercentage = parseFloat(String(coupon.offerPercentage).replace("%", "")) || 0;
+                couponDiscountAmount = Math.round((amount * couponDiscountPercentage) / 100);
+            } else if (coupon.couponAmount) {
+                couponDiscountAmount = Number(coupon.couponAmount) || 0;
+                couponDiscountPercentage = amount > 0 ? Math.round((couponDiscountAmount / amount) * 100) : 0;
+            }
+
+            couponDiscountAmount = Math.min(couponDiscountAmount, amount);
+            const totalPay = Math.max(0, amount - couponDiscountAmount);
+            const cashbackEarn = Math.round(totalPay * 0.05);
+
+            // 6. Save history of the applied coupon
+            await appDbController.Coupons.logOfferCouponApplied({
+                profileId: profileId,
+                shopId: coupon.shopId || null,
+                offerId: coupon.id || null,
+                offerCouponCode: couponCode,
+                couponCode: couponCode,
+                amount: amount,
+                couponDiscount: couponDiscountAmount,
+                totalPay: totalPay,
+                cashback: cashbackEarn
+            });
+
+            return {
+                amount: amount,
+                couponDiscountPercentage: couponDiscountPercentage,
+                couponDiscountAmount: couponDiscountAmount,
+                totalPay: totalPay,
+                cashbackEarn: cashbackEarn,
+                applyType: "apply"
+            };
+        } else if (applyType.toLowerCase() === "notapply") {
+            return {
+                amount: amount,
+                couponDiscountPercentage: 0,
+                couponDiscountAmount: 0,
+                totalPay: amount,
+                cashbackEarn: 0,
+                applyType: "apply"
+            };
+        } else {
+            return "Please mention coupon applied or not (apply or notApply)";
+        }
+    },
+
+    offerCouponHistory: async ({ token, query }) => {
+        const profileId = token || query?.profileId;
+        if (!profileId) {
+            throw Error.NotValid("Profile", "Profile is required");
+        }
+        const fetchUser = await appDbController.Profile.getProfile(profileId);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const history = await appDbController.Coupons.getOfferCouponHistory(profileId);
+            if (history && history.length > 0) {
+                for (let i = 0; i < history.length; i++) {
+                    history[i].createdAt = moment(history[i].createdAt).fromNow();
+                }
+                return history;
+            }
+            return [];
+        } else {
+            return "Profile not found";
         }
     }
 };

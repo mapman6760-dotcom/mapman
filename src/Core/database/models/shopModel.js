@@ -66,6 +66,10 @@ profile.init({
     allowNull: true,
     defaultValue:0
   },
+  upi: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   fcmToken: {
     type: DataTypes.TEXT("long"),
     allowNull: true,
@@ -888,6 +892,10 @@ myOffers.init(
     type: DataTypes.TEXT("long"),
       allowNull: true,
     },
+    offerCouponCode: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     openStatus: {
       type:DataTypes.STRING,
       allowNull: false,
@@ -975,4 +983,59 @@ payoutLogs.init({
   freezeTableName: true,
 });
 
-export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs,shopBanners,myOffers,payoutLogs};
+class offerCouponHistory extends Model { }
+
+offerCouponHistory.init(
+  {
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    profileId: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    shopId: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    offerId: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    offerCouponCode: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    amount: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    couponDiscount: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    totalPay: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    cashback: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    status: {
+      type: DataTypes.ENUM("applied", "cancelled"),
+      defaultValue: "applied",
+      allowNull: false,
+    },
+  },
+  { sequelize: connection, freezeTableName: true }
+);
+
+export { shop, profileAuth, category ,profile,video,otpLogs,userLogs,saveVideos,viewedVideos,categoryVideo,notificationPreferences,pushMessaging,reviews,saveShop,reportShop,reportIssue,versionControl,contactUs,shopBanners,myOffers,payoutLogs,offerCouponHistory};

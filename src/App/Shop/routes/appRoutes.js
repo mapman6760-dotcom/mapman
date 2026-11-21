@@ -131,5 +131,15 @@ appRouter.post("/scratchCoupon", appAuthenticate, appController.App.scratchCoupo
 appRouter.post("/payNow", appAuthenticate, appController.App.payNow);
 appRouter.get("/transactionHistory", appAuthenticate, appController.App.transactionHistory);
 
+appRouter.post("/addUpi", appAuthenticate, appController.App.addUpi);
+appRouter.get("/fetchUpi", appAuthenticate, appController.App.fetchUpi);
+appRouter.post("/applyOfferCoupon", (req, res, next) => {
+    if (req.headers && req.headers.usertoken) {
+        return appAuthenticate(req, res, next);
+    }
+    return next();
+}, appController.App.applyOfferCoupon);
+
+appRouter.get("/offerCouponHistory", appAuthenticate, appController.App.offerCouponHistory);
 
 export { appRouter };

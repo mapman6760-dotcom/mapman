@@ -46,4 +46,53 @@ export const dbSync = async () => {
       // Column already exists or table is not ready
     }
   }
+
+  // Ensure upi column exists in profile table
+  try {
+    await connection.query("ALTER TABLE profile ADD COLUMN upi VARCHAR(255) NULL;");
+  } catch (err) {
+    // Column already exists or table is not ready
+  }
+
+  // Ensure offerCouponCode / offerCoupon column exists in myOffers table
+  try {
+    await connection.query("ALTER TABLE myOffers ADD COLUMN offerCouponCode VARCHAR(255) NULL;");
+  } catch (err) {
+    // Column already exists or table is not ready
+  }
+  try {
+    await connection.query("ALTER TABLE myOffers ADD COLUMN offerCoupon VARCHAR(255) NULL;");
+  } catch (err) {
+    // Column already exists or table is not ready
+  }
+
+  // Ensure offerCouponHistory table exists
+  try {
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS offerCouponHistory (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        profileId BIGINT NOT NULL,
+        shopId BIGINT NULL,
+        offerId BIGINT NULL,
+        offerCouponCode VARCHAR(255) NULL,
+        couponCode VARCHAR(255) NULL,
+        amount FLOAT NOT NULL DEFAULT 0,
+        couponDiscount FLOAT NOT NULL DEFAULT 0,
+        totalPay FLOAT NOT NULL DEFAULT 0,
+        cashback FLOAT NOT NULL DEFAULT 0,
+        status ENUM('applied', 'cancelled') NOT NULL DEFAULT 'applied',
+        createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        INDEX idx_profile_coupon (profileId, offerCouponCode)
+      );
+    `);
+  } catch (err) {
+    // Table already exists or table is not ready
+  }
+  try {
+    await connection.query("ALTER TABLE offerCouponHistory ADD COLUMN offerCouponCode VARCHAR(255) NULL;");
+  } catch (err) {
+    // Column already exists
+  }
 };
