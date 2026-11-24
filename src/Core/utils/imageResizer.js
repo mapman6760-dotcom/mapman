@@ -37,7 +37,7 @@ if (
 
 export const uploader = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
   fileFilter: (req, file, cb) => checkFileType(file, cb),
 });
 
@@ -102,7 +102,7 @@ const fileStorageEngine = multer.diskStorage({
 
 const uploadAttachments = multer({
   storage: fileStorageEngine,
-  limits: { fileSize: 30 * 1024 * 1024 }, // 20MB
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for videos
   fileFilter: (req, file, cb) => checkAttachmentType(file, cb),
 });
 

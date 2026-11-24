@@ -125,8 +125,8 @@ app.get("/mapman-app-link", (req, res) => {
 app.use("/logo", express.static(path.join(__dirname,"./mapmanLogo.png")));
 
 //Parsing incoming requests
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
 
 //Security
 app.use(helmet());
@@ -146,6 +146,40 @@ app.get("/", async (req, res) => {
 app.use(function (req, res, next) {
     res.status(404).render("404", { message: "Unable to find the requested resource", name: process.env.APP_NAME });
 });
+// Error handler (handles Multer errors and uncaught route errors)
+app.use((err, req, res, next) => {
+    if (err && err.name === "MulterError") {
+        if (err.code === "LIMIT_FILE_SIZE") {
+            return res.status(400).json({
+                status: 400,
+                error: {
+                    type: "TooLargeException",
+                    code: "File-toolarge",
+                    message: "Uploaded file is too large",
+                    description: `File size exceeds the allowed limit for field '${err.field || "file"}'`
+                }
+            });
+        }
+        return res.status(400).json({
+            status: 400,
+            error: {
+                type: "MulterError",
+                code: err.code,
+                message: err.message
+            }
+        });
+    }
+    if (err) {
+        return res.status(err.status || 500).json({
+            status: err.status || 500,
+            error: {
+                message: err.message || "Internal Server Error"
+            }
+        });
+    }
+    next();
+});
+
 const AppConfig = config.mode === "production" ? config.production : config.development;
 console.log("config mode   ",config.mode)
 console.log("app ",AppConfig)
