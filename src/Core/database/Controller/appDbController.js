@@ -286,6 +286,7 @@ appDbController.Auth = {
         }
       );
     } catch (error) {
+      console.log(error)
       return null;
     }
   },
@@ -463,6 +464,7 @@ appDbController.Profile = {
         raw: true
       })
     } catch (error) {
+            console.log(error)
       return null
     }
   },
@@ -684,6 +686,7 @@ appDbController.Shop = {
         raw:true
       })
     } catch (error) {
+            console.log(error)
       return null
     }
   },

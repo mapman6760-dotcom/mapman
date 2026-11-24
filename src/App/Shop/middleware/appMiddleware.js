@@ -244,6 +244,7 @@ appMiddleware.App = {
     },
   
     shopRegister: async ({ body, token, images }) => {
+        console.log("body is ",body)
         const fetchUser = await appDbController.Profile.getProfile(token);
         if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {                  
             if (body.type == "update") {
@@ -292,6 +293,7 @@ appMiddleware.App = {
                 if (getShops != null && getShops != undefined && getShops.length != 0) {
                     if (getShops.length <=9) {
                         const registerShop = await appDbController.Shop.registerShop(token, body, images)
+                        console.log("register shop first",registerShop)
                         if (registerShop != null && registerShop != undefined && Object.keys(registerShop).length != 0) {
                             // const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
                             // if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
@@ -346,6 +348,7 @@ appMiddleware.App = {
                             handleShopNotification(token, body, images, registerShop.id);
                             return "Shop registered successfully";
                         } else {
+                            console.log("register")
                             throw Error.InternalError("Failed to register the shop")
                         }
                     } else {
@@ -354,7 +357,8 @@ appMiddleware.App = {
                 }
                 //If token shops not found add the shop
                 else {
-                const registerShop = await appDbController.Shop.registerShop(token,body,images)
+                    const registerShop = await appDbController.Shop.registerShop(token, body, images)
+                    console.log("register shop second",registerShop)
                 if (registerShop != null && registerShop != undefined && Object.keys(registerShop).length != 0) {
                     // const fetchPreferenceWithIds = await appDbController.Notifications.fetchNotificationPreferencesForShopUsers(token)
                     // if (fetchPreferenceWithIds.preferenceMatchedUsers != null && fetchPreferenceWithIds.preferenceMatchedUsers != undefined && fetchPreferenceWithIds.preferenceMatchedUsers.length != 0) {
