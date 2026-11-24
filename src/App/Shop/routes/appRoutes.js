@@ -133,6 +133,7 @@ appRouter.get("/transactionHistory", appAuthenticate, appController.App.transact
 
 appRouter.post("/addUpi", appAuthenticate, appController.App.addUpi);
 appRouter.get("/fetchUpi", appAuthenticate, appController.App.fetchUpi);
+appRouter.post("/payViaUpi", appAuthenticate, appController.App.upiPay);
 appRouter.post("/applyOfferCoupon", (req, res, next) => {
     if (req.headers && req.headers.usertoken) {
         return appAuthenticate(req, res, next);

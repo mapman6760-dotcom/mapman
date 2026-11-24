@@ -2634,19 +2634,19 @@ return assignees;
     }
   },
 
-  logOfferCouponApplied: async (data) => {
+  logOfferCouponApplied: async (token,data) => {
     try {
       const code = data.offerCouponCode || data.couponCode;
       return await appDbController.Models.offerCouponHistory.create({
-        profileId: data.profileId,
+        profileId: token,
         shopId: data.shopId || null,
         offerId: data.offerId || null,
-        offerCouponCode: code,
-        couponCode: code,
+        offerCouponCode: data.offerCouponCode,
+        shopName:data.shopName,
         amount: data.amount,
         couponDiscount: data.couponDiscount,
         totalPay: data.totalPay,
-        cashback: data.cashback,
+        paymentMethod: data.paymentMethod,
         status: "applied"
       });
     } catch (error) {

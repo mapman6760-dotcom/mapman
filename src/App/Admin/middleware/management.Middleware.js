@@ -2,6 +2,7 @@ import require from "requirejs";
 import { adminDbController } from "../../../Core/database/Controller/adminDbController.js";
 var CryptoJS = require("crypto-js");
 import * as Error from "../../../Core/errors/ErrorConstant.js"
+import moment from "moment";
 
 export class managementMiddleware { }
 
@@ -383,5 +384,16 @@ managementMiddleware.Management = {
       return "User not found"
     }
   },
+
+  fetchUpiPaymentHistory: async () => {
+    const history = await adminDbController.Settings.fetchUpiPaymentHistory()
+    if (history && history.length > 0) {
+                for (let i = 0; i < history.length; i++) {
+                    history[i].createdAt = moment(history[i].createdAt).fromNow();
+                }
+                return history;
+            }
+            return [];    
+  }
 
 }

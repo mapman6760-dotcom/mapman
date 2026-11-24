@@ -910,8 +910,6 @@ myOffers.init(
   { sequelize: connection, freezeTableName: true }
 );
 
-
-
 class payoutLogs extends Model { }
 
 payoutLogs.init({
@@ -1001,9 +999,9 @@ offerCouponHistory.init(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
-    offerId: {
-      type: DataTypes.BIGINT,
-      allowNull: true,
+    shopName: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     offerCouponCode: {
       type: DataTypes.STRING,
@@ -1024,7 +1022,7 @@ offerCouponHistory.init(
       allowNull: false,
       defaultValue: 0,
     },
-    cashback: {
+    paymentMethod: {
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0,

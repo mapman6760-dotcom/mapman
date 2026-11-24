@@ -64,5 +64,6 @@ managementRouter.post("/addCoupon", adminAuthenticate,ManagementController.Manag
 managementRouter.get("/fetchCoupons", adminAuthenticate, ManagementController.Management.fetchCoupons);
 managementRouter.post("/deleteCoupon", adminAuthenticate, ManagementController.Management.deleteCoupons);
 managementRouter.post("/assignCoupon", adminAuthenticate, ManagementController.Management.assignCoupon);
+managementRouter.get("/fetchUpiPaymentHistory", adminAuthenticate, ManagementController.Management.fetchUpiPaymentHistory);
 
 export { managementRouter }

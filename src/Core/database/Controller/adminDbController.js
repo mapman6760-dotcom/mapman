@@ -844,6 +844,21 @@ adminDbController.Settings = {
     }
   },
 
+
+  fetchUpiPaymentHistory: async () => {
+    try {
+      return await adminDbController.Models.offerCouponHistory.findAll({
+        // where: {
+        //   status: "active"
+        // },
+        raw: true
+      })
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  },
+
   deleteCoupons: async (data) => {
     try {
       const deleted = await adminDbController.Models.coupons.destroy({

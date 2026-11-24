@@ -2556,18 +2556,6 @@ let data = {
             const totalPay = Math.max(0, amount - couponDiscountAmount);
             const cashbackEarn = Math.round(totalPay * 0.05);
 
-            // 6. Save history of the applied coupon
-            await appDbController.Coupons.logOfferCouponApplied({
-                profileId: profileId,
-                shopId: coupon.shopId || null,
-                offerId: coupon.id || null,
-                offerCouponCode: couponCode,
-                couponCode: couponCode,
-                amount: amount,
-                couponDiscount: couponDiscountAmount,
-                totalPay: totalPay,
-                cashback: cashbackEarn
-            });
 
             return {
                 amount: amount,
@@ -2584,10 +2572,24 @@ let data = {
                 couponDiscountAmount: 0,
                 totalPay: amount,
                 cashbackEarn: 0,
-                applyType: "apply"
+                applyType: "notApply"
             };
         } else {
             return "Please mention coupon applied or not (apply or notApply)";
+        }
+    },
+
+    upiPay: async ({ token, body }) => {
+        const fetchUser = await appDbController.Profile.getProfile(token);
+        if (fetchUser != null && fetchUser != undefined && Object.keys(fetchUser).length != 0) {
+            const offerCoupon = await appDbController.Coupons.logOfferCouponApplied(token,body)
+            if (offerCoupon != null && offerCoupon != undefined) {
+                return "Payment history added successfully"
+            } else {
+                return "Failed to add payment history"
+            }
+        } else {
+            return "Profile not found";
         }
     },
 
