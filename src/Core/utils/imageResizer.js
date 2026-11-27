@@ -17,7 +17,8 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 dotenv.config();
 
-// Initialize AWS S3 Client optionally
+// AWS S3 Client (Commented out as requested)
+/*
 let s3Client = null;
 if (
   process.env.AWS_ACCESS_KEY_ID &&
@@ -29,6 +30,23 @@ if (
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+}
+*/
+
+// Initialize Cloudflare R2 Client (S3-compatible)
+let r2Client = null;
+if (
+  process.env.R2_ACCESS_KEY_ID &&
+  process.env.R2_SECRET_ACCESS_KEY
+) {
+  r2Client = new S3Client({
+    region: process.env.R2_REGION || "auto",
+    endpoint: process.env.R2_CLOUDFLARE_URL,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
     },
   });
 }
@@ -416,7 +434,8 @@ const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => 
       fs.unlinkSync(inputPath);
     }
 
-    // S3 upload if configured
+    // AWS S3 upload (Commented out as requested)
+    /*
     if (s3Client && process.env.AWS_BUCKET_NAME) {
       if (fs.existsSync(outputDir)) {
         const files = fs.readdirSync(outputDir);
@@ -494,6 +513,90 @@ const compressAndUploadVideoBackground = async (tempFilename, videoBaseName) => 
           console.error("Category video database update attempt failed:", dbErr.message);
         }
         await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+    */
+
+    // Cloudflare R2 upload if configured
+    if (r2Client && process.env.R2_BUCKET_NAME) {
+      try {
+        if (fs.existsSync(outputDir)) {
+          const files = fs.readdirSync(outputDir);
+          for (const file of files) {
+            const filePath = path.join(outputDir, file);
+            const fileStream = fs.createReadStream(filePath);
+            const s3Key = `videos/${videoBaseName}/${file}`;
+            const ext = path.extname(file).toLowerCase();
+            
+            let contentType = "video/MP2T";
+            if (ext === ".m3u8") {
+              contentType = "application/x-mpegURL";
+            } else if (ext === ".jpg" || ext === ".jpeg") {
+              contentType = "image/jpeg";
+            }
+
+            const uploadParams = {
+              Bucket: process.env.R2_BUCKET_NAME,
+              Key: s3Key,
+              Body: fileStream,
+              ContentType: contentType,
+            };
+
+            await r2Client.send(new PutObjectCommand(uploadParams));
+          }
+
+          // Cleanup local compressed files & folder after uploading to R2
+          fs.rmSync(outputDir, { recursive: true, force: true });
+        }
+
+        // Construct Cloudflare R2 public URL
+        const baseUrl = process.env.R2_MEDIA_BASE_URL || process.env.R2_CLOUDFLARE_URL;
+        const r2Url = baseUrl
+          ? `${baseUrl.replace(/\/$/, "")}/videos/${videoBaseName}/playlist.m3u8`
+          : `/videos/${videoBaseName}/playlist.m3u8`;
+
+        const r2ThumbnailUrl = baseUrl
+          ? `${baseUrl.replace(/\/$/, "")}/videos/${videoBaseName}/thumbnail.jpg`
+          : `/videos/${videoBaseName}/thumbnail.jpg`;
+
+        // Query database to update the video URL and thumbnail URL
+        const localUrl = `/videos/${videoBaseName}/playlist.m3u8`;
+        
+        // Update shop videos table
+        for (let i = 0; i < 10; i++) {
+          try {
+            const videoRow = await appDbController.Models.video.findOne({
+              where: { video: localUrl }
+            });
+            if (videoRow) {
+              await videoRow.update({ video: r2Url, thumbnail: r2ThumbnailUrl });
+              console.log(`Successfully updated Cloudflare R2 HLS URL and Thumbnail in video database for ID: ${videoRow.id}`);
+              break;
+            }
+          } catch (dbErr) {
+            console.error("Shop video database update attempt failed:", dbErr.message);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+
+        // Update category videos table
+        for (let i = 0; i < 10; i++) {
+          try {
+            const catVideoRow = await appDbController.Models.categoryVideo.findOne({
+              where: { categoryVideo: localUrl }
+            });
+            if (catVideoRow) {
+              await catVideoRow.update({ categoryVideo: r2Url, thumbnail: r2ThumbnailUrl });
+              console.log(`Successfully updated Cloudflare R2 HLS URL and Thumbnail in categoryVideo database for ID: ${catVideoRow.id}`);
+              break;
+            }
+          } catch (dbErr) {
+            console.error("Category video database update attempt failed:", dbErr.message);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      } catch (r2VideoErr) {
+        console.error("Cloudflare R2 video upload failed, keeping local Railway storage:", r2VideoErr.message);
       }
     }
   } catch (err) {
@@ -601,6 +704,8 @@ const processAndSaveImage = async (buffer, filename) => {
     contentType = "image/png";
   }
 
+  // AWS S3 Upload (Commented out as requested)
+  /*
   if (s3Client && process.env.AWS_BUCKET_NAME) {
     const compressedBuffer = await sharpInstance.toBuffer();
     const s3Key = `images/${filename}`;
@@ -621,6 +726,50 @@ const processAndSaveImage = async (buffer, filename) => {
   } else {
     const outputDir = path.join(__dirname, "/assets/compressed/images/");
     fs.mkdirSync(outputDir, { recursive: true });
+    const finalPath = path.join(outputDir, filename);
+    await sharpInstance.toFile(finalPath);
+    return `/images/${filename}`;
+  }
+  */
+
+  // Cloudflare R2 Upload with Automatic Fallback to Railway Local Storage
+  if (r2Client && process.env.R2_BUCKET_NAME) {
+    try {
+      const compressedBuffer = await sharpInstance.toBuffer();
+      const s3Key = `images/${filename}`;
+
+      const uploadParams = {
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: s3Key,
+        Body: compressedBuffer,
+        ContentType: contentType,
+      };
+
+      await r2Client.send(new PutObjectCommand(uploadParams));
+
+      const baseUrl = process.env.R2_MEDIA_BASE_URL || process.env.R2_CLOUDFLARE_URL;
+      return baseUrl
+        ? `${baseUrl.replace(/\/$/, "")}/${s3Key}`
+        : `/images/${filename}`;
+    } catch (r2Error) {
+      console.error(
+        `Cloudflare R2 upload error for ${filename}: ${r2Error.message}. Automatically falling back to Railway local storage.`
+      );
+      // Automatic fallback to Railway local storage
+      const outputDir = path.join(__dirname, "/assets/compressed/images/");
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      const finalPath = path.join(outputDir, filename);
+      await sharpInstance.toFile(finalPath);
+      return `/images/${filename}`;
+    }
+  } else {
+    // Fallback directly to Railway local storage if R2 is not configured
+    const outputDir = path.join(__dirname, "/assets/compressed/images/");
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
     const finalPath = path.join(outputDir, filename);
     await sharpInstance.toFile(finalPath);
     return `/images/${filename}`;
@@ -831,7 +980,19 @@ export const GeneralResizer = async (req, res, next) => {
 
       const ext = path.extname(file.originalname).toLowerCase() || ".png";
       const filename = `${field}-${Date.now()}${ext}`;
-      images[field] = await processAndSaveImage(file.buffer, filename);
+      
+      try {
+        images[field] = await processAndSaveImage(file.buffer, filename);
+      } catch (saveError) {
+        console.error(`Error saving ${field} during shop registration (${saveError.message}). Saving raw file locally to Railway:`);
+        const outputDir = path.join(__dirname, "/assets/compressed/images/");
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+        const finalPath = path.join(outputDir, filename);
+        fs.writeFileSync(finalPath, file.buffer);
+        images[field] = `/images/${filename}`;
+      }
     }
 
     req.images = images;
